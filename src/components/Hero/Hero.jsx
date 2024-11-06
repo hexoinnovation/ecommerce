@@ -4,8 +4,10 @@ import Image2 from "../../assets/hero/shopping.png";
 import Image3 from "../../assets/hero/sale.png";
 import Slider from "react-slick";
 import { db } from "../firebase";  // Correct path from Hero.jsx
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";  // Import Firestore methods
+import { doc, setDoc, getDoc } from "firebase/firestore"; // Add doc and setDoc
 
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";  // Import Firestore methods
+import { FaEnvelope, FaLock ,FaUserCircle} from "react-icons/fa";
 const ImageList = [
   {
     id: 1,
@@ -36,60 +38,68 @@ const Hero = ({ handleOrderPopup }) => {
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState("");
-
+  const [successMessage, setSuccessMessage] = useState(""); // State to store success message
   useEffect(() => {
     // Show login popup after 2 seconds
     const timer = setTimeout(() => {
       setShowLoginPopup(true);
     }, 2000);
-
+  
+    // Log successMessage if it's updated
+    if (successMessage) {
+      console.log(successMessage);
+    }
+  
     // Cleanup timer
     return () => clearTimeout(timer);
-  }, []);
+  }, [successMessage]); // Include successMessage as a dependency to trigger on updates
+  
+  
+// Function to check if email exists in Firestore
+const checkIfEmailExists = async (email) => {
+  const userDocRef = doc(db, "users", email);  // Using email as the document ID
+  const userDocSnap = await getDoc(userDocRef);  // Fetch document with that email
 
-  // Check if the email already exists in Firestore
-  const checkIfEmailExists = async (email) => {
-    const usersCollectionRef = collection(db, "users",email);
-    const q = query(usersCollectionRef, where("email", "==", email));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.size > 0; // If the email exists, return true
-  };
+  return userDocSnap.exists();  // If the document exists, return true
+};
 
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault(); // Prevent page refresh on form submit
-    
-    // Validation: Check if both email and password are entered
-    if (!email || !password) {
-      setError("Both email and password are required.");
-      return; // Exit if either email or password is empty
+const handleLoginSubmit = async (e) => {
+  e.preventDefault(); // Prevent page refresh on form submit
+  
+  // Validation: Check if both email and password are entered
+  if (!email || !password) {
+    setError("Both email and password are required.");
+    return; // Exit if either email or password is empty
+  }
+
+  try {
+    // Check if email already exists in Firestore by using the email as document ID
+    const emailExists = await checkIfEmailExists(email);
+
+    if (emailExists) {
+      setError("This email is already registered.");
+      setIsLoggedIn(true); // Log the user in without adding to Firestore
+      setError(""); // Clear error message
+    } else {
+      // If email does not exist, create a new user document with the email as the document ID
+      const userDocRef = doc(db, "users", email);  // Using email as document ID
+      await setDoc(userDocRef, {
+        email: email,
+        password: password,  // Store password (ensure secure storage in real applications)
+      });
+      console.log("Email and password successfully stored in Firestore!");
+setSuccessMessage("Login successful! Welcome to your account.");
+      setEmail(""); 
+      setPassword(""); 
+      setIsLoggedIn(true); // Set logged in state
+      setError(""); // Reset error message if successful
     }
-
-    try {
-      // Check if email already exists in Firestore
-      const emailExists = await checkIfEmailExists(email);
-
-      if (emailExists) {
-        setError("This email is already registered.");
-        setIsLoggedIn(true); // Log the user in without adding to Firestore
-        setError(""); // Clear error message
-      } else {
-        // Add new email and password to Firestore
-        const usersCollectionRef = collection(db, "users");
-        await addDoc(usersCollectionRef, {
-          email: email,
-          password: password,  // Store password (ensure secure storage in real applications)
-          timestamp: new Date(), // Add timestamp or other fields
-        });
-        console.log("Email and password successfully stored in Firestore!");
-        setEmail(""); // Clear the email input after submitting
-        setPassword(""); // Clear the password input after submitting
-        setIsLoggedIn(true); // Set logged in state
-        setError(""); // Reset error message if successful
-      }
-    } catch (error) {
-      console.error("Error adding email and password to Firestore: ", error);
-    }
-  };
+  } catch (error) {
+    console.error("Error adding email and password to Firestore: ", error);
+    setError("Failed to login. Please try again."); // Set error message
+      setSuccessMessage(""); // Clear success message on error
+  }
+};
 
   const settings = {
     dots: false,
@@ -176,44 +186,62 @@ const Hero = ({ handleOrderPopup }) => {
           ))}
         </Slider>
       </div>
-
-      {/* Login Popup */}
+      <div className="relative min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
       {showLoginPopup && !isLoggedIn && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-80">
-            <h2 className="text-2xl font-semibold mb-4 text-center">Login</h2>
-            <form onSubmit={handleLoginSubmit}>
-              <div className="mb-4">
-                <label className="block mb-2 text-sm">Email</label>
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-60 flex justify-center items-center z-50">
+        <div className="bg-white p-10 rounded-xl shadow-xl w-80 space-y-6">
+            {/* Heading with Icon */}
+            <div className="flex items-center justify-center space-x-2 text-gray-800 dark:text-white">
+              <FaUserCircle className="text-3xl text-blue-500" />
+              <h2
+                className="text-2xl font-semibold"
+                style={{ fontFamily: "Playfair Display, serif" ,marginRight:"25px"}}
+              >
+                Login
+              </h2>
+            </div>
+          <form onSubmit={handleLoginSubmit} className="space-y-4">
+            <div className="relative">
+                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-200"
                   placeholder="Enter your email"
                 />
               </div>
-              <div className="mb-4">
-                <label className="block mb-2 text-sm">Password</label>
+              <div className="relative">
+                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-200"
                   placeholder="Enter your password"
                 />
               </div>
               {error && <p className="text-red-500 text-xs mb-4">{error}</p>}
               <button
                 type="submit"
-                className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 rounded-md text-lg font-medium hover:from-indigo-600 hover:to-blue-500 focus:ring-2 focus:ring-blue-400 transition duration-200"
               >
                 Login
               </button>
+              {/* Conditionally render success message */}
+    {successMessage && (
+      <div style={{ color: 'green', marginTop: '10px' }}>
+        {successMessage}
+      </div>
+    )}
+
+   
+    
             </form>
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
