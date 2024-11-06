@@ -31,75 +31,77 @@ const ImageList = [
       "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   },
 ];
-
 const Hero = ({ handleOrderPopup }) => {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState(""); // State to store success message
+  const [successMessage, setSuccessMessage] = useState("");
+
   useEffect(() => {
-    // Show login popup after 2 seconds
+    // Show login popup after a delay only if user hasn't logged in in the session
     const timer = setTimeout(() => {
-      setShowLoginPopup(true);
+      const sessionStatus = sessionStorage.getItem("loggedIn");
+      if (!sessionStatus) {
+        setShowLoginPopup(true);
+      }
     }, 2000);
-  
-    // Log successMessage if it's updated
-    if (successMessage) {
-      console.log(successMessage);
-    }
-  
-    // Cleanup timer
+
+    // Cleanup timer on component unmount
     return () => clearTimeout(timer);
-  }, [successMessage]); // Include successMessage as a dependency to trigger on updates
-  
-  
-// Function to check if email exists in Firestore
-const checkIfEmailExists = async (email) => {
-  const userDocRef = doc(db, "users", email);  // Using email as the document ID
-  const userDocSnap = await getDoc(userDocRef);  // Fetch document with that email
+  }, []);
 
-  return userDocSnap.exists();  // If the document exists, return true
-};
+  // Function to check if email exists in Firestore
+  const checkIfEmailExists = async (email) => {
+    const userDocRef = doc(db, "users", email); // Using email as the document ID
+    const userDocSnap = await getDoc(userDocRef); // Fetch document with that email
+    return userDocSnap.exists(); // If the document exists, return true
+  };
 
-const handleLoginSubmit = async (e) => {
-  e.preventDefault(); // Prevent page refresh on form submit
-  
-  // Validation: Check if both email and password are entered
-  if (!email || !password) {
-    setError("Both email and password are required.");
-    return; // Exit if either email or password is empty
-  }
+  // Handle form submission for login
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault(); // Prevent page refresh on form submit
 
-  try {
-    // Check if email already exists in Firestore by using the email as document ID
-    const emailExists = await checkIfEmailExists(email);
-
-    if (emailExists) {
-      setError("This email is already registered.");
-      setIsLoggedIn(true); // Log the user in without adding to Firestore
-      setError(""); // Clear error message
-    } else {
-      // If email does not exist, create a new user document with the email as the document ID
-      const userDocRef = doc(db, "users", email);  // Using email as document ID
-      await setDoc(userDocRef, {
-        email: email,
-        password: password,  // Store password (ensure secure storage in real applications)
-      });
-      console.log("Email and password successfully stored in Firestore!");
-setSuccessMessage("Login successful! Welcome to your account.");
-      setEmail(""); 
-      setPassword(""); 
-      setIsLoggedIn(true); // Set logged in state
-      setError(""); // Reset error message if successful
+    // Validation: Check if both email and password are entered
+    if (!email || !password) {
+      setError("Both email and password are required.");
+      return;
     }
-  } catch (error) {
-    console.error("Error adding email and password to Firestore: ", error);
-    setError("Failed to login. Please try again."); // Set error message
-      setSuccessMessage(""); // Clear success message on error
-  }
-};
+
+    try {
+      // Check if email already exists in Firestore
+      const emailExists = await checkIfEmailExists(email);
+
+      if (emailExists) {
+        setError("");
+        setSuccessMessage("Login successful! Welcome back.");
+        setIsLoggedIn(true);
+        setShowLoginPopup(false);
+        sessionStorage.setItem("loggedIn", "true"); // Store logged-in status in sessionStorage
+      } else {
+        // If email does not exist, create a new user document
+        const userDocRef = doc(db, "users", email); // Using email as document ID
+        await setDoc(userDocRef, {
+          email: email,
+          password: password, // Store password (ensure secure storage in real applications)
+        });
+        console.log("Email and password successfully stored in Firestore!");
+        setSuccessMessage("Login successful! Welcome to your account.");
+        setEmail("");
+        setPassword("");
+        setIsLoggedIn(true);
+        setShowLoginPopup(false);
+        setError("");
+        sessionStorage.setItem("loggedIn", "true"); // Store logged-in status in sessionStorage
+      }
+    } catch (error) {
+      console.error("Error adding email and password to Firestore: ", error);
+      setError("Failed to login. Please try again.");
+      setSuccessMessage("");
+    }
+  };
+
 
   const settings = {
     dots: false,
