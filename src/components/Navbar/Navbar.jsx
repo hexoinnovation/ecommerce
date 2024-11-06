@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import Logo from "../../assets/logo.png";
 import { IoMdSearch } from "react-icons/io";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaCaretDown } from "react-icons/fa";
+import { FaBars, FaTimes } from "react-icons/fa"; // Added hamburger icons
 import DarkMode from "./DarkMode";
 
 const Menu = [
@@ -22,12 +23,12 @@ const Menu = [
     link: "/#",
   },
   {
-    id: 3,
+    id: 4, // Changed id to avoid duplication
     name: "Mens Wear",
     link: "/#",
   },
   {
-    id: 3,
+    id: 5, // Changed id to avoid duplication
     name: "Electronics",
     link: "/#",
   },
@@ -52,6 +53,17 @@ const DropdownLinks = [
 ];
 
 const Navbar = ({ handleOrderPopup }) => {
+  const [menuOpen, setMenuOpen] = useState(false); // State for mobile menu toggle
+  const [dropdownOpen, setDropdownOpen] = useState(false); // State for dropdown toggle
+
+  const handleMenuToggle = () => {
+    setMenuOpen(!menuOpen); // Toggle menu
+  };
+
+  const handleDropdownToggle = () => {
+    setDropdownOpen(!dropdownOpen); // Toggle dropdown visibility
+  };
+
   return (
     <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-200 relative z-40">
       {/* upper Navbar */}
@@ -70,7 +82,7 @@ const Navbar = ({ handleOrderPopup }) => {
               <input
                 type="text"
                 placeholder="search"
-                className="w-[200px] sm:w-[200px] group-hover:w-[300px] transition-all duration-300 rounded-full border border-gray-300 px-2 py-1 focus:outline-none focus:border-1 focus:border-primary dark:border-gray-500 dark:bg-gray-800  "
+                className="w-[200px] sm:w-[200px] group-hover:w-[300px] transition-all duration-300 rounded-full border border-gray-300 px-2 py-1 focus:outline-none focus:border-1 focus:border-primary dark:border-gray-500 dark:bg-gray-800"
               />
               <IoMdSearch className="text-gray-500 group-hover:text-primary absolute top-1/2 -translate-y-1/2 right-3" />
             </div>
@@ -78,7 +90,7 @@ const Navbar = ({ handleOrderPopup }) => {
             {/* order button */}
             <button
               onClick={() => handleOrderPopup()}
-              className="bg-gradient-to-r from-primary to-secondary transition-all duration-200 text-white  py-1 px-4 rounded-full flex items-center gap-3 group"
+              className="bg-gradient-to-r from-primary to-secondary transition-all duration-200 text-white py-1 px-4 rounded-full flex items-center gap-3 group"
             >
               <span className="group-hover:block hidden transition-all duration-200">
                 Order
@@ -90,12 +102,24 @@ const Navbar = ({ handleOrderPopup }) => {
             <div>
               <DarkMode />
             </div>
+
+            {/* Hamburger Menu Icon (only visible on mobile) */}
+            <div className="sm:hidden">
+              <button onClick={handleMenuToggle}>
+                {menuOpen ? (
+                  <FaTimes className="text-3xl text-primary" />
+                ) : (
+                  <FaBars className="text-2xl text-primary" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
       {/* lower Navbar */}
       <div data-aos="zoom-in" className="flex justify-center">
-        <ul className="sm:flex hidden items-center gap-4">
+        <ul className={`sm:flex ${menuOpen ? "flex flex-col" : "hidden"} items-center gap-4`}>
           {Menu.map((data) => (
             <li key={data.id}>
               <a
@@ -106,15 +130,23 @@ const Navbar = ({ handleOrderPopup }) => {
               </a>
             </li>
           ))}
+
           {/* Simple Dropdown and Links */}
-          <li className="group relative cursor-pointer">
-            <a href="#" className="flex items-center gap-[2px] py-2">
+          <li className="relative">
+            <button
+              onClick={handleDropdownToggle} // Toggle dropdown on click
+              className="flex items-center gap-[2px] py-2"
+            >
               Trending Products
               <span>
-                <FaCaretDown className="transition-all duration-200 group-hover:rotate-180" />
+                <FaCaretDown className={`transition-all duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
               </span>
-            </a>
-            <div className="absolute z-[9999] hidden group-hover:block w-[200px] rounded-md bg-white p-2 text-black shadow-md">
+            </button>
+
+            {/* Dropdown menu that appears on click */}
+            <div
+              className={`absolute z-[9999] ${dropdownOpen ? "block" : "hidden"} w-[200px] rounded-md bg-white p-2 text-black shadow-md`}
+            >
               <ul>
                 {DropdownLinks.map((data) => (
                   <li key={data.id}>
