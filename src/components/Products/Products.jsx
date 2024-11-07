@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import Img1 from "../../assets/women/women.png";
 import Img2 from "../../assets/women/women2.jpg";
 import Img3 from "../../assets/women/women3.jpg";
 import Img4 from "../../assets/women/women4.jpg";
-import { FaStar } from "react-icons/fa6";
+import { FaStar, FaEye, FaHeart, FaShoppingCart } from "react-icons/fa";
 
 const ProductsData = [
   {
@@ -17,7 +17,7 @@ const ProductsData = [
   {
     id: 2,
     img: Img2,
-    title: "Women western",
+    title: "Women Western",
     rating: 4.5,
     color: "Red",
     aosDelay: "200",
@@ -41,7 +41,7 @@ const ProductsData = [
   {
     id: 5,
     img: Img2,
-    title: "Fashin T-Shirt",
+    title: "Fashion T-Shirt",
     rating: 4.5,
     color: "Pink",
     aosDelay: "800",
@@ -49,6 +49,18 @@ const ProductsData = [
 ];
 
 const Products = () => {
+  // State to track wishlist items
+  const [wishlist, setWishlist] = useState([]);
+
+  // Toggle wishlist state for a product
+  const toggleWishlist = (id) => {
+    setWishlist((prevWishlist) =>
+      prevWishlist.includes(id)
+        ? prevWishlist.filter((item) => item !== id)
+        : [...prevWishlist, id]
+    );
+  };
+
   return (
     <div className="mt-14 mb-12">
       <div className="container">
@@ -74,13 +86,39 @@ const Products = () => {
                 data-aos="fade-up"
                 data-aos-delay={data.aosDelay}
                 key={data.id}
-                className="space-y-3"
+                className="relative group space-y-3"
               >
-                <img
-                  src={data.img}
-                  alt=""
-                  className="h-[220px] w-[150px] object-cover rounded-md"
-                />
+                <div className="relative">
+                  <img
+                    src={data.img}
+                    alt={data.title}
+                    className="h-[220px] w-[150px] object-cover rounded-md"
+                  />
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md space-y-2">
+                    <button
+                      onClick={() => toggleWishlist(data.id)}
+                      className="text-xl mx-2 p-2 rounded-full transition duration-300" style={{marginLeft:"90px",marginTop:"20px"}}
+                    >
+                      <FaHeart
+                        className={`${
+                          wishlist.includes(data.id) ? "text-red-500" : "text-white"
+                        }`} 
+                      />
+                    </button>
+                    <button className="text-xl text-white mx-2 p-2 rounded-full transition duration-300" style={{marginLeft:"90px"}}>
+                      <FaEye />
+                    </button>
+                    {/* Add to Cart Button */}
+                    <div className ="mt-20"style={{marginTop:"70px"}}> {/* Adjust margin to position the button lower */}
+  <button className="flex items-center bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-4 rounded-md transition duration-300 hover:from-blue-600 hover:to-purple-700">
+    <FaShoppingCart className="mr-2" />
+    Add to Cart
+  </button>
+</div>
+
+                  </div>
+                </div>
                 <div>
                   <h3 className="font-semibold">{data.title}</h3>
                   <p className="text-sm text-gray-600">{data.color}</p>
@@ -95,7 +133,7 @@ const Products = () => {
           {/* view all button */}
           <div className="flex justify-center">
             <button className="text-center mt-10 cursor-pointer bg-primary text-white py-1 px-5 rounded-md">
-              View All Button
+              View All Products
             </button>
           </div>
         </div>

@@ -1,205 +1,135 @@
-// src/components/Navbar.js
-import React, { useState } from 'react';
-import { MoonIcon, SunIcon } from '@heroicons/react/solid';
+import React from "react";
+import Logo from "../../assets/logo.png";
+import { IoMdSearch } from "react-icons/io";
+import { FaCartShopping } from "react-icons/fa6";
+import { FaCaretDown } from "react-icons/fa";
+import DarkMode from "./DarkMode";
 
-const Navbar = () => {
-  // State for dropdown visibility and theme toggle
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+const Menu = [
+  {
+    id: 1,
+    name: "Home",
+    link: "/#",
+  },
+  {
+    id: 2,
+    name: "Top Rated",
+    link: "/#services",
+  },
+  {
+    id: 3,
+    name: "Kids Wear",
+    link: "/#",
+  },
+  {
+    id: 3,
+    name: "Mens Wear",
+    link: "/#",
+  },
+  {
+    id: 3,
+    name: "Electronics",
+    link: "/#",
+  },
+];
 
-  // Toggle theme function
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    if (!isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
+const DropdownLinks = [
+  {
+    id: 1,
+    name: "Trending Products",
+    link: "/#",
+  },
+  {
+    id: 2,
+    name: "Best Selling",
+    link: "/#",
+  },
+  {
+    id: 3,
+    name: "Top Rated",
+    link: "/#",
+  },
+];
 
+const Navbar = ({ handleOrderPopup }) => {
   return (
-    <div>
-      {/* Upper Navbar (Logo + Search + Login/Cart) */}
-      <nav className="bg-primary/40 text-black shadow-md">
-        <div className="max-w-screen-xl mx-auto flex items-center justify-between px-4 py-2">
-          {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <img
-              src="https://www.logo.wine/a/logo/Flipkart/Flipkart-Logo.wine.svg"
-              alt="Flipkart Logo"
-              className="h-8"
-            />
-            <span className="text-2xl font-bold">Hexo</span>
+    <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-200 relative z-40">
+      {/* upper Navbar */}
+      <div className="bg-primary/40 py-2">
+        <div className="container flex justify-between items-center">
+          <div>
+            <a href="#" className="font-bold text-2xl sm:text-3xl flex gap-2">
+              <img src={Logo} alt="Logo" className="w-10" />
+              Shopsy
+            </a>
           </div>
 
-          {/* Search Bar */}
-          <div className="flex items-center space-x-2 flex-grow max-w-lg">
-            <input
-              type="text"
-              className="w-full py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Search for products, brands, and more"
-            />
-            <button className="bg-primary/40 text-white px-4 py-2 rounded-r-md hover:bg-yellow-600">
-              Search
-            </button>
-          </div>
-
-          {/* Right-side Links */}
-          <div className="flex items-center space-x-6">
-            {/* Login Button with Dropdown */}
-            <div className="relative">
-              <button
-                className="text-black font-semibold flex items-center space-x-2"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                <span>Login</span>
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </button>
-
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-md py-2">
-                  {/* Dropdown items */}
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100">
-                    <svg
-                      className="w-5 h-5 mr-2 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 14l9-5-9-5-9 5 9 5z"
-                      ></path>
-                    </svg>
-                    Login
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100">
-                    <svg
-                      className="w-5 h-5 mr-2 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 14l9-5-9-5-9 5 9 5z"
-                      ></path>
-                    </svg>
-                    My Account
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100">
-                    <svg
-                      className="w-5 h-5 mr-2 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 14l9-5-9-5-9 5 9 5z"
-                      ></path>
-                    </svg>
-                    My Orders
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100">
-                    <svg
-                      className="w-5 h-5 mr-2 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 14l9-5-9-5-9 5 9 5z"
-                      ></path>
-                    </svg>
-                    My Wishlist
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100">
-                    <svg
-                      className="w-5 h-5 mr-2 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 14l9-5-9-5-9 5 9 5z"
-                      ></path>
-                    </svg>
-                    Logout
-                  </button>
-                </div>
-              )}
+          {/* search bar */}
+          <div className="flex justify-between items-center gap-4">
+            <div className="relative group hidden sm:block">
+              <input
+                type="text"
+                placeholder="search"
+                className="w-[200px] sm:w-[200px] group-hover:w-[300px] transition-all duration-300 rounded-full border border-gray-300 px-2 py-1 focus:outline-none focus:border-1 focus:border-primary dark:border-gray-500 dark:bg-gray-800  "
+              />
+              <IoMdSearch className="text-gray-500 group-hover:text-primary absolute top-1/2 -translate-y-1/2 right-3" />
             </div>
 
-            {/* Theme Toggle Button */}
-            <button onClick={toggleTheme} className="text-black">
-              {isDarkMode ? (
-                <SunIcon className="w-6 h-6" />
-              ) : (
-                <MoonIcon className="w-6 h-6" />
-              )}
+            {/* order button */}
+            <button
+              onClick={() => handleOrderPopup()}
+              className="bg-gradient-to-r from-primary to-secondary transition-all duration-200 text-white  py-1 px-4 rounded-full flex items-center gap-3 group"
+            >
+              <span className="group-hover:block hidden transition-all duration-200">
+                Order
+              </span>
+              <FaCartShopping className="text-xl text-white drop-shadow-sm cursor-pointer" />
             </button>
+
+            {/* Darkmode Switch */}
+            <div>
+              <DarkMode />
+            </div>
           </div>
         </div>
-      </nav>
-
-      {/* Lower Navbar (Category Links, Deals, etc.) */}
-      <div className="bg-white text-black shadow-sm">
-        <div className="max-w-screen-xl mx-auto flex justify-between items-center py-2 px-4">
-          {/* Category Links */}
-          <div className="flex space-x-6">
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Electronics</button>
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Fashion</button>
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Home</button>
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Appliances</button>
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Books</button>
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Toys</button>
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Sports</button>
-          </div>
-
-          {/* Deals & Offers */}
-          <div className="flex space-x-6">
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Top Offers</button>
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Flash Sale</button>
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Bestsellers</button>
-          </div>
-
-          {/* Other Utility Links */}
-          <div className="flex space-x-6">
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Gift Cards</button>
-            <button className="hover:bg-primary/40 px-4 py-2 rounded-md">Customer Care</button>
-          </div>
-        </div>
+      </div>
+      {/* lower Navbar */}
+      <div data-aos="zoom-in" className="flex justify-center">
+        <ul className="sm:flex hidden items-center gap-4">
+          {Menu.map((data) => (
+            <li key={data.id}>
+              <a
+                href={data.link}
+                className="inline-block px-4 hover:text-primary duration-200"
+              >
+                {data.name}
+              </a>
+            </li>
+          ))}
+          {/* Simple Dropdown and Links */}
+          <li className="group relative cursor-pointer">
+            <a href="#" className="flex items-center gap-[2px] py-2">
+              Trending Products
+              <span>
+                <FaCaretDown className="transition-all duration-200 group-hover:rotate-180" />
+              </span>
+            </a>
+            <div className="absolute z-[9999] hidden group-hover:block w-[200px] rounded-md bg-white p-2 text-black shadow-md">
+              <ul>
+                {DropdownLinks.map((data) => (
+                  <li key={data.id}>
+                    <a
+                      href={data.link}
+                      className="inline-block w-full rounded-md p-2 hover:bg-primary/20 "
+                    >
+                      {data.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   );
