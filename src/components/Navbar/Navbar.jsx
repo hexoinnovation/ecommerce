@@ -1,11 +1,36 @@
+
 import React, { useState } from 'react';
 import { MoonIcon, SunIcon, ShoppingCartIcon, UserIcon } from '@heroicons/react/solid'; // Importing icons from Heroicons
+import Image from "../../assets/common/eee.jpg";
+
 
 const Navbar = () => {
   // State for dropdown visibility, theme toggle, sidebar visibility
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [emailInput, setEmailInput] = useState('');
+
+  const handleEmailSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput }),
+      });
+      if (response.ok) {
+        setEmail(emailInput);
+        setOtpSent(true);
+        alert('OTP sent to your email!');
+      } else {
+        alert('Error sending OTP');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   // Toggle theme function
   const toggleTheme = () => {
@@ -32,11 +57,12 @@ const Navbar = () => {
     { name: 'Toys' },
     { name: 'Sports' },
   ];
-
+  const openLoginModal = () => setLoginModalOpen(true);
+  const closeLoginModal = () => setLoginModalOpen(false);
   return (
     <div>
       {/* Upper Navbar */}
-      <nav className="bg-primary/40 text-black shadow-md">
+      <nav className="bg-primary/40 text-black shadow-md fixed top-0 left-0 w-full z-50">
         <div className="max-w-screen-xl mx-auto flex items-center justify-between px-4 py-2">
           {/* Left Side (Toggle Menu and Logo) */}
           <div className="flex items-center space-x-4">
@@ -98,7 +124,7 @@ const Navbar = () => {
 
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-md py-2">
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100">Login</button>
+                  <button className="flex items-center px-4 py-2 hover:bg-gray-100"onClick={openLoginModal}>Login</button>
                   <button className="flex items-center px-4 py-2 hover:bg-gray-100">My Account</button>
                   <button className="flex items-center px-4 py-2 hover:bg-gray-100">My Orders</button>
                   <button className="flex items-center px-4 py-2 hover:bg-gray-100">My Wishlist</button>
@@ -106,7 +132,44 @@ const Navbar = () => {
                 </div>
               )}
             </div>
+      {/* Login Modal */}
+      {loginModalOpen && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl w-full">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold">Login</h2>
+                    <button onClick={closeLoginModal} className="text-black">
+                      ✕
+                    </button>
+                  </div>
+                  <div className="flex">
+                    <div className="w-1/2 p-4 flex flex-col items-center mb-20">
+                      <form onSubmit={handleEmailSubmit}>
+                        <input
+                          type="email"
+                          value={emailInput}
+                          onChange={(e) => setEmailInput(e.target.value)}
+                          placeholder="Enter your email"
+                          className="w-full py-2 px-4 mb-28 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                        />
+                        <button className="bg-primary/40 text-white px-4 py-2 rounded-md hover:bg-yellow-600">
+                          Request OTP
+                        </button>
+                      </form>
+                    </div>
 
+                    {/* Image Section */}
+                    <div className="w-1/2 p-4 flex justify-center items-center">
+                      <img
+                        src={Image} // Replace with an actual eCommerce image URL
+                        alt="eCommerce"
+                        className="rounded-md shadow-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Cart Icon */}
             <button className="text-black">
               <ShoppingCartIcon className="w-6 h-6" />
@@ -145,12 +208,15 @@ const Navbar = () => {
           </div>
 
           {/* Search Bar */}
-          <div className="mb-4">
+          <div className="mb-4 flex items-center space-x-2">
             <input
               type="text"
               className="w-full py-2 px-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
               placeholder="Search for products, brands, and more"
             />
+            <button className="bg-primary/40 text-white px-4 py-2 rounded-md hover:bg-yellow-600">
+              Search
+            </button>
           </div>
 
           {/* Login Dropdown */}
@@ -187,6 +253,12 @@ const Navbar = () => {
             )}
           </div>
 
+          {/* Admin Icon in Sidebar */}
+          <div className="mb-4 flex items-center space-x-2">
+            <UserIcon className="w-6 h-6" />
+            <span>Admin</span>
+          </div>
+
           {/* Categories List */}
           <div>
             <h3 className="font-semibold text-lg">Categories</h3>
@@ -202,7 +274,7 @@ const Navbar = () => {
       </div>
 
       {/* Lower Navbar (Desktop View - Category Links, etc.) */}
-      <div className="bg-white text-black shadow-sm lg:block hidden">
+      <div className="bg-white text-black shadow-sm lg:block hidden mt-16"> {/* Added margin-top for spacing */}
         <div className="max-w-screen-xl mx-auto py-2 px-4">
           {/* Category Links with Images */}
           <div className="flex justify-center space-x-6 overflow-x-auto no-scrollbar py-2">
@@ -222,3 +294,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
