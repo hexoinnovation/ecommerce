@@ -188,62 +188,7 @@ const Hero = ({ handleOrderPopup }) => {
           ))}
         </Slider>
       </div>
-      <div className="relative min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      {showLoginPopup && !isLoggedIn && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-60 flex justify-center items-center z-50">
-        <div className="bg-white p-10 rounded-xl shadow-xl w-80 space-y-6">
-            {/* Heading with Icon */}
-            <div className="flex items-center justify-center space-x-2 text-gray-800 dark:text-white">
-              <FaUserCircle className="text-3xl text-blue-500" />
-              <h2
-                className="text-2xl font-semibold"
-                style={{ fontFamily: "Playfair Display, serif" ,marginRight:"25px"}}
-              >
-                Login
-              </h2>
-            </div>
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
-            <div className="relative">
-                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-200"
-                  placeholder="Enter your email"
-                />
-              </div>
-              <div className="relative">
-                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-200"
-                  placeholder="Enter your password"
-                />
-              </div>
-              {error && <p className="text-red-500 text-xs mb-4">{error}</p>}
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 rounded-md text-lg font-medium hover:from-indigo-600 hover:to-blue-500 focus:ring-2 focus:ring-blue-400 transition duration-200"
-              >
-                Login
-              </button>
-              {/* Conditionally render success message */}
-    {successMessage && (
-      <div style={{ color: 'green', marginTop: '10px' }}>
-        {successMessage}
-      </div>
-    )}
-
-   
     
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
     </div>
   );
 };
