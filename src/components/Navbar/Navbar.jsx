@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { MoonIcon, SunIcon, ShoppingCartIcon, UserIcon, UserCircleIcon, ShoppingBagIcon, CogIcon, LogoutIcon } from '@heroicons/react/solid'; // Importing icons from Heroicons
+import { FaUser, FaLock, FaSignInAlt,FaTimes } from 'react-icons/fa'; // Importing icons
+import { getFirestore, doc, setDoc,getDoc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { app } from "../firebase"; // Your firebase configuration
 
 const Navbar = () => {
   // State for dropdown visibility, theme toggle, sidebar visibility
@@ -7,6 +11,11 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false); // For login dropdown
   const [isDarkMode, setIsDarkMode] = useState(false); // For dark mode toggle
   const [sidebarOpen, setSidebarOpen] = useState(false); // For sidebar visibility
+  const [username, setUsername] = useState('');  // Add state for username
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const [error, setError] = useState('');  // Add state for error message
+  const [successMessage, setSuccessMessage] = useState(''); // Success message
 
   const categories = [
     { name: 'Electronics', subcategories: ['Phones', 'Laptops', 'Cameras'] },
@@ -46,7 +55,90 @@ const Navbar = () => {
       document.documentElement.classList.remove('dark');
     }
   };
+  const [showModal, setShowModal] = useState(false); // Initially set to false
+  
+   // Toggle modal visibility
+   const handleModalToggle = () => {
+    setShowModal(!showModal); // Toggle modal visibility
+  };
+  // Close modal
+  const closeModal = () => {
+    setShowModal(false); // Close the modal by setting showModal to false
+  };
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [isSignup, setIsSignup] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
+  const handleSignup = async () => {
+    setError('');
+    setSuccessMessage('');
+  
+    if (!email || !password) {
+      setError('Please fill in all fields.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+  
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+  
+      setSuccessMessage('Account created successfully! Please log in.');
+      setIsSignup(false); // Switch to login form
+  
+    } catch (error) {
+      console.error("Signup Error: ", error); // Log error
+      setError(error.message || 'An error occurred. Please try again.');
+    }
+  };
+  
+  const handleLogin = async () => {
+    setError('');
+    setSuccessMessage('');
+  
+    if (!email || !password) {
+      setError('Please fill in all fields.');
+      return;
+    }
+  
+    try {
+      // Log in the user with Firebase Authentication
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+  
+      // Check if the user document exists in Firestore
+      const userDocRef = doc(db, 'users', email);  // Using email as the document ID
+      const userDocSnap = await getDoc(userDocRef);
+  
+      if (userDocSnap.exists()) {
+        // Document exists, meaning this user has additional data in Firestore
+        console.log("User data:", userDocSnap.data());
+      } else {
+        // Document does not exist, create it
+        await setDoc(userDocRef, {
+          email: user.email,
+          createdAt: new Date(),
+          lastLogin: new Date(),
+          // Add any other data you want to store for the user
+        });
+      }
+  
+      // Update the success message and close the modal
+      setIsAuthenticated(true);
+      setSuccessMessage('Login successful!');
+      setShowModal(false); // Hide modal after login
+  
+    } catch (error) {
+      console.error("Login Error: ", error);
+      setError(error.message || 'An error occurred. Please try again.');
+    }
+  };
+  
   return (
     <div>
       {/* Upper Navbar */}
@@ -75,7 +167,7 @@ const Navbar = () => {
                 className="w-full py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
                 placeholder="Search for products, brands, and more"
               />
-              <button className="bg-primary/40 text-white px-4 py-2 rounded-r-md hover:bg-yellow-600 dark:bg-yellow-500 dark:hover:bg-yellow-400">
+              <button className="bg-primary/40 text-white px-4 py-2 rounded-r-md hover:bg-yellow-600 dark:text-black dark:bg-yellow-500 dark:hover:bg-yellow-400">
                 Search
               </button>
             </div>
@@ -97,10 +189,10 @@ const Navbar = () => {
 
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2">
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <UserCircleIcon className="w-5 h-5 mr-2" />
-                    Login
-                  </button>
+                 <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" onClick={handleModalToggle}>
+        <UserCircleIcon className="w-5 h-5 mr-2" />
+        Login
+      </button>
                   <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                     <UserCircleIcon className="w-5 h-5 mr-2" />
                     My Account
@@ -225,6 +317,81 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+      {showModal && !isAuthenticated && (  // Only show modal when showModal is true and user is not authenticated
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+          <div className="bg-white p-10 rounded-lg w-96 shadow-lg relative">
+            {/* Close button */}
+            <button onClick={closeModal} className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700">
+              <FaTimes className="text-xl" />
+            </button>
+
+            <h2 className="text-3xl mb-6 text-center font-bold text-gray-800 font-serif">{isSignup ? 'Sign Up' : ' Login'}</h2>
+
+
+            {/* Display Success or Error Message */}
+            {successMessage && <p className="text-green-500 text-center">{successMessage}</p>}
+            {error && <p className="text-red-500 text-center">{error}</p>}
+
+            {/* Login or Signup Form */}
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              isSignup ? handleSignup() : handleLogin();
+            }}>
+              {/* Email Field */}
+              <div className="mb-6">
+                <div className="relative">
+                  <FaUser className="absolute left-3 top-4 text-black-400" />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Password Field */}
+              <div className="mb-6">
+                <div className="relative">
+                  <FaLock className="absolute left-3 top-4 text-black-400" />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button type="submit" className="w-full bg-gradient-to-r from-yellow-400 to-orange-600 text-white p-3 rounded-lg flex items-center justify-center space-x-2">
+  <FaSignInAlt />
+  <span>{isSignup ? 'Sign Up' : 'Login'}</span>
+</button>
+            </form>
+            {/* Switch to Sign Up / Login */}
+            <p className="text-sm mt-4 text-center text-gray-600">
+              {isSignup ? (
+                <>
+                  Already have an account?{' '}
+                  <button onClick={() => setIsSignup(false)} className="text-blue-500 hover:underline">Login</button>
+                </>
+              ) : (
+                <>
+                  Don't have an account?{' '}
+                  <button onClick={() => setIsSignup(true)} className="text-blue-500 hover:underline">Sign Up</button>
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+      
+ 
     </div>
   );
 };
