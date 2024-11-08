@@ -1,11 +1,10 @@
 
 import React, { useState } from 'react';
 import { MoonIcon, SunIcon, ShoppingCartIcon, UserIcon } from '@heroicons/react/solid'; // Importing icons from Heroicons
-import Image from "../../assets/common/eee.jpg";
-
 
 const Navbar = () => {
   // State for dropdown visibility, theme toggle, sidebar visibility
+  const [openCategoryIndex, setOpenCategoryIndex] = useState(null); // For mobile dropdown toggle
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -49,26 +48,25 @@ const Navbar = () => {
 
   // Categories and their respective names
   const categories = [
-    { name: 'Electronics' },
-    { name: 'Fashion' },
-    { name: 'Home' },
-    { name: 'Appliances' },
-    { name: 'Books' },
-    { name: 'Toys' },
-    { name: 'Sports' },
+    { name: 'Electronics', subcategories: ['Phones', 'Laptops', 'Cameras'] },
+    { name: 'Fashion', subcategories: ['Men', 'Women', 'Kids'] },
+    { name: 'Home', subcategories: ['Furniture', 'Decor', 'Appliances'] },
+    { name: 'Appliances', subcategories: ['Kitchen', 'Laundry', 'Cleaning'] },
+    { name: 'Books', subcategories: ['Fiction', 'Non-Fiction', 'E-books'] },
+    { name: 'Toys', subcategories: ['Action Figures', 'Dolls', 'Puzzles'] },
+    { name: 'Sports', subcategories: ['Football', 'Basketball', 'Fitness'] },
   ];
-  const openLoginModal = () => setLoginModalOpen(true);
-  const closeLoginModal = () => setLoginModalOpen(false);
+
   return (
     <div>
       {/* Upper Navbar */}
-      <nav className="bg-primary/40 text-black shadow-md fixed top-0 left-0 w-full z-50">
+      <nav className="bg-primary/40 text-black shadow-md">
         <div className="max-w-screen-xl mx-auto flex items-center justify-between px-4 py-2">
           {/* Left Side (Toggle Menu and Logo) */}
           <div className="flex items-center space-x-4">
             {/* Mobile toggle button */}
             <button
-              className="lg:hidden text-black"
+              className="lg:hidden text-black dark:text-white"
               onClick={toggleSidebar}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -88,10 +86,10 @@ const Navbar = () => {
             <div className="flex items-center space-x-2 flex-grow max-w-3xl">
               <input
                 type="text"
-                className="w-full py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                className="w-full py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
                 placeholder="Search for products, brands, and more"
               />
-              <button className="bg-primary/40 text-white px-4 py-2 rounded-r-md hover:bg-yellow-600">
+              <button className="bg-primary/40 text-white px-4 py-2 rounded-r-md hover:bg-yellow-600 dark:bg-yellow-500 dark:hover:bg-yellow-400">
                 Search
               </button>
             </div>
@@ -102,8 +100,8 @@ const Navbar = () => {
             {/* Login Button with Dropdown */}
             <div className="relative">
               <button
-                className="text-black font-semibold flex items-center space-x-2"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="text-black dark:text-white font-semibold flex items-center space-x-2"
+                onClick={toggleLoginDropdown}
               >
                 <span>Login</span>
                 <svg
@@ -124,7 +122,7 @@ const Navbar = () => {
 
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-md py-2">
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100"onClick={openLoginModal}>Login</button>
+                  <button className="flex items-center px-4 py-2 hover:bg-gray-100">Login</button>
                   <button className="flex items-center px-4 py-2 hover:bg-gray-100">My Account</button>
                   <button className="flex items-center px-4 py-2 hover:bg-gray-100">My Orders</button>
                   <button className="flex items-center px-4 py-2 hover:bg-gray-100">My Wishlist</button>
@@ -171,17 +169,17 @@ const Navbar = () => {
               </div>
             )}
             {/* Cart Icon */}
-            <button className="text-black">
+            <button className="text-black dark:text-white">
               <ShoppingCartIcon className="w-6 h-6" />
             </button>
 
             {/* Admin Icon (now replaced with a User Icon) */}
-            <button className="text-black">
+            <button className="text-black dark:text-white">
               <UserIcon className="w-6 h-6" />
             </button>
 
             {/* Theme Toggle Button */}
-            <button onClick={toggleTheme} className="text-black">
+            <button onClick={toggleTheme} className="text-black dark:text-white">
               {isDarkMode ? (
                 <SunIcon className="w-6 h-6" />
               ) : (
@@ -196,11 +194,11 @@ const Navbar = () => {
       <div
         className={`lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50 transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300`}
       >
-        <div className="w-64 bg-white p-4 h-full">
+        <div className="w-64 bg-white dark:bg-gray-800 p-4 h-full">
           {/* Close Button */}
           <div className="flex justify-between items-center mb-4">
-            <span className="text-2xl font-bold">Hexo</span>
-            <button onClick={toggleSidebar} className="text-black">
+            <span className="text-2xl font-bold text-black dark:text-white">Hexo</span>
+            <button onClick={toggleSidebar} className="text-black dark:text-white">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -211,12 +209,9 @@ const Navbar = () => {
           <div className="mb-4 flex items-center space-x-2">
             <input
               type="text"
-              className="w-full py-2 px-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full py-2 px-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
               placeholder="Search for products, brands, and more"
             />
-            <button className="bg-primary/40 text-white px-4 py-2 rounded-md hover:bg-yellow-600">
-              Search
-            </button>
           </div>
 
           {/* Login Dropdown */}
@@ -253,12 +248,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Admin Icon in Sidebar */}
-          <div className="mb-4 flex items-center space-x-2">
-            <UserIcon className="w-6 h-6" />
-            <span>Admin</span>
-          </div>
-
           {/* Categories List */}
           <div>
             <h3 className="font-semibold text-lg">Categories</h3>
@@ -274,7 +263,7 @@ const Navbar = () => {
       </div>
 
       {/* Lower Navbar (Desktop View - Category Links, etc.) */}
-      <div className="bg-white text-black shadow-sm lg:block hidden mt-16"> {/* Added margin-top for spacing */}
+      <div className="bg-white text-black shadow-sm lg:block hidden">
         <div className="max-w-screen-xl mx-auto py-2 px-4">
           {/* Category Links with Images */}
           <div className="flex justify-center space-x-6 overflow-x-auto no-scrollbar py-2">
