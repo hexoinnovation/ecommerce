@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MoonIcon, SunIcon, ShoppingCartIcon, UserIcon } from '@heroicons/react/solid'; // Importing icons from Heroicons
 
@@ -11,6 +10,10 @@ const Navbar = () => {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
 
+  const toggleLoginDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -20,8 +23,6 @@ const Navbar = () => {
         body: JSON.stringify({ email: emailInput }),
       });
       if (response.ok) {
-        setEmail(emailInput);
-        setOtpSent(true);
         alert('OTP sent to your email!');
       } else {
         alert('Error sending OTP');
@@ -31,7 +32,6 @@ const Navbar = () => {
     }
   };
 
-  // Toggle theme function
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     if (!isDarkMode) {
@@ -41,12 +41,14 @@ const Navbar = () => {
     }
   };
 
-  // Toggle Sidebar
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Categories and their respective names
+  const closeLoginModal = () => {
+    setLoginModalOpen(false);
+  };
+
   const categories = [
     { name: 'Electronics', subcategories: ['Phones', 'Laptops', 'Cameras'] },
     { name: 'Fashion', subcategories: ['Men', 'Women', 'Kids'] },
@@ -65,10 +67,7 @@ const Navbar = () => {
           {/* Left Side (Toggle Menu and Logo) */}
           <div className="flex items-center space-x-4">
             {/* Mobile toggle button */}
-            <button
-              className="lg:hidden text-black dark:text-white"
-              onClick={toggleSidebar}
-            >
+            <button className="lg:hidden text-black dark:text-white" onClick={toggleSidebar}>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
@@ -104,19 +103,8 @@ const Navbar = () => {
                 onClick={toggleLoginDropdown}
               >
                 <span>Login</span>
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
 
@@ -130,44 +118,7 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-      {/* Login Modal */}
-      {loginModalOpen && (
-              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl w-full">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold">Login</h2>
-                    <button onClick={closeLoginModal} className="text-black">
-                      ✕
-                    </button>
-                  </div>
-                  <div className="flex">
-                    <div className="w-1/2 p-4 flex flex-col items-center mb-20">
-                      <form onSubmit={handleEmailSubmit}>
-                        <input
-                          type="email"
-                          value={emailInput}
-                          onChange={(e) => setEmailInput(e.target.value)}
-                          placeholder="Enter your email"
-                          className="w-full py-2 px-4 mb-28 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                        />
-                        <button className="bg-primary/40 text-white px-4 py-2 rounded-md hover:bg-yellow-600">
-                          Request OTP
-                        </button>
-                      </form>
-                    </div>
 
-                    {/* Image Section */}
-                    <div className="w-1/2 p-4 flex justify-center items-center">
-                      <img
-                        src={Image} // Replace with an actual eCommerce image URL
-                        alt="eCommerce"
-                        className="rounded-md shadow-lg"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
             {/* Cart Icon */}
             <button className="text-black dark:text-white">
               <ShoppingCartIcon className="w-6 h-6" />
@@ -180,11 +131,7 @@ const Navbar = () => {
 
             {/* Theme Toggle Button */}
             <button onClick={toggleTheme} className="text-black dark:text-white">
-              {isDarkMode ? (
-                <SunIcon className="w-6 h-6" />
-              ) : (
-                <MoonIcon className="w-6 h-6" />
-              )}
+              {isDarkMode ? <SunIcon className="w-6 h-6" /> : <MoonIcon className="w-6 h-6" />}
             </button>
           </div>
         </div>
@@ -221,19 +168,8 @@ const Navbar = () => {
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               <span>Login</span>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 9l-7 7-7-7"
-                ></path>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
 
@@ -283,4 +219,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
