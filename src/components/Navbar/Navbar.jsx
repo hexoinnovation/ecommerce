@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MoonIcon, SunIcon, ShoppingCartIcon, UserIcon, UserCircleIcon, ShoppingBagIcon, CogIcon, LogoutIcon } from '@heroicons/react/solid'; // Importing icons from Heroicons
 import { FaUser, FaLock, FaSignInAlt,FaTimes } from 'react-icons/fa'; // Importing icons
 import { getFirestore, doc, setDoc,getDoc } from "firebase/firestore";
@@ -16,6 +16,7 @@ const Navbar = () => {
   const auth = getAuth(app);
   const [error, setError] = useState('');  // Add state for error message
   const [successMessage, setSuccessMessage] = useState(''); // Success message
+  const dropdownRef = useRef(null);
 
   const categories = [
     { name: 'Electronics', subcategories: ['Phones', 'Laptops', 'Cameras'] },
@@ -59,6 +60,7 @@ const Navbar = () => {
   
    // Toggle modal visibility
    const handleModalToggle = () => {
+    handleDropdownClick()
     setShowModal(!showModal); // Toggle modal visibility
   };
   // Close modal
@@ -138,11 +140,34 @@ const Navbar = () => {
       setError(error.message || 'An error occurred. Please try again.');
     }
   };
+  // Close the login dropdown when clicking any menu item
+const handleDropdownClick = () => {
+  setDropdownOpen(false); // Close the login dropdown
+};
+
+
+// Close dropdown when clicked outside
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setDropdownOpen(false); // Close dropdown if click is outside
+    }
+  };
+
+  // Add event listener on mount
+  document.addEventListener('mousedown', handleClickOutside);
+
+  // Clean up the event listener on unmount
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
+
   
   return (
     <div>
       {/* Upper Navbar */}
-      <nav className="bg-primary/40 text-black dark:bg-gray-900 dark:text-white shadow-md fixed top-0 left-0 w-full z-50">
+      <nav className="bg-primary/55 text-black dark:bg-gray-900 dark:text-white shadow-md fixed top-0 left-0 w-full z-50">
         <div className="max-w-screen-xl mx-auto flex items-center justify-between px-4 py-2">
           {/* Left Side (Toggle Menu and Logo) */}
           <div className="flex items-center space-x-4">
@@ -167,7 +192,7 @@ const Navbar = () => {
                 className="w-full py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
                 placeholder="Search for products, brands, and more"
               />
-              <button className="bg-primary/40 text-white px-4 py-2 rounded-r-md hover:bg-yellow-600 dark:text-black dark:bg-yellow-500 dark:hover:bg-yellow-400">
+              <button className="bg-primary/40 text-black px-4 py-2 rounded-r-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/40 dark:hover:text-white">
                 Search
               </button>
             </div>
@@ -175,48 +200,59 @@ const Navbar = () => {
 
           {/* Right Side (Login, Cart, Theme Toggle, Admin Icon) */}
           <div className="flex items-center space-x-4">
-            {/* Login Button with Dropdown */}
-            <div className="relative">
-              <button
-                className="text-black dark:text-white font-semibold flex items-center space-x-2"
-                onClick={toggleLoginDropdown}
-              >
-                <span>Login</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+           
+{/* Login Button with Dropdown */}
+<div className="relative">
+  <button
+    className="text-black dark:text-white font-semibold flex items-center space-x-2"
+    onClick={toggleLoginDropdown}
+  >
+    <span>Login</span>
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
 
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2">
-                 <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" onClick={handleModalToggle}>
+  {dropdownOpen && (
+    <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2">
+      {/* Close dropdown when clicking on Login */}
+      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" onClick={handleModalToggle}>
         <UserCircleIcon className="w-5 h-5 mr-2" />
         Login
       </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <UserCircleIcon className="w-5 h-5 mr-2" />
-                    My Account
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <ShoppingBagIcon className="w-5 h-5 mr-2" />
-                    My Orders
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <ShoppingCartIcon className="w-5 h-5 mr-2" />
-                    My Wishlist
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <CogIcon className="w-5 h-5 mr-2" />
-                    Settings
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <LogoutIcon className="w-5 h-5 mr-2" />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-
+      
+      {/* Close dropdown when clicking on My Account */}
+      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" >
+        <UserCircleIcon className="w-5 h-5 mr-2" />
+        My Account
+      </button>
+      
+      {/* Close dropdown when clicking on My Orders */}
+      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" >
+        <ShoppingBagIcon className="w-5 h-5 mr-2" />
+        My Orders
+      </button>
+      
+      {/* Close dropdown when clicking on My Wishlist */}
+      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" >
+        <ShoppingCartIcon className="w-5 h-5 mr-2" />
+        My Wishlist
+      </button>
+      
+      {/* Close dropdown when clicking on Settings */}
+      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" >
+        <CogIcon className="w-5 h-5 mr-2" />
+        Settings
+      </button>
+      
+      {/* Close dropdown when clicking on Logout */}
+      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" >
+        <LogoutIcon className="w-5 h-5 mr-2" />
+        Logout
+      </button>
+    </div>
+  )}
+</div>
             {/* Cart Icon */}
             <button className="text-black dark:text-white">
               <ShoppingCartIcon className="w-6 h-6" />
@@ -255,9 +291,9 @@ const Navbar = () => {
               className="w-full py-2 px-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
               placeholder="Search for products, brands, and more"
             />
-            <button className="bg-primary/40 text-white px-4 py-2 rounded-md hover:bg-yellow-600 dark:bg-yellow-500 dark:hover:bg-yellow-400">
-              Search
-            </button>
+            <button className="bg-primary/40 text-black px-4 py-2 rounded-r-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/100 dark:hover:text-white">
+                Search
+              </button>
           </div>
 
           {/* Categories List */}
@@ -303,20 +339,51 @@ const Navbar = () => {
 
       {/* Lower Navbar (Desktop View - Category Links) */}
       <div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white">
-        <div className="max-w-screen-xl mx-auto py-2 px-4">
-          {/* Category Links with Images */}
-          <div className="flex justify-center space-x-6 overflow-x-auto no-scrollbar py-2">
-            {categories.map((category) => (
-              <button
-                key={category.name}
-                className="flex flex-col items-center space-y-2 hover:bg-primary/40 px-4 py-2 rounded-md"
-              >
-                <span>{category.name}</span>
-              </button>
-            ))}
+  <div className="max-w-screen-xl mx-auto py-2 px-4">
+    {/* Category Links */}
+    <div className="flex justify-center space-x-6 py-2">
+      {categories.map((category, index) => (
+        <div
+          key={category.name}
+          className="relative flex flex-col items-center group"
+        >
+          <button className="flex items-center space-x-2 hover:bg-primary/40 px-4 py-2 rounded-md">
+            <span>{category.name}</span>
+            {/* Dropdown Icon */}
+            <svg
+              className="w-4 h-4 transform transition-transform duration-300 group-hover:rotate-180"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {/* Subcategory dropdown list */}
+          <div
+            className="absolute top-full left-0 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md opacity-0 group-hover:opacity-100 group-hover:visible transition-all duration-300 invisible z-10"
+            style={{
+              marginTop: '8px', // Adjust space between category and dropdown list
+            }}
+          >
+            <ul className="space-y-2 py-2">
+              {category.subcategories.map((subcat) => (
+                <li key={subcat} className="hover:bg-primary/55 dark:hover:bg-primary/55 px-4 py-2 rounded-md">
+                  {subcat}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+
+
       {showModal && !isAuthenticated && (  // Only show modal when showModal is true and user is not authenticated
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
           <div className="bg-white p-10 rounded-lg w-96 shadow-lg relative">
