@@ -15,6 +15,8 @@ import Products from './components/Products/Products';
 import ViewAllProducts from './components/Products/ViewAllProducts';
 import SimpleLayout from './components/Layout/SimpleLayout'; // Import SimpleLayout
 import ProductDetail from './components/Products/ProductDetail';
+import AccountPage from './components/Navbar/AccountPage'; // Adjust the path to AccountPage.js
+import { AuthProvider } from './components/AuthContext'; 
 
 const App = () => {
   const [orderPopup, setOrderPopup] = useState(false);
@@ -34,6 +36,8 @@ const App = () => {
   }, []);
 
   return (
+ 
+<AuthProvider>
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
       <Routes>
         {/* Full Layout Route */}
@@ -52,7 +56,8 @@ const App = () => {
             </>
           }
         />
-
+ {/* Account Page Route */}
+ <Route path="/account" element={<AccountPage />} />
         {/* ProductDetail Route wrapped with SimpleLayout */}
         <Route
           path="/product/:id"
@@ -77,6 +82,8 @@ const App = () => {
       {/* Popup for Order */}
       <Popup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
     </div>
+    </AuthProvider>
+
   );
 };
 
