@@ -117,10 +117,10 @@ const Products = () => {
                   {[...Array(5)].map((_, index) => (
                     <FaStar
                       key={index}
-                      className={`text-yellow-400 ${index < data.rating ? "text-yellow-400" : "text-gray-300"}`}
+                      className={`text-yellow-400 ${index < Math.round(data.rating) ? "text-yellow-400" : "text-gray-300"}`}
                     />
                   ))}
-                  <span className="text-gray-600 dark:text-gray-400">({data.rating})</span>
+                  <span className="text-gray-600 dark:text-gray-400">({data.rating.toFixed(1)})</span>
                 </div>
 
                 {/* Available Sizes */}

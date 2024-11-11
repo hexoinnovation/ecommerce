@@ -15,6 +15,9 @@ import Products from './components/Products/Products';
 import ViewAllProducts from './components/Products/ViewAllProducts';
 import SimpleLayout from './components/Layout/SimpleLayout'; // Import SimpleLayout
 import ProductDetail from './components/Products/ProductDetail';
+import CartPage from './components/Cart/CartPage';
+
+import { CartProvider } from './context/CartContext'; // Ensure you're importing your CartProvider
 
 const App = () => {
   const [orderPopup, setOrderPopup] = useState(false);
@@ -34,49 +37,61 @@ const App = () => {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
-      <Routes>
-        {/* Full Layout Route */}
-        <Route
-          path="/"
-          element={
-            <>
-              <Navbar handleOrderPopup={handleOrderPopup} />
-              <Hero handleOrderPopup={handleOrderPopup} />
-              <Products />
-              <TopProducts handleOrderPopup={handleOrderPopup} />
-              <Banner />
-              <Subscribe />
-              <Testimonials />
-              <Footer />
-            </>
-          }
-        />
+    <CartProvider>  {/* Ensure CartProvider is wrapping everything */}
+      <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
+        <Routes>
+          {/* Full Layout Route */}
+          <Route
+            path="/"
+            element={
+              <>
+                <Navbar handleOrderPopup={handleOrderPopup} />
+                <Hero handleOrderPopup={handleOrderPopup} />
+                <Products />
+                <TopProducts handleOrderPopup={handleOrderPopup} />
+                <Banner />
+                <Subscribe />
+                <Testimonials />
+                <Footer />
+              </>
+            }
+          />
 
-        {/* ProductDetail Route wrapped with SimpleLayout */}
-        <Route
-          path="/product/:id"
-          element={
-            <SimpleLayout>
-              <ProductDetail/>
-            </SimpleLayout>
-          }
-        />
+          {/* ProductDetail Route wrapped with SimpleLayout */}
+          <Route
+            path="/product/:id"
+            element={
+              <SimpleLayout>
+                <ProductDetail />
+              </SimpleLayout>
+            }
+          />
 
-        {/* ViewAllProducts Route wrapped with SimpleLayout */}
-        <Route
-          path="/view-all"
-          element={
-            <SimpleLayout>
-              <ViewAllProducts />
-            </SimpleLayout>
-          }
-        />
-      </Routes>
+          {/* ViewAllProducts Route wrapped with SimpleLayout */}
+          <Route
+            path="/view-all"
+            element={
+              <SimpleLayout>
+                <ViewAllProducts />
+              </SimpleLayout>
+            }
+          />
 
-      {/* Popup for Order */}
-      <Popup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
-    </div>
+          {/* Cart Page Route wrapped with SimpleLayout */}
+          <Route
+            path="/cart"
+            element={
+              <SimpleLayout>
+                <CartPage />
+              </SimpleLayout>
+            }
+          />
+        </Routes>
+
+        {/* Popup for Order */}
+        <Popup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
+      </div>
+    </CartProvider>  
   );
 };
 
