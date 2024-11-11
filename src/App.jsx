@@ -16,9 +16,9 @@ import ViewAllProducts from './components/Products/ViewAllProducts';
 import SimpleLayout from './components/Layout/SimpleLayout'; // Import SimpleLayout
 import ProductDetail from './components/Products/ProductDetail';
 import CartPage from './components/Cart/CartPage';
-
+import { AuthProvider } from './components/Authcontext'; // Adjust the path
 import { CartProvider } from './context/CartContext'; // Ensure you're importing your CartProvider
-
+import AccountPage from './components/Navbar/AccountPage'; // Adjust the path to AccountPage.js
 const App = () => {
   const [orderPopup, setOrderPopup] = useState(false);
 
@@ -37,6 +37,7 @@ const App = () => {
   }, []);
 
   return (
+    <AuthProvider>
     <CartProvider>  {/* Ensure CartProvider is wrapping everything */}
       <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
         <Routes>
@@ -56,7 +57,8 @@ const App = () => {
               </>
             }
           />
-
+{/* Account Page Route */}
+<Route path="/account" element={<AccountPage />} />
           {/* ProductDetail Route wrapped with SimpleLayout */}
           <Route
             path="/product/:id"
@@ -92,6 +94,7 @@ const App = () => {
         <Popup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
       </div>
     </CartProvider>  
+    </AuthProvider>
   );
 };
 
