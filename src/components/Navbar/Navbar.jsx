@@ -4,14 +4,14 @@ import { FaUser, FaLock, FaSignInAlt,FaTimes } from 'react-icons/fa'; // Importi
 import { getFirestore, doc, setDoc,getDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
-
+import { useNavigate } from 'react-router-dom';
 const Navbar = () => {
-  // State for dropdown visibility, theme toggle, sidebar visibility
+
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null); // For mobile dropdown toggle
   const [dropdownOpen, setDropdownOpen] = useState(false); // For login dropdown
   const [isDarkMode, setIsDarkMode] = useState(false); // For dark mode toggle
   const [sidebarOpen, setSidebarOpen] = useState(false); // For sidebar visibility
-  const [username, setUsername] = useState('');  // Add state for username
+
   const db = getFirestore(app);
   const auth = getAuth(app);
   const [error, setError] = useState('');  // Add state for error message
@@ -67,17 +67,28 @@ const Navbar = () => {
   const closeModal = () => {
     setShowModal(false); // Close the modal by setting showModal to false
   };
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  useEffect(() => {
+    // Check if user is already logged in
+    const storedUsername = localStorage.getItem('username');
+    const storedAuth = localStorage.getItem('isAuthenticated');
 
+    if (storedAuth === 'true' && storedUsername) {
+      setIsAuthenticated(true);
+      setUsername(storedUsername);
+    }
+  }, []);
   const handleSignup = async () => {
     setError('');
     setSuccessMessage('');
   
-    if (!email || !password) {
+    if (!email || !password || !username) {
       setError('Please fill in all fields.');
       return;
     }
@@ -89,6 +100,15 @@ const Navbar = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+  
+      // Save the username in Firestore during signup
+      const userDocRef = doc(db, 'users', email);
+      await setDoc(userDocRef, {
+        email: user.email,
+        username: username, // Set the provided username
+        createdAt: new Date(),
+        lastLogin: new Date(),
+      });
   
       setSuccessMessage('Account created successfully! Please log in.');
       setIsSignup(false); // Switch to login form
@@ -114,32 +134,41 @@ const Navbar = () => {
       const user = userCredential.user;
   
       // Check if the user document exists in Firestore
-      const userDocRef = doc(db, 'users', email);  // Using email as the document ID
+      const userDocRef = doc(db, 'users', email);
       const userDocSnap = await getDoc(userDocRef);
   
+      let fetchedUsername = ''; // Default to empty string
+  
       if (userDocSnap.exists()) {
-        // Document exists, meaning this user has additional data in Firestore
-        console.log("User data:", userDocSnap.data());
+        const userData = userDocSnap.data();
+        fetchedUsername = userData.username; // Get the username from Firestore
       } else {
-        // Document does not exist, create it
+        // If username is not found, you can prompt the user to set one
+        fetchedUsername = 'Default Username'; // Temporarily set a default username for new users
         await setDoc(userDocRef, {
           email: user.email,
+          username: fetchedUsername, // Store a default username initially
           createdAt: new Date(),
           lastLogin: new Date(),
-          // Add any other data you want to store for the user
         });
       }
   
-      // Update the success message and close the modal
+      // Set user data to state
+      setUsername(fetchedUsername);
       setIsAuthenticated(true);
       setSuccessMessage('Login successful!');
-      setShowModal(false); // Hide modal after login
+      setShowModal(false); // Close modal after login
+  
+      // Store in localStorage
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('username', fetchedUsername);
   
     } catch (error) {
       console.error("Login Error: ", error);
       setError(error.message || 'An error occurred. Please try again.');
     }
   };
+  
   // Close the login dropdown when clicking any menu item
 const handleDropdownClick = () => {
   setDropdownOpen(false); // Close the login dropdown
@@ -154,15 +183,26 @@ useEffect(() => {
     }
   };
 
-  // Add event listener on mount
   document.addEventListener('mousedown', handleClickOutside);
 
-  // Clean up the event listener on unmount
   return () => {
     document.removeEventListener('mousedown', handleClickOutside);
   };
 }, []);
-
+const navigate = useNavigate();
+  const handleAccountClick = () => {
+    navigate('/account'); // Navigate to the account page when "My Account" is clicked
+  };
+  const handleLogout = () => {
+    const isConfirmed = window.confirm("Are you sure you want to log out?");
+    
+    if (isConfirmed) {
+      logout(); // Call logout from context, which resets everything globally
+      setDropdownOpen(false); // Close the dropdown
+      alert("Logout successful! Please login to access your details.");
+      // Optionally, redirect to the login page
+    }
+  };
   
   return (
     <div>
@@ -200,59 +240,86 @@ useEffect(() => {
 
           {/* Right Side (Login, Cart, Theme Toggle, Admin Icon) */}
           <div className="flex items-center space-x-4">
-           
-{/* Login Button with Dropdown */}
-<div className="relative">
+  <div className="relative">
   <button
-    className="text-black dark:text-white font-semibold flex items-center space-x-2"
-    onClick={toggleLoginDropdown}
-  >
-    <span>Login</span>
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
+          className="text-black dark:text-white font-semibold flex items-center space-x-2"
+          onClick={toggleLoginDropdown}
+        >
+          {isAuthenticated ? (
+            <span>{username}</span> // Display the username if logged in
+          ) : (
+            <span>Login</span> // Display "Login" if not authenticated
+          )}
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
-  {dropdownOpen && (
-    <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2">
-      {/* Close dropdown when clicking on Login */}
-      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" onClick={handleModalToggle}>
-        <UserCircleIcon className="w-5 h-5 mr-2" />
-        Login
-      </button>
-      
-      {/* Close dropdown when clicking on My Account */}
-      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" >
-        <UserCircleIcon className="w-5 h-5 mr-2" />
-        My Account
-      </button>
-      
-      {/* Close dropdown when clicking on My Orders */}
-      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" >
-        <ShoppingBagIcon className="w-5 h-5 mr-2" />
-        My Orders
-      </button>
-      
-      {/* Close dropdown when clicking on My Wishlist */}
-      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" >
-        <ShoppingCartIcon className="w-5 h-5 mr-2" />
-        My Wishlist
-      </button>
-      
-      {/* Close dropdown when clicking on Settings */}
-      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" >
-        <CogIcon className="w-5 h-5 mr-2" />
-        Settings
-      </button>
-      
-      {/* Close dropdown when clicking on Logout */}
-      <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" >
-        <LogoutIcon className="w-5 h-5 mr-2" />
-        Logout
-      </button>
-    </div>
-  )}
-</div>
+    {/* Dropdown when authenticated */}
+    {dropdownOpen && isAuthenticated && (
+      <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2">
+        <button onClick={handleAccountClick} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <UserCircleIcon className="w-5 h-5 mr-2" />
+          My Account
+        </button>
+
+        <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <ShoppingBagIcon className="w-5 h-5 mr-2" />
+          My Orders
+        </button>
+
+        <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <ShoppingCartIcon className="w-5 h-5 mr-2" />
+          My Wishlist
+        </button>
+
+        <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <CogIcon className="w-5 h-5 mr-2" />
+          Settings
+        </button>
+
+        <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <LogoutIcon className="w-5 h-5 mr-2" />
+          Logout
+        </button>
+      </div>
+    )}
+
+    {/* Dropdown when not authenticated */}
+    {dropdownOpen && !isAuthenticated && (
+      <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2">
+        <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" onClick={handleModalToggle}>
+          <UserCircleIcon className="w-5 h-5 mr-2" />
+          Login
+        </button>
+        <button onClick={handleAccountClick} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <UserCircleIcon className="w-5 h-5 mr-2" />
+          My Account
+        </button>
+
+        <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <ShoppingBagIcon className="w-5 h-5 mr-2" />
+          My Orders
+        </button>
+
+        <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <ShoppingCartIcon className="w-5 h-5 mr-2" />
+          My Wishlist
+        </button>
+
+        <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <CogIcon className="w-5 h-5 mr-2" />
+          Settings
+        </button>
+
+        <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <LogoutIcon className="w-5 h-5 mr-2" />
+          Logout
+        </button>
+      </div>
+    )}
+  </div>
+
             {/* Cart Icon */}
             <button className="text-black dark:text-white">
               <ShoppingCartIcon className="w-6 h-6" />
@@ -382,8 +449,6 @@ useEffect(() => {
   </div>
 </div>
 
-
-
       {showModal && !isAuthenticated && (  // Only show modal when showModal is true and user is not authenticated
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
           <div className="bg-white p-10 rounded-lg w-96 shadow-lg relative">
@@ -405,6 +470,20 @@ useEffect(() => {
               isSignup ? handleSignup() : handleLogin();
             }}>
               {/* Email Field */}
+              <div className="mb-6">
+                <div className="relative">
+                  <FaUser className="absolute left-3 top-4 text-black-400" />
+                  <input 
+          type="text" 
+          placeholder="Username" 
+          value={username} 
+          onChange={(e) => setUsername(e.target.value)} 
+          className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          required
+        />
+                </div>
+              </div>
+
               <div className="mb-6">
                 <div className="relative">
                   <FaUser className="absolute left-3 top-4 text-black-400" />
