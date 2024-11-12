@@ -1,82 +1,210 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Img1 from "../../assets/common/dress1.jpg";
 import Img2 from "../../assets/common/e7.webp";
 import Img3 from "../../assets/common/e3.jpg";
 import Img4 from "../../assets/shirt/shirt.png";
 import Img5 from "../../assets/common/e6.jpg";
-import { FaStar } from "react-icons/fa";
+import Img6 from "../../assets/shirt/shirt.png";
+import Img7 from "../../assets/shirt/shirt2.png";
+import Img8 from "../../assets/shirt/shirt3.png";
 
-// Export ProductsData so it can be used in other files
+import { FaStar } from "react-icons/fa";
+import { FaArrowDown, FaArrowUp } from "react-icons/fa"; // Import arrow icons
+
+// Updated ProductsData with more products
 export const ProductsData = [
-  {
-    id: 1,
-    img: Img1,
-    title: "Women Ethnic",
-    rating: 5.0,
-    color: "white",
-    category: "Clothing",
-    price: 4999,  // Price in Rupees
-    description: "A beautiful ethnic dress perfect for all occasions.",
-    sizes: ["S", "M", "L", "XL"], // Sizes added here
-  },
-  {
-    id: 2,
-    img: Img2,
-    title: "Women Hair Accessories",
-    rating: 4.5,
-    color: "Red",
-    category: "Accessories",
-    price: 1599,  // Price in Rupees
-    description: "Trendy and fashionable hair accessories for every style.",
-    sizes: ["One Size"], // One size for accessories
-  },
-  {
-    id: 3,
-    img: Img3,
-    title: "Shoes",
-    rating: 4.7,
-    color: "Brown",
-    category: "Footwear",
-    price: 7999,  // Price in Rupees
-    description: "Comfortable shoes for daily use, made of high-quality leather.",
-    sizes: ["6", "7", "8", "9", "10"], // Shoe sizes
-  },
-  {
-    id: 4,
-    img: Img4,
-    title: "Printed T-Shirt",
-    rating: 4.4,
-    color: "Yellow",
-    category: "Clothing",
-    price: 1999,  // Price in Rupees
-    description: "A stylish printed t-shirt for casual wear.",
-    sizes: ["S", "M", "L", "XL"], // Sizes added here
-  },
-  {
-    id: 5,
-    img: Img5,
-    title: "Hair Accessories",
-    rating: 4.5,
-    color: "Pink",
-    category: "Accessories",
-    price: 1099,  // Price in Rupees
-    description: "Colorful hair accessories to add style to your look.",
-    sizes: ["One Size"], // One size for accessories
-  },
+    {
+      id: 1,
+      title: "Product 1",
+      color: "Red",
+      price: 999,
+      description: "This is a sample product.",
+      rating: 4,
+      img: Img1, // main image
+      images: [  // An array of images for the product
+       Img1,Img2,Img3
+      ]
+    },
+    {
+      id: 2,
+      title: "Product 2",
+      color: "Blue",
+      price: 1299,
+      description: "This is another sample product.",
+      rating: 4.5,
+      img: Img2, // main image
+      images: [  // An array of images for the product
+        Img2,Img3,Img4
+      ]
+    },
+    {
+      id: 3,
+      title: "Product 3",
+      color: "Green",
+      price: 1799,
+      description: "A green sample product.",
+      rating: 4.2,
+      img: Img3, // main image
+      images: [  // An array of images for the product
+        Img3,Img1,Img5
+      ]
+    },
+    {
+      id: 4,
+      title: "Product 4",
+      color: "Black",
+      price: 2499,
+      description: "A stylish black product.",
+      rating: 5.0,
+      img: Img4, // main image
+      images: [  // An array of images for the product
+        Img2,Img3,Img4
+      ]
+    },
+    {
+      id: 5,
+      title: "Product 5",
+      color: "Yellow",
+      price: 1899,
+      description: "A sample product with yellow color.",
+      rating: 4.6,
+      img: Img5, // main image
+      images: [  // An array of images for the product
+        Img3,Img1,Img5
+      ]
+    },
+    {
+      id: 6,
+      title: "Product 6",
+      color: "White",
+      price: 1599,
+      description: "A simple white product for casual wear.",
+      rating: 3.8,
+      img: Img1, // main image
+      images: [  // An array of images for the product
+        Img2,Img3,Img4
+      ]
+    },
+    {
+      id: 7,
+      title: "Product 7",
+      color: "Pink",
+      price: 1099,
+      description: "A cute pink product.",
+      rating: 4.4,
+      img: Img2, // main image
+      images: [  // An array of images for the product
+        Img3,Img1,Img5
+      ]
+    },
+    {
+      id: 8,
+      title: "Product 8",
+      color: "Orange",
+      price: 899,
+      description: "A vibrant orange product.",
+      rating: 3.9,
+      img: Img2, // main image
+      images: [  // An array of images for the product
+        Img2,Img3,Img4
+      ]
+    },
+    {
+      id: 9,
+      title: "Product 9",
+      color: "Purple",
+      price: 2199,
+      description: "A purple product.",
+      rating: 4.7,
+      img: Img3, // main image
+      images: [  // An array of images for the product
+        Img3,Img1,Img5
+      ]
+    },
+    {
+      id: 10,
+      title: "Product 10",
+      color: "Gray",
+      price: 2599,
+      description: "A stylish gray product.",
+      rating: 4.5,
+      img: Img5, // main image
+      images: [  // An array of images for the product
+        Img2,Img3,Img4
+      ]
+    },
+    {
+      id: 11,
+      title: "Product 11",
+      color: "Brown",
+      price: 1899,
+      description: "A brown leather product.",
+      rating: 4.3,
+      img: Img2, // main image
+      images: [  // An array of images for the product
+        Img3,Img1,Img5
+      ]
+    },
+    {
+      id: 12,
+      title: "Product 12",
+      color: "Silver",
+      price: 3999,
+      description: "A shiny silver product.",
+      rating: 4.8,
+      img: Img6, // main image
+      images: [  // An array of images for the product
+        Img2,Img3,Img6
+      ]
+    },
+    {
+      id: 13,
+      title: "Product 13",
+      color: "Silver",
+      price: 1999,
+      description: "A shiny silver product.",
+      rating: 4.8,
+      img: Img7, // main image
+      images: [  // An array of images for the product
+        Img2,Img3,Img7
+      ]
+    },
+    {
+      id: 14,
+      title: "Product 14",
+      color: "Silver",
+      price: 2999,
+      description: "A shiny silver product.",
+      rating: 4.8,
+      img: Img8, // main image
+      images: [  // An array of images for the product
+        Img2,Img8,Img4
+      ]
+    }
 ];
 
 const Products = () => {
   const navigate = useNavigate(); // Initialize useNavigate hook
+  const [visibleProducts, setVisibleProducts] = useState(5); // Initially, show 5 products
+  const [isLoaded, setIsLoaded] = useState(false); // Track if products are loaded
 
   // Handle image click to navigate to product detail page
   const handleImageClick = (id) => {
     navigate(`/product/${id}`);
   };
 
-  // Handle View All Products button click
-  const handleViewAllClick = () => {
-    navigate("/view-all");
+  // Handle Load More click
+  const handleLoadMore = () => {
+    setVisibleProducts((prev) => prev + 8); // Load more products
+    setIsLoaded(true); // Set loaded state
+  };
+
+  // Handle Load Less click
+  const handleLoadLess = () => {
+    setVisibleProducts(5); // Reset to the initial 5 products
+    setIsLoaded(false); // Reset loaded state
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to the top smoothly
   };
 
   return (
@@ -92,7 +220,7 @@ const Products = () => {
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {ProductsData.map((data) => (
+          {ProductsData.slice(0, visibleProducts).map((data) => (
             <div
               key={data.id}
               className="relative group bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
@@ -123,21 +251,6 @@ const Products = () => {
                   <span className="text-gray-600 dark:text-gray-400">({data.rating.toFixed(1)})</span>
                 </div>
 
-                {/* Available Sizes */}
-                <div className="mt-3">
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Sizes: </p>
-                  <div className="flex gap-2 mt-2">
-                    {data.sizes.map((size, index) => (
-                      <span
-                        key={index}
-                        className="text-gray-700 dark:text-white bg-gray-200 dark:bg-gray-700 py-1 px-2 rounded-full text-sm"
-                      >
-                        {size}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Price */}
                 <div className="mt-2 text-lg font-semibold text-gray-800 dark:text-white">
                   ₹{data.price.toLocaleString()}
@@ -147,14 +260,27 @@ const Products = () => {
           ))}
         </div>
 
-        {/* View All Button */}
-        <div className="flex justify-center mt-10">
-          <button
-            onClick={handleViewAllClick}  // Add onClick handler here
-            className="bg-primary text-white py-2 px-6 rounded-md shadow-md hover:bg-primary-dark transition-colors duration-300"
-          >
-            View All Products
-          </button>
+        {/* Load More / Load Less Links */}
+        <div className="text-center mt-8">
+          {/* If products are loaded, show Load Less */}
+          {isLoaded ? (
+            <span
+              onClick={handleLoadLess}
+              className="dark:text-primary text-black font-bold cursor-pointer hover:text-primary dark:hover:text-white transition-colors duration-300"
+            >
+              <FaArrowUp className="inline mr-2" />
+              Load Less
+            </span>
+          ) : (
+            // If not loaded, show Load More
+            <span
+              onClick={handleLoadMore}
+              className="dark:text-primary text-black font-bold cursor-pointer hover:text-primary dark:hover:text-white transition-colors duration-300"
+            >
+              <FaArrowDown className="inline mr-2" />
+              Load More
+            </span>
+          )}
         </div>
       </div>
     </div>

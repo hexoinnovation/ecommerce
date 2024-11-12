@@ -2,41 +2,40 @@ import React, { useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { ShoppingCartIcon } from '@heroicons/react/outline';
 import Popup from "../Popup/Popup"; // Ensure Popup is correctly imported
-import Img1 from "../../assets/shirt/shirt.png";
-import Img2 from "../../assets/shirt/shirt2.png";
-import Img3 from "../../assets/shirt/shirt3.png";
+import Img6 from "../../assets/shirt/shirt.png";
+import Img7 from "../../assets/shirt/shirt2.png";
+import Img8 from "../../assets/shirt/shirt3.png";
 
 // Data with correct image paths
 const ProductsData = [
   {
-    id: 1,
-    img: Img1,
-    title: "Casual Wear",
+    id: 12,
+    img: Img6,
+    title: "Product 12",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...Lorem ipsum dolor sit amet, consectetur adipiscing elit...Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
     color: "Blue",
     rating: 4,
     price: 999,
-    sizes: ["S", "M", "L"],
   },
   {
-    id: 2,
-    img: Img2,
-    title: "Printed Shirt",
+    id: 13,
+    img: Img7,
+    title: "Product 13",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
     color: "White",
     rating: 5,
     price: 1299,
-    sizes: ["M", "L", "XL"],
+    
   },
   {
-    id: 3,
-    img: Img3,
-    title: "Women Shirt",
+    id: 14,
+    img: Img8,
+    title: "Product 14",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
     color: "Pink",
     rating: 3,
     price: 799,
-    sizes: ["S", "M"],
+    
   },
 ];
 
@@ -90,7 +89,7 @@ const TopProducts = () => {
                 onClick={() => openPopup(product)}
                 className="bg-primary text-white py-1 px-4 rounded-full mt-4 flex items-center gap-2 ml-16"
               >
-                <ShoppingCartIcon className="w-6 h-6" /> Add To Cart
+                 View Details
               </button>
             </div>
           </div>
