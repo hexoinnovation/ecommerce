@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';  // useNavigate for redirection
+import { useParams, useNavigate } from 'react-router-dom'; // useNavigate for redirection
 import { FaStar, FaShoppingCart, FaHeart, FaShoppingBag, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import { ProductsData } from '../Products/Products';
 import { useCart } from '../../context/CartContext'; // Assuming you're using a CartContext for global state
@@ -12,18 +12,12 @@ const ProductDetail = () => {
 
   // If product is not found
   if (!product) {
-    return <div>Product not found</div>;
+    return <div className="text-center py-10">Product not found.</div>;
   }
 
-  // Manage selected size and quantity state
-  const [selectedSize, setSelectedSize] = useState(null);
+  // Manage quantity state
   const [quantity, setQuantity] = useState(1); // State to track quantity
   const [mainImage, setMainImage] = useState(product.img); // Set the main image for product view
-
-  // Handle size selection
-  const handleSizeChange = (size) => {
-    setSelectedSize(size);
-  };
 
   // Handle increase and decrease in quantity
   const handleQuantityChange = (action) => {
@@ -49,31 +43,27 @@ const ProductDetail = () => {
   };
 
   return (
-    <div className="mt-14 sm:mt-5 mb-12 container px-4 lg:px-16 dark:bg-gray-900 dark:text-white">
+    <div className="mt-16 sm:mt-5 mb-12 container px-4 lg:px-16 dark:bg-gray-900 dark:text-white">
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Product Image Section */}
-        <div className="flex flex-col items-center lg:items-start">
+        {/* Product Image and Thumbnails */}
+        <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0">
           <img
             src={mainImage}
             alt={product.title}
-            className="w-full max-w-lg h-auto object-cover rounded-xl shadow-xl transition-transform transform hover:scale-105"
+            className="w-full max-w-sm lg:max-w-md h-auto object-cover rounded-xl shadow-lg transition-transform transform hover:scale-105"
           />
-          {/* Image Thumbnails */}
-          {product.images && Array.isArray(product.images) && product.images.length > 0 ? (
-            <div className="flex gap-4 mt-4">
-              {product.images.map((thumb, index) => (
-                <img
-                  key={index}
-                  src={thumb}
-                  alt={`Thumbnail ${index + 1}`}
-                  className="w-16 h-16 object-cover rounded-lg shadow-sm cursor-pointer transition-transform transform hover:scale-105"
-                  onClick={() => setMainImage(thumb)} // Set main image on click
-                />
-              ))}
-            </div>
-          ) : (
-            <p>No images available</p> // Fallback message if no images exist
-          )}
+          <div className="flex gap-4 mt-4">
+            {/* Dynamically render thumbnails based on product images */}
+            {product.images.map((image, index) => (
+              <img
+                key={index}
+                src={image}
+                alt={`thumbnail-${index}`}
+                className="h-20 w-20 object-cover rounded-md cursor-pointer transition-transform transform hover:scale-110"
+                onClick={() => setMainImage(image)} // Change the main image on thumbnail click
+              />
+            ))}
+          </div>
         </div>
 
         {/* Product Details Section */}
@@ -85,6 +75,7 @@ const ProductDetail = () => {
 
           <p className="text-lg text-gray-700 dark:text-gray-300">Color: <span className="font-semibold">{product.color}</span></p>
 
+          {/* Rating Section */}
           <div className="flex items-center space-x-2 text-yellow-500">
             {[...Array(5)].map((_, index) => (
               <FaStar key={index} className={index < product.rating ? 'text-yellow-400' : 'text-gray-300'} />
@@ -92,33 +83,12 @@ const ProductDetail = () => {
             <span className="text-gray-600 dark:text-gray-300">({product.rating})</span>
           </div>
 
+          {/* Price Section */}
           <div className="text-2xl font-semibold text-gray-800 dark:text-white mt-4">
             <span className="text-primary">₹{product.price ? product.price : 'Price not available'}</span>
           </div>
 
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Select Size</h3>
-            {product.sizes && product.sizes.length > 0 ? (
-              <div className="flex gap-4 mt-2">
-                {product.sizes.map((size, index) => (
-                  <label key={index} className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="size"
-                      value={size}
-                      checked={selectedSize === size}
-                      onChange={() => handleSizeChange(size)}
-                      className="form-radio text-primary focus:ring-primary"
-                    />
-                    <span className="text-gray-700 dark:text-gray-300">{size}</span>
-                  </label>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-600 dark:text-gray-300">No sizes available</p>
-            )}
-          </div>
-
+          {/* Quantity Selection */}
           <div className="mt-6 flex items-center gap-6">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Quantity</h3>
             <div className="flex items-center gap-4">

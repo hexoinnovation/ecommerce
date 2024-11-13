@@ -49,7 +49,8 @@ const CartPage = () => {
                 key={item.id}
                 className="flex items-center justify-between bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 space-x-6"
               >
-                <div className="flex items-center space-x-6">
+                {/* Link to Product Detail Page */}
+                <Link to={`/product/${item.id}`} className="flex items-center space-x-6">
                   <img
                     src={item.img}
                     alt={item.title}
@@ -60,7 +61,8 @@ const CartPage = () => {
                     <p className="text-sm text-gray-500 dark:text-gray-400">₹{item.price}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Quantity: {item.quantity}</p>
                   </div>
-                </div>
+                </Link>
+
                 {/* Remove from Cart Button */}
                 <button
                   onClick={() => removeFromCart(item.id)}

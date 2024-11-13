@@ -19,25 +19,23 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Add product to the cart
+  //Add Product to Cart
   const addToCart = (product) => {
     setCartItems((prevCartItems) => {
+      // Check if the product already exists in the cart
       const existingItem = prevCartItems.find((item) => item.id === product.id);
       if (existingItem) {
-        // If product already exists, update quantity
+        // If product already exists, return the updated cart with the updated product
         return prevCartItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + product.quantity } : item
+          item.id === product.id ? { ...item, ...product } : item
         );
       } else {
         // If product does not exist, add it to the cart
-        return [...prevCartItems, { ...product, quantity: product.quantity }];
+        return [...prevCartItems, { ...product }];
       }
     });
-}
-
-// CartContext.js
+  };
   
-
   // Remove product from the cart
   const removeFromCart = (id) => {
     setCartItems(cartItems.filter(item => item.id !== id));
