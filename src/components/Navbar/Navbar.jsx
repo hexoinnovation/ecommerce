@@ -5,6 +5,8 @@ import { getFirestore, doc, setDoc,getDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
 import { useNavigate } from 'react-router-dom';
+
+import { useAuth } from '../Authcontext';
 const Navbar = () => {
 
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null); // For mobile dropdown toggle
@@ -75,15 +77,15 @@ const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
   useEffect(() => {
-    // Check if user is already logged in
+    const authStatus = localStorage.getItem('isAuthenticated');
     const storedUsername = localStorage.getItem('username');
-    const storedAuth = localStorage.getItem('isAuthenticated');
-
-    if (storedAuth === 'true' && storedUsername) {
+    
+    if (authStatus === 'true') {
       setIsAuthenticated(true);
-      setUsername(storedUsername);
+      setUsername(storedUsername);  // Load the username from localStorage
     }
   }, []);
+  
   const handleSignup = async () => {
     setError('');
     setSuccessMessage('');
@@ -120,8 +122,8 @@ const Navbar = () => {
   };
   
   const handleLogin = async () => {
-    setError('');
-    setSuccessMessage('');
+    setError(''); // Reset error message
+    setSuccessMessage(''); // Reset success message
   
     if (!email || !password) {
       setError('Please fill in all fields.');
@@ -134,20 +136,21 @@ const Navbar = () => {
       const user = userCredential.user;
   
       // Check if the user document exists in Firestore
-      const userDocRef = doc(db, 'users', email);
+      const userDocRef = doc(db, 'users', user.email); // Use user.email as the ID
       const userDocSnap = await getDoc(userDocRef);
   
       let fetchedUsername = ''; // Default to empty string
   
       if (userDocSnap.exists()) {
+        // If user document exists, get the username from Firestore
         const userData = userDocSnap.data();
-        fetchedUsername = userData.username; // Get the username from Firestore
+        fetchedUsername = userData.username || 'Default Username'; // Fallback to 'Default Username'
       } else {
-        // If username is not found, you can prompt the user to set one
-        fetchedUsername = 'Default Username'; // Temporarily set a default username for new users
+        // If no user document exists, create one with a default username
+        fetchedUsername = 'Default Username'; // Default username for new users
         await setDoc(userDocRef, {
           email: user.email,
-          username: fetchedUsername, // Store a default username initially
+          username: fetchedUsername, // Store default username
           createdAt: new Date(),
           lastLogin: new Date(),
         });
@@ -156,12 +159,14 @@ const Navbar = () => {
       // Set user data to state
       setUsername(fetchedUsername);
       setIsAuthenticated(true);
+      
       setSuccessMessage('Login successful!');
       setShowModal(false); // Close modal after login
   
-      // Store in localStorage
+      // Store authentication state and username in localStorage
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('username', fetchedUsername);
+      localStorage.setItem('userEmail', user.email); // Optionally store email as well
   
     } catch (error) {
       console.error("Login Error: ", error);
@@ -193,14 +198,22 @@ const navigate = useNavigate();
   const handleAccountClick = () => {
     navigate('/account'); // Navigate to the account page when "My Account" is clicked
   };
-  const handleLogout = () => {
+  const { logout, resetUserData } = useAuth();
+ 
+  const handleLogout = async () => {
     const isConfirmed = window.confirm("Are you sure you want to log out?");
     
     if (isConfirmed) {
-      logout(); // Call logout from context, which resets everything globally
-      setDropdownOpen(false); // Close the dropdown
+      await logout();  // Log out user from Firebase
+      resetUserData();  // Reset form data
       alert("Logout successful! Please login to access your details.");
-      // Optionally, redirect to the login page
+       // Clear localStorage on logout to reset the session
+       localStorage.removeItem('isAuthenticated');
+       localStorage.removeItem('username');
+       localStorage.removeItem('userEmail');
+      // Update the state to reflect that the user is logged out
+      setIsAuthenticated(false);  // Set isAuthenticated to false
+      setDropdownOpen(false);      // Close the dropdown after logout
     }
   };
   
@@ -238,22 +251,22 @@ const navigate = useNavigate();
             </div>
           </div>
 
-          {/* Right Side (Login, Cart, Theme Toggle, Admin Icon) */}
-          <div className="flex items-center space-x-4">
+         {/* Right Side (Login, Cart, Theme Toggle, Admin Icon) */}
+<div className="flex items-center space-x-4">
   <div className="relative">
-  <button
-          className="text-black dark:text-white font-semibold flex items-center space-x-2"
-          onClick={toggleLoginDropdown}
-        >
-          {isAuthenticated ? (
-            <span>{username}</span> // Display the username if logged in
-          ) : (
-            <span>Login</span> // Display "Login" if not authenticated
-          )}
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+    <button
+      className="text-black dark:text-white font-semibold flex items-center space-x-2"
+      onClick={() => setDropdownOpen(!dropdownOpen)} // Toggle dropdown on click
+    >
+      {isAuthenticated ? (
+        <span>{username}</span> // Display the username if logged in
+      ) : (
+        <span>Login</span> // Display "Login" if not authenticated
+      )}
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
 
     {/* Dropdown when authenticated */}
     {dropdownOpen && isAuthenticated && (
@@ -262,22 +275,18 @@ const navigate = useNavigate();
           <UserCircleIcon className="w-5 h-5 mr-2" />
           My Account
         </button>
-
         <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
           <ShoppingBagIcon className="w-5 h-5 mr-2" />
           My Orders
         </button>
-
         <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
           <ShoppingCartIcon className="w-5 h-5 mr-2" />
           My Wishlist
         </button>
-
         <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
           <CogIcon className="w-5 h-5 mr-2" />
           Settings
         </button>
-
         <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
           <LogoutIcon className="w-5 h-5 mr-2" />
           Logout
@@ -296,22 +305,18 @@ const navigate = useNavigate();
           <UserCircleIcon className="w-5 h-5 mr-2" />
           My Account
         </button>
-
         <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
           <ShoppingBagIcon className="w-5 h-5 mr-2" />
           My Orders
         </button>
-
         <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
           <ShoppingCartIcon className="w-5 h-5 mr-2" />
           My Wishlist
         </button>
-
         <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
           <CogIcon className="w-5 h-5 mr-2" />
           Settings
         </button>
-
         <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
           <LogoutIcon className="w-5 h-5 mr-2" />
           Logout
@@ -319,6 +324,8 @@ const navigate = useNavigate();
       </div>
     )}
   </div>
+
+
 
             {/* Cart Icon */}
             <button className="text-black dark:text-white">
