@@ -146,79 +146,82 @@ const AccountPage = () => {
               <h2 className="text-2xl font-semibold mb-4 text-gray-800">Personal Information</h2>
              
               <form className="space-y-4">
-                {['firstName', 'lastName', 'contact', 'email'].map((field, idx) => (
-                  <div key={idx} className="bg-gradient-to-r from-yellow-400 to-orange-500 p-[1px] rounded-lg">
-                    <input
-                      type="text"
-                      name={field}
-                      value={formData[field]}
-                      onChange={handleChange}
-                      className="w-full p-3 rounded-lg bg-white focus:outline-none"
-                      placeholder={field.replace(/^\w/, (c) => c.toUpperCase())}
-                    />
-                  </div>
-                ))}
-            
-                <div className="mt-4">
-                  <label className="mr-4 text-gray-700">Gender</label>
-                  <label className="mr-4">
-                    <input
-                      type="radio"
-                      name="gender"
-                      value="Male"
-                      checked={formData.gender === 'Male'}
-                      onChange={handleChange}
-                      className="mr-2"
-                    />
-                    Male
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="gender"
-                      value="Female"
-                      checked={formData.gender === 'Female'}
-                      onChange={handleChange}
-                      className="mr-2"
-                    />
-                    Female
-                  </label>
-                </div>
-            
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  className="w-1/3 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-md hover:bg-yellow-400 transition"
-                >
-                  Save
-                </button>
-              </form>
-            </div>
+  {['firstName', 'lastName', 'contact', 'email'].map((field, idx) => (
+    <div key={idx} className="bg-gradient-to-r from-yellow-400 to-orange-500 p-[1px] rounded-lg">
+      <input
+        type="text"
+        name={field}
+        value={formData[field]}
+        onChange={handleChange}
+        className="w-full p-3 rounded-lg bg-white dark:bg-white text-black dark:text-black focus:outline-none"
+        placeholder={field.replace(/^\w/, (c) => c.toUpperCase())}
+      />
+    </div>
+  ))}
+
+  <div className="mt-4">
+    <label className="mr-4 text-gray-700 dark:text-black">Gender</label>
+    <label className="mr-4 text-gray-700 dark:text-black" >
+      <input
+        type="radio"
+        name="gender"
+        value="Male"
+        checked={formData.gender === 'Male'}
+        onChange={handleChange}
+        className="mr-2"
+      />
+      Male
+    </label>
+    <label  className="mr-4 text-gray-700 dark:text-black">
+      <input
+        type="radio"
+        name="gender"
+        value="Female"
+        checked={formData.gender === 'Female'}
+        onChange={handleChange}
+        className="mr-2"
+      />
+      Female
+    </label>
+  </div>
+
+  <button
+    type="button"
+    onClick={handleSave}
+    className="w-1/3 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-md hover:bg-yellow-400 transitionmr-4 text-gray-700 dark:text-black font-bold"
+  >
+    Save
+  </button>
+</form>
+</div>
           ) : isAddressAdding ? (
             <div>
             <h2 className="text-2xl font-semibold mb-4">Manage Address</h2>
             <div className="space-y-4"> {/* Stack elements vertically */}
-             
-              <textarea
-                value={address}
-                onChange={handleAddressChange}
-                className="w-full p-2 rounded-lg border-2 border-gradient-to-r from-yellow-400 to-orange-500 focus:outline-none"
-                placeholder="Add a new address"
-              />
-             
-              <textarea
-                value={address2}
-                onChange={handleAddress2Change} // Handle second address change
-                className="w-full p-2 rounded-lg border-2 border-gradient-to-r from-yellow-400 to-orange-500 focus:outline-none"
-                placeholder="Add a second address"
-              />
+            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-[1px] rounded-lg">
+    <textarea
+      value={address}
+      onChange={handleAddressChange}
+      className="w-full p-2 rounded-lg bg-white dark:bg-white text-gray-700 dark:text-black focus:outline-none"
+      placeholder="Add a new address"
+    />
+  </div>
+  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-[1px] rounded-lg">
+    <textarea
+      value={address2}
+      onChange={handleAddress2Change}
+      className="w-full p-2 rounded-lg bg-white dark:bg-white text-gray-700 dark:text-black focus:outline-none"
+      placeholder="Add a second address"
+    />
+  </div>
             </div>
             <button
-              onClick={handleSave}
-              className="mt-4 py-2 px-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-md hover:bg-yellow-400 transition"
-            >
-              Save Address
-            </button>
+  onClick={handleSave}
+  className="mt-4 py-2 px-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-md hover:bg-yellow-400 transition mr-4 text-gray-700 dark:text-black"
+>
+  Save Address
+</button>
+
           </div>
           
            
