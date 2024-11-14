@@ -4,7 +4,7 @@ import { FaUser, FaLock, FaSignInAlt,FaTimes } from 'react-icons/fa'; // Importi
 import { getFirestore, doc, setDoc,getDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { HomeIcon, PhoneIcon } from '@heroicons/react/outline';
 import { useAuth } from '../Authcontext';
 const Navbar = () => {
@@ -362,7 +362,6 @@ const navigate = useNavigate();
     Search
   </button>
 
-
 <button
   onClick={handleHomeClick} 
   className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
@@ -370,11 +369,11 @@ const navigate = useNavigate();
   <HomeIcon className="h-5 w-5 text-black dark:text-white" /> {/* Home Icon */}
   <span>Home</span>
 </button>
-
+<Link to={'/view-all'}>
 <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
   <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" /> {/* Shop Icon */}
   <span>Shop</span>
-</button>
+</button></Link>
 
 <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
   <PhoneIcon className="h-5 w-5 text-black dark:text-white" /> {/* Contact Us Icon */}
@@ -390,22 +389,22 @@ const navigate = useNavigate();
 
      {/* Lower Navbar (Desktop View - Category Links) */}
 <div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white">
-  <div className="max-w-screen-xl mx-auto py-2 px-4">
+  <div className="max-w-screen-xl mx-auto py-1 px-4">
     {/* Static Category Links */}
     <div className="flex justify-center space-x-6 py-2">
 
 <button
   onClick={handleHomeClick} 
-  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-lg flex items-center space-x-2"
 >
   <HomeIcon className="h-5 w-5 text-black dark:text-white" /> {/* Home Icon */}
   <span>Home</span>
 </button>
-
+<Link to={'/view-all'}>
 <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
   <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" /> {/* Shop Icon */}
   <span>Shop</span>
-</button>
+</button></Link>
 
 <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
   <PhoneIcon className="h-5 w-5 text-black dark:text-white" /> {/* Contact Us Icon */}

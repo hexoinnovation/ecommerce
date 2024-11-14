@@ -73,9 +73,8 @@ const App = () => {
           <Route
             path="/view-all"
             element={
-              <SimpleLayout>
+              
                 <ViewAllProducts />
-              </SimpleLayout>
             }
           />
 
