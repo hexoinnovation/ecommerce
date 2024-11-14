@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from './firebase'; // Import your Firebase auth instance
+import { auth } from './firebase'; // Firebase auth instance
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 const AuthContext = createContext();
@@ -9,36 +9,53 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userData, setUserData] = useState({
-    firstName: '',
-    lastName: '',
-    contact: '',
-    gender: '',
-    email: '',
-  });
+  const [currentUser, setCurrentUser] = useState(
+    JSON.parse(localStorage.getItem('currentUser')) || null
+  );
+  const [userData, setUserData] = useState(
+    JSON.parse(localStorage.getItem('userData')) || {
+      firstName: '',
+      lastName: '',
+      contact: '',
+      gender: '',
+      email: '',
+    }
+  );
 
   // Monitor auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+      if (user) {
+        setCurrentUser(user);
+        localStorage.setItem('currentUser', JSON.stringify(user));
+      } else {
+        setCurrentUser(null);
+        resetUserData();
+        localStorage.removeItem('currentUser');
+      }
     });
     return unsubscribe;
   }, []);
 
+  // Sync userData with localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('userData', JSON.stringify(userData));
+  }, [userData]);
+
   // Logout function
   const logout = async () => {
     try {
-      await signOut(auth); // Sign out from Firebase Auth
-      setCurrentUser(null); // Optionally clear local state
-      localStorage.removeItem('currentUser'); // Clear any persisted data if needed
-      resetUserData();  // Reset form data on logout
+      await signOut(auth);
+      setCurrentUser(null);
+      resetUserData();
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('userData');
     } catch (error) {
       console.error("Logout failed", error);
     }
   };
 
-  // Reset user data (form state)
+  // Reset user data
   const resetUserData = () => {
     setUserData({
       firstName: '',
@@ -50,7 +67,16 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, logout, userData, setUserData, resetUserData }}>
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        logout,
+        userData,
+        setUserData,
+        resetUserData,
+        isLoggedIn: Boolean(currentUser),
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

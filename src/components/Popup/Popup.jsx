@@ -1,35 +1,54 @@
 import React, { useState } from "react"; 
-import { FaStar, FaShoppingCart, FaHeart, FaShoppingBag } from "react-icons/fa"; 
+import { FaStar, FaShoppingCart, FaHeart, FaShoppingBag ,FaTimes,FaUser,FaLock, FaSignInAlt} from "react-icons/fa"; 
 import { useCart } from "../../context/CartContext"; // Import useCart to access Cart context
 import { useNavigate } from "react-router-dom";
-
+import { useAuth } from "../Authcontext"; // Import the Auth context
+import { UserCircleIcon } from '@heroicons/react/outline';  // or @heroicons/react/solid
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { app } from "../firebase"; // Your firebase configuration
+import { getFirestore, doc, setDoc,getDoc } from "firebase/firestore";
 const Popup = ({ product, onClose }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart(); // Get addToCart function from the Cart context
-
+  const { isLoggedIn } = useAuth(); // Get the login status from Auth context
   const [quantity, setQuantity] = useState(1); // State to track quantity
+  const [loginPrompt, setLoginPrompt] = useState(false); // State to show login prompt
+  const [error, setError] = useState('');  // Add state for error message
+  const [successMessage, setSuccessMessage] = useState(''); // Success message
+  const [errorMessage, setErrorMessage] = useState('');
 
   if (!product) return null; // Ensure product exists before rendering
 
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
   // Handle Add to Cart
   const handleAddToCart = () => {
-    const productToAdd = {
-      ...product,
-      quantity, // Include the selected quantity
-    };
+    if (!isLoggedIn) {
+      setLoginPrompt(true); // Show login prompt if not logged in
+    } else {
+      const productToAdd = {
+        ...product,
+        quantity, // Include the selected quantity
+      };
 
-    addToCart(productToAdd); // Add the product to the cart using the addToCart function
-    navigate('/cart'); // Redirect to the cart page after adding
+      addToCart(productToAdd); // Add the product to the cart using the addToCart function
+      navigate('/cart'); // Redirect to the cart page after adding
+    }
   };
 
   // Add to cart and stay on the page (no redirect)
   const handleBuyNow = () => {
-    const productToAdd = { 
-      ...product, 
-      quantity 
-    };
-    addToCart(productToAdd); // Add the product to the cart context
-    navigate('/checkout'); // Redirect to Checkout page directly
+    if (!isLoggedIn) {
+      setLoginPrompt(true); // Show login prompt if not logged in
+    } else {
+      const productToAdd = { 
+        ...product, 
+        quantity 
+      };
+      addToCart(productToAdd); // Add the product to the cart context
+      navigate('/checkout'); // Redirect to Checkout page directly
+    }
   };
 
   // Increase quantity
@@ -43,6 +62,113 @@ const Popup = ({ product, onClose }) => {
       setQuantity(prevQuantity => prevQuantity - 1);
     }
   };
+ // Toggle modal visibility
+ const handleModalToggle = () => {
+  handleDropdownClick()
+  setShowModal(!showModal); // Toggle modal visibility
+};
+const handleDropdownClick = () => {
+  // Implement the logic for dropdown click here (if needed)
+  console.log("Dropdown clicked!");
+};
+
+const [isSignup, setIsSignup] = useState(false);
+const [email, setEmail] = useState('');
+const [password, setPassword] = useState('');
+const [isAuthenticated, setIsAuthenticated] = useState(false);
+const [username, setUsername] = useState('');
+const [showModal, setShowModal] = useState(false); // Initially set to false
+// Close modal
+const closeModal = () => {
+  setShowModal(false); // Close the modal by setting showModal to false
+};
+const handleSignup = async () => {
+  setError('');
+  setSuccessMessage('');
+
+  if (!email || !password || !username) {
+    setError('Please fill in all fields.');
+    return;
+  }
+  if (password.length < 6) {
+    setError('Password must be at least 6 characters.');
+    return;
+  }
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Save the username in Firestore during signup
+    const userDocRef = doc(db, 'users', email);
+    await setDoc(userDocRef, {
+      email: user.email,
+      username: username, // Set the provided username
+      createdAt: new Date(),
+      lastLogin: new Date(),
+    });
+
+    setSuccessMessage('Account created successfully! Please log in.');
+    setIsSignup(false); // Switch to login form
+
+  } catch (error) {
+    console.error("Signup Error: ", error); // Log error
+    setError(error.message || 'An error occurred. Please try again.');
+  }
+};
+
+const handleLogin = async () => {
+  setError(''); // Reset error message
+  setSuccessMessage(''); // Reset success message
+
+  if (!email || !password) {
+    setError('Please fill in all fields.');
+    return;
+  }
+
+  try {
+    // Log in the user with Firebase Authentication
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Check if the user document exists in Firestore
+    const userDocRef = doc(db, 'users', user.email); // Use user.email as the ID
+    const userDocSnap = await getDoc(userDocRef);
+
+    let fetchedUsername = ''; // Default to empty string
+
+    if (userDocSnap.exists()) {
+      // If user document exists, get the username from Firestore
+      const userData = userDocSnap.data();
+      fetchedUsername = userData.username || 'Default Username'; // Fallback to 'Default Username'
+    } else {
+      // If no user document exists, create one with a default username
+      fetchedUsername = 'Default Username'; // Default username for new users
+      await setDoc(userDocRef, {
+        email: user.email,
+        username: fetchedUsername, // Store default username
+        createdAt: new Date(),
+        lastLogin: new Date(),
+      });
+    }
+
+    // Set user data to state
+    setUsername(fetchedUsername);
+    setIsAuthenticated(true);
+    
+    setSuccessMessage('Login successful!');
+    setShowModal(false); // Close modal after login
+
+    // Store authentication state and username in localStorage
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('username', fetchedUsername);
+    localStorage.setItem('userEmail', user.email); // Optionally store email as well
+
+  } catch (error) {
+    console.error("Login Error: ", error);
+    setError(error.message || 'An error occurred. Please try again.');
+  }
+};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
@@ -150,6 +276,129 @@ const Popup = ({ product, onClose }) => {
           </div>
         </div>
       </div>
+
+  {/* Login Prompt */}
+{loginPrompt && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-8 rounded-md shadow-lg">
+      <h2 className="text-xl font-semibold">Please log in to access your products.</h2>
+      
+      {/* Go to Login Button */}
+      <button 
+        className="flex items-center px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-gradient-to-r hover:from-yellow-500 hover:to-orange-700 transition-colors mt-4"
+        onClick={() => {
+          handleModalToggle();  // Close the modal and open the login prompt
+          setLoginPrompt(false); // Close the login prompt
+        }}
+      >
+        <UserCircleIcon className="w-5 h-5 mr-2" />
+        Go to Login
+      </button>
+      
+      {/* Close Button */}
+      <button
+        onClick={() => setLoginPrompt(false)}
+        className="mt-4 py-2 px-6 bg-gray-300 text-gray-900 rounded-md"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+{/* Show Login Modal after clicking "Go to Login" */}
+{showModal && !isAuthenticated && (
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+    <div className="bg-white p-10 rounded-lg w-96 shadow-lg relative">
+      {/* Close button */}
+      <button onClick={closeModal} className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700">
+        <FaTimes className="text-xl" />
+      </button>
+
+      <h2 className="text-3xl mb-6 text-center font-bold text-gray-800 font-serif">{isSignup ? 'Sign Up' : 'Login'}</h2>
+
+      {/* Success or Error Message */}
+      {successMessage && <p className="text-green-500 text-center">{successMessage}</p>}
+      {error && <p className="text-red-500 text-center">{error}</p>}
+
+      {/* Login or Signup Form */}
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        isSignup ? handleSignup() : handleLogin();
+      }}>
+        {/* Email Field */}
+        <div className="mb-6">
+          <div className="relative">
+            <FaUser className="absolute left-3 top-4 text-black-400" />
+            <input 
+              type="text" 
+              placeholder="Username" 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} 
+              className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <div className="relative">
+            <FaUser className="absolute left-3 top-4 text-black-400" />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Password Field */}
+        <div className="mb-6">
+          <div className="relative">
+            <FaLock className="absolute left-3 top-4 text-black-400" />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <button type="submit" className="w-full bg-gradient-to-r from-yellow-400 to-orange-600 text-white p-3 rounded-lg flex items-center justify-center space-x-2">
+          <FaSignInAlt />
+          <span>{isSignup ? 'Sign Up' : 'Login'}</span>
+        </button>
+      </form>
+
+      {/* Switch to Sign Up / Login */}
+      <p className="text-sm mt-4 text-center text-gray-600">
+        {isSignup ? (
+          <>
+            Already have an account?{' '}
+            <button onClick={() => setIsSignup(false)} className="text-blue-500 hover:underline">Login</button>
+          </>
+        ) : (
+          <>
+            Don't have an account?{' '}
+            <button onClick={() => setIsSignup(true)} className="text-blue-500 hover:underline">Sign Up</button>
+          </>
+        )}
+      </p>
+      
+    </div>
+  </div>
+)}
+{successMessage && <p className="text-green-500">{successMessage}</p>}
+{errorMessage && <p className="text-red-500">{errorMessage}</p>}
+
+      
     </div>
   );
 };
