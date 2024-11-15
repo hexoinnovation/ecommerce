@@ -9,7 +9,7 @@ import { HomeIcon, PhoneIcon } from '@heroicons/react/outline';
 import { useAuth } from '../Authcontext';
 import CartPage from '../Cart/CartPage';
 import CartDrawer from '../Navbar/CartDrawer';
-
+import Topbar from './Topbar';
 const Navbar = () => {
 
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null); // For mobile dropdown toggle
@@ -174,7 +174,6 @@ const handleDropdownClick = () => {
   setDropdownOpen(false); // Close the login dropdown
 };
 
-
 // Close dropdown when clicked outside
 useEffect(() => {
   const handleClickOutside = (event) => {
@@ -225,13 +224,34 @@ const navigate = useNavigate();
   const toggleCartDrawer = () => {
     setCartDrawerOpen(!isCartDrawerOpen);
   };
+  const [isSticky, setIsSticky] = useState(false);
+
+  // Detect scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   return (
     <div>
+      <Topbar/>
+    <div>   
       {/* Upper Navbar */}
-      <nav className="bg-primary/55 text-black dark:bg-gray-900 dark:text-white shadow-md fixed top-0 left-0 w-full z-50">
+      <nav
+      className={`bg-primary/55 text-black dark:bg-gray-900 dark:text-white shadow-md fixed w-full z-50 transition-all duration-300 ease-in-out ${isSticky ? 'top-0' : 'top-12'}`}
+    >
         <div className="max-w-screen-xl mx-auto flex items-center justify-between px-4 py-2">
           {/* Left Side (Toggle Menu and Logo) */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             {/* Mobile toggle button */}
             <button className="lg:hidden text-black dark:text-white" onClick={toggleSidebar}>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -246,16 +266,38 @@ const navigate = useNavigate();
           </div>
 
           {/* Desktop View - Search Bar and Icons */}
-          <div className="hidden lg:flex items-center space-x-4 w-full justify-center">
+          <div className="hidden lg:flex items-center space-x-4 w-full justify-center ">
             <div className="flex items-center space-x-2 flex-grow max-w-3xl">
               <input
                 type="text"
-                className="w-full py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
+                className="w-half py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
                 placeholder="Search for products, brands, and more"
               />
               <button className="bg-primary/40 text-black px-4 py-2 rounded-r-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/40 dark:hover:text-white">
                 Search
               </button>
+     
+<button
+  onClick={handleHomeClick}
+  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-lg flex items-center space-x-2 ml-" // ml-3 for slight right margin
+>
+  <HomeIcon className="h-5 w-5 text-black dark:text-white" /> {/* Home Icon */}
+  <span>Home</span>
+</button>
+
+<Link to={'/view-all'}>
+  <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 mr-5 ml-3"> {/* ml-3 for slight right margin */}
+    <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" /> {/* Shop Icon */}
+    <span>Shop</span>
+  </button>
+</Link>
+
+<button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 mr-5 ml-3"> {/* ml-3 for slight right margin */}
+  <PhoneIcon className="h-5 w-5 text-black dark:text-white" /> {/* Contact Us Icon */}
+  <span>Contact Us</span>
+</button>
+
+
             </div>
           </div>
 
@@ -383,8 +425,7 @@ const navigate = useNavigate();
   <button className="bg-primary/40 text-black px-4 py-2 rounded-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/100 dark:hover:text-white">
     Search
   </button>
-
-<button
+  <button
   onClick={handleHomeClick} 
   className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
 >
@@ -402,36 +443,55 @@ const navigate = useNavigate();
   <span>Contact Us</span>
 </button>
 
-
 </div>
-
 
         </div>
       </div>
 
      {/* Lower Navbar (Desktop View - Category Links) */}
-<div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white">
+<div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white ">
   <div className="max-w-screen-xl mx-auto py-1 px-4">
+    
+    
     {/* Static Category Links */}
     <div className="flex justify-center space-x-6 py-2">
-
-<button
+    <button
   onClick={handleHomeClick} 
   className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-lg flex items-center space-x-2"
 >
-  <HomeIcon className="h-5 w-5 text-black dark:text-white" /> {/* Home Icon */}
-  <span>Home</span>
+  <span>Electronics</span>
 </button>
 <Link to={'/view-all'}>
 <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
-  <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" /> {/* Shop Icon */}
-  <span>Shop</span>
+  
+  <span>Fashion</span>
 </button></Link>
-
 <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
-  <PhoneIcon className="h-5 w-5 text-black dark:text-white" /> {/* Contact Us Icon */}
-  <span>Contact Us</span>
+  
+  <span>Toys</span>
 </button>
+<button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
+  
+  <span>Jewellary</span>
+</button>
+<button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
+  
+  <span>Decoration</span>
+</button>
+<button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
+  
+  <span>Sports</span>
+</button>
+<button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
+  
+  <span>Gift</span>
+</button>
+<button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
+  
+  <span>Books</span>
+</button>
+
+
     </div>
   </div>
 </div>
@@ -445,7 +505,6 @@ const navigate = useNavigate();
             </button>
 
             <h2 className="text-3xl mb-6 text-center font-bold text-gray-800 font-serif">{isSignup ? 'Sign Up' : ' Login'}</h2>
-
 
             {/* Display Success or Error Message */}
             {successMessage && <p className="text-green-500 text-center">{successMessage}</p>}
@@ -526,6 +585,8 @@ const navigate = useNavigate();
       
  
     </div>
+    </div>
+    
   );
 };
 
