@@ -1,5 +1,5 @@
 import React, { useState } from "react"; 
-import { FaStar, FaShoppingCart, FaHeart, FaShoppingBag ,FaTimes,FaUser,FaLock, FaSignInAlt} from "react-icons/fa"; 
+import { FaStar, FaShoppingCart, FaHeart, FaShoppingBag ,FaTimes,FaUser,FaLock, FaSignInAlt,FaCheckCircle,FaTimesCircle} from "react-icons/fa"; 
 import { useCart } from "../../context/CartContext"; // Import useCart to access Cart context
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Authcontext"; // Import the Auth context
@@ -7,37 +7,54 @@ import { UserCircleIcon } from '@heroicons/react/outline';  // or @heroicons/rea
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
 import { getFirestore, doc, setDoc,getDoc } from "firebase/firestore";
+import {collection } from 'firebase/firestore';
+//import { getAuth } from 'firebase/auth';
+
 const Popup = ({ product, onClose }) => {
   const navigate = useNavigate();
-  const { addToCart } = useCart(); // Get addToCart function from the Cart context
-  const { isLoggedIn } = useAuth(); // Get the login status from Auth context
-  const [quantity, setQuantity] = useState(1); // State to track quantity
-  const [loginPrompt, setLoginPrompt] = useState(false); // State to show login prompt
+  const { addToCart } = useCart(); 
+  const { isLoggedIn } = useAuth(); 
+  const [quantity, setQuantity] = useState(1); 
+  const [loginPrompt, setLoginPrompt] = useState(false); 
   const [error, setError] = useState('');  // Add state for error message
   const [successMessage, setSuccessMessage] = useState(''); // Success message
   const [errorMessage, setErrorMessage] = useState('');
+  const [cartItems, setCartItems] = useState([]);
 
   if (!product) return null; // Ensure product exists before rendering
 
   const db = getFirestore(app);
   const auth = getAuth(app);
-
-  // Handle Add to Cart
-  const handleAddToCart = () => {
+  const handleAddToCart = async (product) => {
     if (!isLoggedIn) {
       setLoginPrompt(true); // Show login prompt if not logged in
     } else {
-      const productToAdd = {
-        ...product,
-        quantity, // Include the selected quantity
-      };
-
-      addToCart(productToAdd); // Add the product to the cart using the addToCart function
-      navigate('/cart'); // Redirect to the cart page after adding
+      const auth = getAuth();
+      const db = getFirestore();
+      const user = auth.currentUser;
+  
+      if (user) {
+        const productToAdd = {
+          ...product,
+          quantity,
+        };
+        setCartItems((prevItems) => [...prevItems, productToAdd]); // Update local cart state
+  
+        try {
+          const userCartRef = collection(db, 'users', user.email, 'AddToCart');
+          await setDoc(doc(userCartRef, product.id.toString()), productToAdd);
+          setSuccessMessage('Your product has been added to the cart successfully!');
+          setErrorMessage('');
+          navigate('/cart');
+        } catch (error) {
+          console.error('Error adding product to Firestore:', error);
+          setErrorMessage('Failed to add product to the cart.');
+        }
+      }
+      incrementCartCount();
     }
   };
 
-  // Add to cart and stay on the page (no redirect)
   const handleBuyNow = () => {
     if (!isLoggedIn) {
       setLoginPrompt(true); // Show login prompt if not logged in
@@ -47,6 +64,7 @@ const Popup = ({ product, onClose }) => {
         quantity 
       };
       addToCart(productToAdd); // Add the product to the cart context
+      
       navigate('/checkout'); // Redirect to Checkout page directly
     }
   };
@@ -78,6 +96,7 @@ const [password, setPassword] = useState('');
 const [isAuthenticated, setIsAuthenticated] = useState(false);
 const [username, setUsername] = useState('');
 const [showModal, setShowModal] = useState(false); // Initially set to false
+const { incrementCartCount } = useAuth();
 // Close modal
 const closeModal = () => {
   setShowModal(false); // Close the modal by setting showModal to false
@@ -170,6 +189,7 @@ const handleLogin = async () => {
   }
 };
 
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div className="relative w-full max-w-2xl sm:max-w-lg lg:max-w-4xl bg-white dark:bg-gray-900 rounded-lg shadow-lg overflow-hidden max-h-[90vh] sm:max-h-[90vh] lg:max-h-[95vh]">
@@ -256,16 +276,33 @@ const handleLogin = async () => {
               {/* Add to Cart and Buy Now Buttons */}
               <div className="flex gap-4 mt-6 flex-wrap">
                 <button
-                  onClick={handleAddToCart} // Trigger the add to cart function
+                 onClick={() => handleAddToCart(product)}// Trigger the add to cart function
                   className="w-full sm:w-70 py-3 bg-primary text-white font-semibold rounded-md shadow-md hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
                 >
                   <FaShoppingCart /> Add to Cart
                 </button>
+                 
                 <button onClick={handleBuyNow}
                 className="w-full sm:w-70 py-3 bg-green-500 text-white font-semibold rounded-md shadow-md hover:bg-green-600 transition-colors flex items-center justify-center gap-2">
                   <FaShoppingBag /> Buy Now
                 </button>
               </div>
+ {/* Success or Error Message */}
+{successMessage && (
+  <div className="flex items-center bg-white-500 text-yellow-800 p-3 rounded-lg shadow-lg mb-4 animate-slideIn">
+  <FaShoppingCart className="mr-3 text-7xl animate-bounce" />
+  <div className="flex flex-col">
+    <p className="text-center text-lg font-bold">{successMessage}</p>
+  </div>
+</div>
+)}
+
+{error && (
+  <div className="flex items-center bg-red-500 text-white p-4 rounded-lg shadow-lg mb-4 animate-slideIn">
+    <FaTimesCircle className="mr-3 text-2xl" />
+    <p className="text-center text-lg">{error}</p>
+  </div>
+)}
 
               {/* Product Description */}
               <div className="mt-8">
@@ -314,13 +351,8 @@ const handleLogin = async () => {
       <button onClick={closeModal} className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700">
         <FaTimes className="text-xl" />
       </button>
-
+   
       <h2 className="text-3xl mb-6 text-center font-bold text-gray-800 font-serif">{isSignup ? 'Sign Up' : 'Login'}</h2>
-
-      {/* Success or Error Message */}
-      {successMessage && <p className="text-green-500 text-center">{successMessage}</p>}
-      {error && <p className="text-red-500 text-center">{error}</p>}
-
       {/* Login or Signup Form */}
       <form onSubmit={(e) => {
         e.preventDefault();
@@ -369,12 +401,13 @@ const handleLogin = async () => {
             />
           </div>
         </div>
-
+    
         {/* Submit Button */}
         <button type="submit" className="w-full bg-gradient-to-r from-yellow-400 to-orange-600 text-white p-3 rounded-lg flex items-center justify-center space-x-2">
           <FaSignInAlt />
           <span>{isSignup ? 'Sign Up' : 'Login'}</span>
         </button>
+      
       </form>
 
       {/* Switch to Sign Up / Login */}
@@ -390,15 +423,10 @@ const handleLogin = async () => {
             <button onClick={() => setIsSignup(true)} className="text-blue-500 hover:underline">Sign Up</button>
           </>
         )}
-      </p>
-      
+      </p>   
     </div>
   </div>
-)}
-{successMessage && <p className="text-green-500">{successMessage}</p>}
-{errorMessage && <p className="text-red-500">{errorMessage}</p>}
-
-      
+)}     
     </div>
   );
 };

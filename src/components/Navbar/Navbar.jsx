@@ -7,13 +7,17 @@ import { app } from "../firebase"; // Your firebase configuration
 import { Link, useNavigate } from 'react-router-dom';
 import { HomeIcon, PhoneIcon } from '@heroicons/react/outline';
 import { useAuth } from '../Authcontext';
+import CartPage from '../Cart/CartPage';
+import CartDrawer from '../Navbar/CartDrawer';
+
 const Navbar = () => {
 
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null); // For mobile dropdown toggle
   const [dropdownOpen, setDropdownOpen] = useState(false); // For login dropdown
   const [isDarkMode, setIsDarkMode] = useState(false); // For dark mode toggle
   const [sidebarOpen, setSidebarOpen] = useState(false); // For sidebar visibility
-
+  //const { cartCount, incrementCartCount, decrementCartCount } = useAuth(); // Access cart count and functions
+  const { cartCount } = useAuth(); // Access cartCount from context
   const db = getFirestore(app);
   const auth = getAuth(app);
   const [error, setError] = useState('');  // Add state for error message
@@ -210,6 +214,17 @@ const navigate = useNavigate();
   const handleHomeClick = () => {
     navigate('/');
   };
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State to manage drawer visibility
+
+  const toggleDrawer = () => {
+    setIsDrawerOpen(!isDrawerOpen); // Toggle the drawer open/close
+  };
+  const [isCartDrawerOpen, setCartDrawerOpen] = useState(false); // State to manage the drawer visibility
+
+  // Function to open the cart drawer
+  const toggleCartDrawer = () => {
+    setCartDrawerOpen(!isCartDrawerOpen);
+  };
   return (
     <div>
       {/* Upper Navbar */}
@@ -317,14 +332,21 @@ const navigate = useNavigate();
       </div>
     )}
   </div>
+  <button className="text-black dark:text-white"  onClick={toggleCartDrawer}>
+        <ShoppingCartIcon className="w-6 h-6" />
+        {cartCount > 0 && (
+           <span className="absolute top-1 right-28 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            {cartCount}
+          </span>
+        )}
 
-
-
-            {/* Cart Icon */}
-            <button className="text-black dark:text-white">
-              <ShoppingCartIcon className="w-6 h-6" />
-            </button>
-
+      </button>
+       {/* Drawer for Cart */}
+     {/* Cart Drawer */}
+     <CartDrawer
+        isOpen={isCartDrawerOpen}
+        closeDrawer={toggleCartDrawer} // Function to close the drawer when clicked outside or when user clicks the close button
+      />
             {/* Admin Icon (replaced with User Icon for now) */}
             <button className="text-black dark:text-white">
               <UserIcon className="w-6 h-6" />

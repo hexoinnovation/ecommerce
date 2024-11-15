@@ -19,6 +19,7 @@ import CartPage from './components/Cart/CartPage';
 import { AuthProvider } from './components/Authcontext'; // Adjust the path
 import { CartProvider } from './context/CartContext'; // Ensure you're importing your CartProvider
 import AccountPage from './components/Navbar/AccountPage'; // Adjust the path to AccountPage.js
+
 const App = () => {
   const [orderPopup, setOrderPopup] = useState(false);
 
