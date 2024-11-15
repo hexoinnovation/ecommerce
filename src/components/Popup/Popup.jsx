@@ -22,7 +22,6 @@ const Popup = ({ product, onClose }) => {
   const [cartItems, setCartItems] = useState([]);
 
   if (!product) return null; // Ensure product exists before rendering
-
   const db = getFirestore(app);
   const auth = getAuth(app);
   const handleAddToCart = async (product) => {
@@ -44,16 +43,16 @@ const Popup = ({ product, onClose }) => {
           const userCartRef = collection(db, 'users', user.email, 'AddToCart');
           await setDoc(doc(userCartRef, product.id.toString()), productToAdd);
           setSuccessMessage('Your product has been added to the cart successfully!');
-          setErrorMessage('');
+          incrementCartCount(); // Increment only after successful addition to Firestore
           navigate('/cart');
         } catch (error) {
           console.error('Error adding product to Firestore:', error);
           setErrorMessage('Failed to add product to the cart.');
         }
       }
-      incrementCartCount();
     }
   };
+  
 
   const handleBuyNow = () => {
     if (!isLoggedIn) {

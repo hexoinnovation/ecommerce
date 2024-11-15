@@ -105,7 +105,7 @@ const App = () => {
         {/* Popup for Order */}
         <Popup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
       </div>
-      <Sidebar/>
+    
     </CartProvider>  
     </AuthProvider>
   );

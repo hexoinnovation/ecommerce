@@ -11,6 +11,7 @@ const CartPage = () => {
   const auth = getAuth(); // Firebase Auth instance
   const db = getFirestore(); // Firestore instance
 
+  const [cartCount, setCartCount] = useState(0);
   // Calculate the total price of the cart
   const calculateTotal = () => {
     return userCartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -39,8 +40,10 @@ const CartPage = () => {
       }
     }
   };
+ 
   const handleRemoveFromCart = async (itemId) => {
-    console.log("Removing item with ID:", itemId); // Debugging log
+    console.log("Removing item with ID:", itemId);
+  
     const user = auth.currentUser;
     if (!user) {
       console.error('No user is logged in. Cannot remove item.');
@@ -48,24 +51,32 @@ const CartPage = () => {
     }
   
     try {
-      const userDocRef = doc(db, 'users', user.email);
-      const cartRef = collection(userDocRef, 'AddToCart');
-      const itemDocRef = doc(cartRef, itemId.toString());
-  
-      await deleteDoc(itemDocRef);
-      console.log('Item removed from Firestore:', itemId);
-  
-      // Update local state to reflect removal
-      setUserCartItems(prevItems => {
-        const updatedItems = prevItems.filter(item => item.id !== itemId);
-        setIsEmpty(updatedItems.length === 0); // Check if cart is empty after removal
+      // Optimistically update the state (before Firestore deletion)
+      setUserCartItems((prevItems) => {
+        const updatedItems = prevItems.filter((item) => item.id !== itemId);
+        const updatedCount = updatedItems.length;
+        setCartCount(updatedCount); // Update the cart count in state immediately
+        localStorage.setItem('cartCount', updatedCount); // Persist count in localStorage
+        setIsEmpty(updatedItems.length === 0); // Check if cart is empty
         return updatedItems;
       });
   
+      // Reference to the specific item document in Firestore
+      const itemDocRef = doc(db, 'users', user.email, 'AddToCart', itemId.toString());
+  
+      // Delete the item from Firestore
+      await deleteDoc(itemDocRef);
+      console.log('Item removed from Firestore:', itemId);
+  
     } catch (error) {
       console.error('Error removing item from Firestore:', error);
+  
+      // If deletion fails, you can revert to the original state
+      fetchCartFromFirestore(); // Optionally, reload the data from Firestore
     }
   };
+  
+  
   
  const loadCartFromLocalStorage = () => {
   const savedCart = localStorage.getItem('userCart');
@@ -75,12 +86,17 @@ const CartPage = () => {
   }
 };
 
-// Fetch the cart data when component mounts and when `auth.currentUser` changes
-useEffect(() => {
+ // Fetch the cart items when component mounts and when `auth.currentUser` changes
+ useEffect(() => {
   if (auth.currentUser) {
     fetchCartFromFirestore(); // Fetch from Firestore if the user is logged in
   } else {
-    loadCartFromLocalStorage(); // Load from localStorage if no user is logged in
+    const savedCart = localStorage.getItem('userCart');
+    if (savedCart) {
+      setUserCartItems(JSON.parse(savedCart)); // Load from localStorage if no user is logged in
+      setCartCount(JSON.parse(savedCart).length); // Set cart count from localStorage
+      setIsEmpty(false);
+    }
   }
 }, [auth.currentUser]); // Dependency on auth.currentUser
   return (

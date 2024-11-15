@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from './firebase'; // Firebase auth instance
+import { auth,db} from './firebase'; // Firebase auth and firestore instances
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { collection, getDocs } from 'firebase/firestore';
 
-// AuthContext and CartContext
 const AuthContext = createContext();
 export function useAuth() {
   return useContext(AuthContext);
@@ -29,16 +29,26 @@ export function AuthProvider({ children }) {
     parseInt(localStorage.getItem('cartCount'), 10) || 0
   );
 
-  // Monitor auth state changes
+  // Monitor auth state changes and fetch cart count on login
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user);
         localStorage.setItem('currentUser', JSON.stringify(user));
+        
+        // Fetch user's cart count from Firestore
+        
+        const userCartRef = collection(db, 'users', user.email, 'AddToCart');
+        const cartSnapshot = await getDocs(userCartRef);
+        const count = cartSnapshot.size; // Get the count of items in the cart
+        setCartCount(count); // Set cart count
+        localStorage.setItem('cartCount', count); // Sync with localStorage
       } else {
         setCurrentUser(null);
         resetUserData();
+        setCartCount(0); // Reset cart count on logout
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('cartCount');
       }
     });
     return unsubscribe;
@@ -60,8 +70,10 @@ export function AuthProvider({ children }) {
       await signOut(auth);
       setCurrentUser(null);
       resetUserData();
+      setCartCount(0); // Clear cart count on logout
       localStorage.removeItem('currentUser');
       localStorage.removeItem('userData');
+      localStorage.removeItem('cartCount');
     } catch (error) {
       console.error("Logout failed", error);
     }
@@ -87,7 +99,7 @@ export function AuthProvider({ children }) {
     setCartCount((prevCount) => Math.max(0, prevCount - 1));
   };
 
-  // Providing both AuthContext and CartContext
+  // Provide AuthContext to children components
   return (
     <AuthContext.Provider
       value={{

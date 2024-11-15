@@ -97,167 +97,170 @@ const AccountPage = () => {
   return (
     <div>
       <Navbar />
-      <div className="flex flex-col lg:flex-row justify-center p-6">
-        <div className="lg:w-1/5 w-full bg-white text-black p-6 border rounded-lg shadow-md mb-6 lg:mb-0 mr-10">
-          <div className="text-center mb-6">
-            <img
-              src="src/assets/common/person.avif"
-              alt="User"
-              className="rounded-full w-24 h-24 mx-auto"
-            />
-            <h2 className="text-xl font-semibold mt-2">Hello, {currentUser?.displayName || 'User'}</h2>
-          </div>
-          <ul className="mt-4 space-y-4 ml-7">
-            <h2 className="text-1xl font-semibold flex items-center space-x-2">
-              <FontAwesomeIcon icon={faCogs} className="text-gray-600" />
-              <b>Account Settings</b>
-            </h2>
-            <li>
-              <button
-                onClick={() => { setIsEditing(true); setIsAddressAdding(false); }}
-                className="text-lg hover:text-gray-400 transition-colors"
-              >
-                Personal Information
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => { setIsAddressAdding(true); setIsEditing(false); }}
-                className="text-lg hover:text-gray-400 transition-colors"
-              >
-                Manage Address
-              </button>
-            </li>
-            <h2 className="text-1xl font-semibold flex items-center space-x-2">
-              <FontAwesomeIcon icon={faBox} className="text-gray-600" />
-              <b>My Stuff</b>
-            </h2>
-            <li>
-              <button className="text-lg hover:text-gray-400 transition-colors">
-                My Wishlist
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        <div className="w-full lg:w-[500px] p-6 bg-white border rounded-lg shadow-md">
-          {isEditing ? (
-            <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-md max-w-md mx-auto">
-              <h2 className="text-2xl font-semibold mb-4 text-gray-800">Personal Information</h2>
-             
-              <form className="space-y-4">
-  {['firstName', 'lastName', 'contact', 'email'].map((field, idx) => (
-    <div key={idx} className="bg-gradient-to-r from-yellow-400 to-orange-500 p-[1px] rounded-lg">
-      <input
-        type="text"
-        name={field}
-        value={formData[field]}
-        onChange={handleChange}
-        className="w-full p-3 rounded-lg bg-white dark:bg-white text-black dark:text-black focus:outline-none"
-        placeholder={field.replace(/^\w/, (c) => c.toUpperCase())}
+      <div className="flex flex-col lg:flex-row justify-center p-6 space-y-6 lg:space-y-0 lg:space-x-6">
+  {/* Sidebar Section */}
+  <div className="lg:w-1/4 w-full bg-white text-black p-6 border rounded-lg shadow-md">
+    <div className="text-center mb-6">
+      <img
+        src="src/assets/common/person.avif"
+        alt="User"
+        className="rounded-full w-24 h-24 mx-auto"
       />
+      <h2 className="text-xl font-semibold mt-2">Hello, {currentUser?.displayName || 'User'}</h2>
     </div>
-  ))}
-
-  <div className="mt-4">
-    <label className="mr-4 text-gray-700 dark:text-black">Gender</label>
-    <label className="mr-4 text-gray-700 dark:text-black" >
-      <input
-        type="radio"
-        name="gender"
-        value="Male"
-        checked={formData.gender === 'Male'}
-        onChange={handleChange}
-        className="mr-2"
-      />
-      Male
-    </label>
-    <label  className="mr-4 text-gray-700 dark:text-black">
-      <input
-        type="radio"
-        name="gender"
-        value="Female"
-        checked={formData.gender === 'Female'}
-        onChange={handleChange}
-        className="mr-2"
-      />
-      Female
-    </label>
+    <ul className="mt-4 space-y-4 flex flex-col items-center lg:items-start ml-10">
+      <h2 className="text-xl font-semibold flex items-center space-x-2">
+        <FontAwesomeIcon icon={faCogs} className="text-gray-600" />
+        <b>Account Settings</b>
+      </h2>
+      <li>
+        <button
+          onClick={() => { setIsEditing(true); setIsAddressAdding(false); }}
+          className="text-lg hover:text-gray-400 transition-colors"
+        >
+          Personal Information
+        </button>
+      </li>
+      <li>
+        <button
+          onClick={() => { setIsAddressAdding(true); setIsEditing(false); }}
+          className="text-lg hover:text-gray-400 transition-colors"
+        >
+          Manage Address
+        </button>
+      </li>
+      <h2 className="text-xl font-semibold flex items-center space-x-2">
+        <FontAwesomeIcon icon={faBox} className="text-gray-600" />
+        <b>My Stuff</b>
+      </h2>
+      <li>
+        <button className="text-lg hover:text-gray-400 transition-colors">
+          My Wishlist
+        </button>
+      </li>
+    </ul>
   </div>
 
-  <button
-    type="button"
-    onClick={handleSave}
-    className="w-1/3 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-md hover:bg-yellow-400 transitionmr-4 text-gray-700 dark:text-black font-bold"
-  >
-    Save
-  </button>
-</form>
-</div>
-          ) : isAddressAdding ? (
-            <div>
-            <h2 className="text-2xl font-semibold mb-4">Manage Address</h2>
-            <div className="space-y-4"> {/* Stack elements vertically */}
-            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-[1px] rounded-lg">
-    <textarea
-      value={address}
-      onChange={handleAddressChange}
-      className="w-full p-2 rounded-lg bg-white dark:bg-white text-gray-700 dark:text-black focus:outline-none"
-      placeholder="Add a new address"
-    />
-  </div>
-  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-[1px] rounded-lg">
-    <textarea
-      value={address2}
-      onChange={handleAddress2Change}
-      className="w-full p-2 rounded-lg bg-white dark:bg-white text-gray-700 dark:text-black focus:outline-none"
-      placeholder="Add a second address"
-    />
-  </div>
+  {/* Main Form Section */}
+  <div className="w-full lg:w-3/4 bg-white p-6 border rounded-lg shadow-md">
+    {isEditing ? (
+      <div className="w-full max-w-xl mx-auto ml-20">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800 ">Personal Information</h2>
+        <form className="space-y-4">
+          {['firstName', 'lastName', 'contact', 'email'].map((field, idx) => (
+            <div key={idx} className="bg-gradient-to-r from-yellow-400 to-orange-500 p-[1px] rounded-lg mr-40 ">
+              <input
+                type="text"
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                className="w-full p-3 rounded-lg bg-white dark:bg-white text-black dark:text-black focus:outline-none focus:ring-2 focus:ring-yellow-400 "
+                placeholder={field.replace(/^\w/, (c) => c.toUpperCase())}
+              />
             </div>
-            <button
-  onClick={handleSave}
-  className="mt-4 py-2 px-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-md hover:bg-yellow-400 transition mr-4 text-gray-700 dark:text-black"
->
-  Save Address
-</button>
+          ))}
 
+          <div className="mt-4">
+            <label className="mr-4 text-gray-700 dark:text-black">Gender</label>
+            <label className="mr-4 text-gray-700 dark:text-black">
+              <input
+                type="radio"
+                name="gender"
+                value="Male"
+                checked={formData.gender === 'Male'}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              Male
+            </label>
+            <label className="mr-4 text-gray-700 dark:text-black">
+              <input
+                type="radio"
+                name="gender"
+                value="Female"
+                checked={formData.gender === 'Female'}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              Female
+            </label>
           </div>
-          
-           
-          ) : (
-            <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-md max-w-md mx-auto">
-              <h2 className="text-2xl font-semibold mb-6 text-gray-800 border-b pb-2 border-gray-300">Your Information</h2>
-              <div className="space-y-4">
-                <div className="flex gap-x-13">
-                  <p className="text-gray-600 font-medium w-1/3">Name:</p>
-                  <p className="text-gray-900 w-2/3">{formData.firstName} {formData.lastName}</p>
-                </div>
-                <div className="flex gap-x-13">
-                  <p className="text-gray-600 font-medium w-1/3">Email:</p>
-                  <p className="text-gray-900 w-2/3">{formData.email}</p>
-                </div>
-                <div className="flex gap-x-13">
-                  <p className="text-gray-600 font-medium w-1/3">Contact:</p>
-                  <p className="text-gray-900 w-2/3">{formData.contact}</p>
-                </div>
-                <div className="flex gap-x-13">
-                  <p className="text-gray-600 font-medium w-1/3">Address:</p>
-                  <p className="text-gray-900 w-2/3">{address || 'No address added yet'}</p>
-                </div>
-                <div className="flex gap-x-13">
-                  <p className="text-gray-600 font-medium w-1/3">Address 2:</p>
-                  <p className="text-gray-900 w-2/3">{address2 || 'No second address added yet'}</p>
-                </div>
-              </div>
-            </div>
-          )}
-           {/* Show success or error message */}
-           {successMessage && <p className="text-green-500">{successMessage}</p>}
-          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+
+          <button
+            type="button"
+            onClick={handleSave}
+            className="w-1/3 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-md hover:bg-yellow-400 transition-colors font-bold"
+          >
+            Save
+          </button>
+           {/* Success/Error Messages */}
+    {successMessage && <p className="text-green-500">{successMessage}</p>}
+    {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+        </form>
+      </div>
+    ) : isAddressAdding ? (
+      <div className="w-full max-w-xl mx-auto ml-20">
+        <h2 className="text-2xl font-semibold mb-4">Manage Address</h2>
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-[1px] rounded-lg mr-40">
+            <textarea
+              value={address}
+              onChange={handleAddressChange}
+              className="w-full p-2 rounded-lg bg-white dark:bg-white text-gray-700 dark:text-black focus:outline-none focus:ring-2 focus:ring-yellow-400 "
+              placeholder="Add a new address"
+            />
+          </div>
+          <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-[1px] rounded-lg mr-40">
+            <textarea
+              value={address2}
+              onChange={handleAddress2Change}
+              className="w-full p-2 rounded-lg bg-white dark:bg-white text-gray-700 dark:text-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              placeholder="Add a second address"
+            />
+          </div>
+        </div>
+        <button
+          onClick={handleSave}
+          className="mt-4 py-2 px-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-md hover:bg-yellow-400 transition-colors"
+        >
+          Save Address
+        </button>
+      </div>
+    ) : (
+      <div className="w-full max-w-xl mx-auto ml-12">
+<h2 className="text-2xl font-semibold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 pb-2">
+  Your Information
+</h2>
+        <div className="space-y-4">
+          <div className="flex gap-x-4">
+            <p className="text-gray-900 font-medium w-1/3">Name:</p>
+            <p className="text-gray-900 w-2/3 mr-60">{formData.firstName} {formData.lastName}</p>
+          </div>
+          <div className="flex gap-x-4">
+            <p className="text-gray-900 font-medium w-1/3">Email:</p>
+            <p className="text-gray-900 w-2/3 mr-60">{formData.email}</p>
+          </div>
+          <div className="flex gap-x-4">
+            <p className="text-gray-900 font-medium w-1/3">Contact:</p>
+            <p className="text-gray-900 w-2/3 mr-60">{formData.contact}</p>
+          </div>
+          <div className="flex gap-x-4">
+            <p className="text-gray-900 font-medium w-1/3">Address:</p>
+            <p className="text-gray-900 w-2/3 mr-60">{address || 'No address added yet'}</p>
+          </div>
+          <div className="flex gap-x-4">
+            <p className="text-gray-900 font-medium w-1/3">Address 2:</p>
+            <p className="text-gray-900 w-2/3 mr-60">{address2 || 'No second address added yet'}</p>
+          </div>
         </div>
       </div>
-      <Footer />
+    )}
+
+   
+  </div>
+</div>
+<Footer />
+
     </div>
   );
 };
