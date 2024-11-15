@@ -9,18 +9,18 @@ import Img8 from "../../assets/shirt/shirt3.png";
 // Data with correct image paths
 const ProductsData = [
   {
-    id: 12,
+    id: 8,
     img: Img6,
-    title: "Product 12",
+    title: "Product 8",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...Lorem ipsum dolor sit amet, consectetur adipiscing elit...Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
     color: "Blue",
     rating: 4,
     price: 999,
   },
   {
-    id: 13,
+    id: 9,
     img: Img7,
-    title: "Product 13",
+    title: "Product 9",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
     color: "White",
     rating: 5,
@@ -28,9 +28,9 @@ const ProductsData = [
     
   },
   {
-    id: 14,
+    id: 10,
     img: Img8,
-    title: "Product 14",
+    title: "Product 10",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
     color: "Pink",
     rating: 3,

@@ -1,16 +1,88 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaTrashAlt, FaShoppingCart, FaChevronLeft } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext'; // Access Cart Context
+import { getFirestore, doc, collection, getDocs, deleteDoc } from 'firebase/firestore'; // Firestore functions
+import { getAuth } from 'firebase/auth'; // Firebase Auth
 
 const CartPage = () => {
-  const { cartItems, removeFromCart } = useCart(); // Get cart items and remove function
+  const [userCartItems, setUserCartItems] = useState([]); // State for storing cart items from Firestore
+  const [isEmpty, setIsEmpty] = useState(false); // State to check if cart is empty
+  const auth = getAuth(); // Firebase Auth instance
+  const db = getFirestore(); // Firestore instance
 
   // Calculate the total price of the cart
   const calculateTotal = () => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    return userCartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
+   // Function to fetch cart items from Firestore
+   const fetchCartFromFirestore = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const userDocRef = doc(db, 'users', user.email); 
+        const cartRef = collection(userDocRef, 'AddToCart');
+        const cartSnapshot = await getDocs(cartRef); 
+
+        if (!cartSnapshot.empty) {
+          const cartData = cartSnapshot.docs.map(doc => doc.data());
+          setUserCartItems(cartData); 
+          localStorage.setItem('userCart', JSON.stringify(cartData)); // Save to localStorage
+          setIsEmpty(false); 
+        } else {
+          setUserCartItems([]); 
+          setIsEmpty(true); 
+        }
+      } catch (error) {
+        console.error('Error fetching cart from Firestore:', error);
+      }
+    }
+  };
+  const handleRemoveFromCart = async (itemId) => {
+    console.log("Removing item with ID:", itemId); // Debugging log
+    const user = auth.currentUser;
+    if (!user) {
+      console.error('No user is logged in. Cannot remove item.');
+      return;
+    }
+  
+    try {
+      const userDocRef = doc(db, 'users', user.email);
+      const cartRef = collection(userDocRef, 'AddToCart');
+      const itemDocRef = doc(cartRef, itemId.toString());
+  
+      await deleteDoc(itemDocRef);
+      console.log('Item removed from Firestore:', itemId);
+  
+      // Update local state to reflect removal
+      setUserCartItems(prevItems => {
+        const updatedItems = prevItems.filter(item => item.id !== itemId);
+        setIsEmpty(updatedItems.length === 0); // Check if cart is empty after removal
+        return updatedItems;
+      });
+  
+    } catch (error) {
+      console.error('Error removing item from Firestore:', error);
+    }
+  };
+  
+ const loadCartFromLocalStorage = () => {
+  const savedCart = localStorage.getItem('userCart');
+  if (savedCart) {
+    setUserCartItems(JSON.parse(savedCart)); 
+    setIsEmpty(false); 
+  }
+};
+
+// Fetch the cart data when component mounts and when `auth.currentUser` changes
+useEffect(() => {
+  if (auth.currentUser) {
+    fetchCartFromFirestore(); // Fetch from Firestore if the user is logged in
+  } else {
+    loadCartFromLocalStorage(); // Load from localStorage if no user is logged in
+  }
+}, [auth.currentUser]); // Dependency on auth.currentUser
   return (
     <div className="container mt-14 sm:mt-5 mx-auto px-4 sm:px-6 lg:px-16 py-8">
       {/* Cart Header */}
@@ -31,7 +103,7 @@ const CartPage = () => {
       {/* Cart Content (Items and Summary) */}
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Cart Items Section (Left Side) */}
-        {cartItems.length === 0 ? (
+        {isEmpty ? (
           <div className="flex flex-col justify-center items-center mt-10 w-full shadow-lg p-6 rounded-lg">
             <FaShoppingCart className="text-6xl text-gray-400" />
             <h2 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mt-4">Your cart is empty.</h2>
@@ -44,7 +116,7 @@ const CartPage = () => {
           </div>
         ) : (
           <div className="flex flex-col space-y-6 lg:w-3/4">
-            {cartItems.map((item) => (
+            {userCartItems.map((item) => (
               <div
                 key={item.id}
                 className="flex items-center justify-between bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 space-x-6"
@@ -63,20 +135,19 @@ const CartPage = () => {
                   </div>
                 </Link>
 
-                {/* Remove from Cart Button */}
                 <button
-                  onClick={() => removeFromCart(item.id)}
-                  className="text-red-500 hover:text-red-700 transition duration-200"
-                >
-                  <FaTrashAlt size={20} />
-                </button>
+            onClick={() => handleRemoveFromCart(item.id)}
+            className="text-red-500 hover:text-red-700 transition duration-200"
+          >
+            <FaTrashAlt size={20} />
+          </button>
               </div>
             ))}
           </div>
         )}
 
         {/* Cart Summary Section (Right Side) */}
-        {cartItems.length > 0 && (
+        {userCartItems.length > 0 && (
           <div className="mt-6 lg:w-1/4 bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Order Summary</h3>
             <div className="flex justify-between text-lg font-semibold text-gray-800 dark:text-white mb-2">

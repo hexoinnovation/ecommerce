@@ -4,32 +4,27 @@ import { FaUser, FaLock, FaSignInAlt,FaTimes } from 'react-icons/fa'; // Importi
 import { getFirestore, doc, setDoc,getDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
-import { useNavigate } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
+import { HomeIcon, PhoneIcon } from '@heroicons/react/outline';
 import { useAuth } from '../Authcontext';
+import CartPage from '../Cart/CartPage';
+import CartDrawer from '../Navbar/CartDrawer';
+
 const Navbar = () => {
 
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null); // For mobile dropdown toggle
   const [dropdownOpen, setDropdownOpen] = useState(false); // For login dropdown
   const [isDarkMode, setIsDarkMode] = useState(false); // For dark mode toggle
   const [sidebarOpen, setSidebarOpen] = useState(false); // For sidebar visibility
-
+  //const { cartCount, incrementCartCount, decrementCartCount } = useAuth(); // Access cart count and functions
+  const { cartCount } = useAuth(); // Access cartCount from context
   const db = getFirestore(app);
   const auth = getAuth(app);
   const [error, setError] = useState('');  // Add state for error message
   const [successMessage, setSuccessMessage] = useState(''); // Success message
   const dropdownRef = useRef(null);
 
-  const categories = [
-    { name: 'Electronics', subcategories: ['Phones', 'Laptops', 'Cameras'] },
-    { name: 'Fashion', subcategories: ['Men', 'Women', 'Kids'] },
-    { name: 'Home', subcategories: ['Furniture', 'Decor', 'Appliances'] },
-    { name: 'Appliances', subcategories: ['Kitchen', 'Laundry', 'Cleaning'] },
-    { name: 'Books', subcategories: ['Fiction', 'Non-Fiction', 'E-books'] },
-    { name: 'Toys', subcategories: ['Action Figures', 'Dolls', 'Puzzles'] },
-    { name: 'Sports', subcategories: ['Football', 'Basketball', 'Fitness'] },
-  ];
-
+  
   // Toggle category dropdown visibility for mobile view
   const toggleCategoryDropdown = (index) => {
     if (openCategoryIndex === index) {
@@ -216,7 +211,20 @@ const navigate = useNavigate();
       setDropdownOpen(false);      // Close the dropdown after logout
     }
   };
-  
+  const handleHomeClick = () => {
+    navigate('/');
+  };
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State to manage drawer visibility
+
+  const toggleDrawer = () => {
+    setIsDrawerOpen(!isDrawerOpen); // Toggle the drawer open/close
+  };
+  const [isCartDrawerOpen, setCartDrawerOpen] = useState(false); // State to manage the drawer visibility
+
+  // Function to open the cart drawer
+  const toggleCartDrawer = () => {
+    setCartDrawerOpen(!isCartDrawerOpen);
+  };
   return (
     <div>
       {/* Upper Navbar */}
@@ -324,14 +332,21 @@ const navigate = useNavigate();
       </div>
     )}
   </div>
+  <button className="text-black dark:text-white"  onClick={toggleCartDrawer}>
+        <ShoppingCartIcon className="w-6 h-6" />
+        {cartCount > 0 && (
+           <span className="absolute top-1 right-28 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            {cartCount}
+          </span>
+        )}
 
-
-
-            {/* Cart Icon */}
-            <button className="text-black dark:text-white">
-              <ShoppingCartIcon className="w-6 h-6" />
-            </button>
-
+      </button>
+       {/* Drawer for Cart */}
+     {/* Cart Drawer */}
+     <CartDrawer
+        isOpen={isCartDrawerOpen}
+        closeDrawer={toggleCartDrawer} // Function to close the drawer when clicked outside or when user clicks the close button
+      />
             {/* Admin Icon (replaced with User Icon for now) */}
             <button className="text-black dark:text-white">
               <UserIcon className="w-6 h-6" />
@@ -358,100 +373,65 @@ const navigate = useNavigate();
             </button>
           </div>
 
-          {/* Search Bar */}
-          <div className="mb-4 flex items-center space-x-2">
-            <input
-              type="text"
-              className="w-full py-2 px-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
-              placeholder="Search for products, brands, and more"
-            />
-            <button className="bg-primary/40 text-black px-4 py-2 rounded-r-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/100 dark:hover:text-white">
-                Search
-              </button>
-          </div>
+         {/* Search Bar */}
+<div className="mb-4 flex flex-col space-y-4 sm:flex-row sm:space-x-2">
+  <input
+    type="text"
+    className="w-full py-2 px-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
+    placeholder="Search for products, brands, and more"
+  />
+  <button className="bg-primary/40 text-black px-4 py-2 rounded-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/100 dark:hover:text-white">
+    Search
+  </button>
 
-          {/* Categories List */}
-          <div>
-            <h3 className="font-semibold text-lg text-black dark:text-white">Categories</h3>
-            <ul className="space-y-2 mt-4">
-              {categories.map((category, index) => (
-                <li key={category.name}>
-                  <button
-                    onClick={() => toggleCategoryDropdown(index)}
-                    className="w-full text-left flex items-center space-x-2 hover:bg-primary/40 px-4 py-2 rounded-md"
-                  >
-                    <span>{category.name}</span>
-                    <svg
-                      className={`w-4 h-4 transform transition-all duration-300 ${openCategoryIndex === index ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+<button
+  onClick={handleHomeClick} 
+  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+>
+  <HomeIcon className="h-5 w-5 text-black dark:text-white" /> {/* Home Icon */}
+  <span>Home</span>
+</button>
+<Link to={'/view-all'}>
+<button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
+  <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" /> {/* Shop Icon */}
+  <span>Shop</span>
+</button></Link>
 
-                  {/* Subcategories Dropdown */}
-                  {openCategoryIndex === index && (
-                    <div className="bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md mt-2 w-full">
-                      <ul className="space-y-2 py-2">
-                        {category.subcategories.map((subcat) => (
-                          <li key={subcat} className="hover:bg-gray-100 dark:hover:bg-gray-700 px-4 py-2 rounded-md">
-                            {subcat}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
+<button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
+  <PhoneIcon className="h-5 w-5 text-black dark:text-white" /> {/* Contact Us Icon */}
+  <span>Contact Us</span>
+</button>
+
+
+</div>
+
+
         </div>
       </div>
 
-      {/* Lower Navbar (Desktop View - Category Links) */}
-      <div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white">
-  <div className="max-w-screen-xl mx-auto py-2 px-4">
-    {/* Category Links */}
+     {/* Lower Navbar (Desktop View - Category Links) */}
+<div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white">
+  <div className="max-w-screen-xl mx-auto py-1 px-4">
+    {/* Static Category Links */}
     <div className="flex justify-center space-x-6 py-2">
-      {categories.map((category, index) => (
-        <div
-          key={category.name}
-          className="relative flex flex-col items-center group"
-        >
-          <button className="flex items-center space-x-2 hover:bg-primary/40 px-4 py-2 rounded-md">
-            <span>{category.name}</span>
-            {/* Dropdown Icon */}
-            <svg
-              className="w-4 h-4 transform transition-transform duration-300 group-hover:rotate-180"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
 
-          {/* Subcategory dropdown list */}
-          <div
-            className="absolute top-full left-0 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md opacity-0 group-hover:opacity-100 group-hover:visible transition-all duration-300 invisible z-10"
-            style={{
-              marginTop: '8px', // Adjust space between category and dropdown list
-            }}
-          >
-            <ul className="space-y-2 py-2">
-              {category.subcategories.map((subcat) => (
-                <li key={subcat} className="hover:bg-primary/55 dark:hover:bg-primary/55 px-4 py-2 rounded-md">
-                  {subcat}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      ))}
+<button
+  onClick={handleHomeClick} 
+  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-lg flex items-center space-x-2"
+>
+  <HomeIcon className="h-5 w-5 text-black dark:text-white" /> {/* Home Icon */}
+  <span>Home</span>
+</button>
+<Link to={'/view-all'}>
+<button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
+  <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" /> {/* Shop Icon */}
+  <span>Shop</span>
+</button></Link>
+
+<button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
+  <PhoneIcon className="h-5 w-5 text-black dark:text-white" /> {/* Contact Us Icon */}
+  <span>Contact Us</span>
+</button>
     </div>
   </div>
 </div>
@@ -485,7 +465,7 @@ const navigate = useNavigate();
           placeholder="Username" 
           value={username} 
           onChange={(e) => setUsername(e.target.value)} 
-          className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
           required
         />
                 </div>
@@ -499,7 +479,7 @@ const navigate = useNavigate();
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
                     required
                   />
                 </div>
@@ -514,7 +494,7 @@ const navigate = useNavigate();
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
                     required
                   />
                 </div>

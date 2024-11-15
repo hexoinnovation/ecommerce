@@ -19,6 +19,15 @@ import CartPage from './components/Cart/CartPage';
 import { AuthProvider } from './components/Authcontext'; // Adjust the path
 import { CartProvider } from './context/CartContext'; // Ensure you're importing your CartProvider
 import AccountPage from './components/Navbar/AccountPage'; // Adjust the path to AccountPage.js
+
+import PhonePage from './components/Products/ProductCategories/PhonePage';
+import LaptopPage from './components/Products/ProductCategories/LaptopPage';
+import ShopNavbar from './components/Products/ShopNavbar';
+import ShopLayout from './components/Layout/ShopLayout';
+import CameraPage from './components/Products/ProductCategories/CameraPage';
+import { Sidebar } from './components/Sidebar';
+
+
 const App = () => {
   const [orderPopup, setOrderPopup] = useState(false);
 
@@ -40,6 +49,7 @@ const App = () => {
     <AuthProvider>
     <CartProvider>  {/* Ensure CartProvider is wrapping everything */}
       <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
+        
         <Routes>
           {/* Full Layout Route */}
           <Route
@@ -73,12 +83,10 @@ const App = () => {
           <Route
             path="/view-all"
             element={
-              <SimpleLayout>
+              
                 <ViewAllProducts />
-              </SimpleLayout>
             }
           />
-
           {/* Cart Page Route wrapped with SimpleLayout */}
           <Route
             path="/cart"
@@ -88,11 +96,16 @@ const App = () => {
               </SimpleLayout>
             }
           />
+          <Route path='/phone' element={<ShopLayout><PhonePage/></ShopLayout>}></Route>
+          <Route path='/laptop' element={<ShopLayout><LaptopPage/></ShopLayout>}></Route>
+          <Route path='/camera' element={<ShopLayout><CameraPage/></ShopLayout>}></Route>
+          
         </Routes>
 
         {/* Popup for Order */}
         <Popup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
       </div>
+      <Sidebar/>
     </CartProvider>  
     </AuthProvider>
   );
