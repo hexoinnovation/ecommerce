@@ -12,69 +12,17 @@ import {
   LogoutIcon,
 } from "@heroicons/react/solid"; // Importing icons from Heroicons
 import { FaUser, FaLock, FaSignInAlt } from "react-icons/fa"; // Importing icons
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import {doc, setDoc, getDoc } from "firebase/firestore";
 import {
-  getAuth,
+  
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { app } from "../firebase"; // Your firebase configuration
-import { Link, useNavigate } from "react-router-dom";
-import { HomeIcon, PhoneIcon } from "@heroicons/react/outline";
+import {  useNavigate } from "react-router-dom";
 import { useAuth } from "../Authcontext";
 const ShopNavbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false); // For login dropdown
   const [isDarkMode, setIsDarkMode] = useState(false); // For dark mode toggle
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Manage sidebar visibility on mobile
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [openCategory, setOpenCategory] = useState(null); // To track which category's dropdown is open
-  const [activeSubcategory, setActiveSubcategory] = useState(null);
-  const [showSubcategories, setShowSubcategories] = useState(false); // Show subcategories view
-
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-  const [error, setError] = useState(""); // Add state for error message
-  const [successMessage, setSuccessMessage] = useState(""); // Success message
-  const dropdownRef = useRef(null);
-
-  const categories = [
-    { name: "Electronics", subcategories: ["Phones", "Laptops", "Cameras"] },
-    { name: "Fashion", subcategories: ["Men", "Women", "Kids"] },
-    { name: "Home", subcategories: ["Furniture", "Decor", "Appliances"] },
-    { name: "Appliances", subcategories: ["Kitchen", "Laundry", "Cleaning"] },
-    { name: "Books", subcategories: ["Fiction", "Non-Fiction", "E-books"] },
-    { name: "Toys", subcategories: ["Action Figures", "Dolls", "Puzzles"] },
-    { name: "Sports", subcategories: ["Football", "Basketball", "Fitness"] },
-  ];
-
- 
-  // Handle category hover
-  const handleCategoryHover = (category) => {
-    setOpenCategory(category.name); // Open the dropdown on hover
-    setSelectedCategory(category.name); // Set the category as selected on hover
-  };
-
-  // Handle category mouse leave
-  const handleCategoryLeave = () => {
-    setOpenCategory(null); // Close the dropdown when the mouse leaves
-  };
-
-  // Handle subcategory click
-  const handleSubcategoryClick = (subcategory) => {
-    setActiveSubcategory(subcategory);
-    setShowSubcategories(false); // Hide subcategories view after selection
-  };
-
-  // Toggle Sidebar for mobile view
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-
-  // Toggle login dropdown
-  const toggleLoginDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
 
   // Toggle theme between dark and light mode
   const toggleTheme = () => {
@@ -247,21 +195,11 @@ const ShopNavbar = () => {
       setDropdownOpen(false); // Close the dropdown after logout
     }
   };
-  const handleHomeClick = () => {
-    navigate("/");
-  };
+ 
 
-  // Show subcategories on category click
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(category.name);
-    setShowSubcategories(true); // Show subcategories view on category click
-  };
+  
 
-  // Handle back button to return to categories list
-  const handleBackClick = () => {
-    setShowSubcategories(false); // Hide subcategories view
-    setSelectedCategory("All"); // Reset the category to 'All' or you can leave it to keep the last category
-  };
+  
   return (
     <div>
       {/* Upper Navbar */}
@@ -270,14 +208,7 @@ const ShopNavbar = () => {
           {/* Left Side (Toggle Menu and Logo) */}
           <div className="flex items-center space-x-4">
            {/* Sidebar Menu (Mobile View - Toggle Menu) */}
-      <div className="lg:hidden flex justify-between mt-4 items-center mb-3">
-        <button
-          onClick={toggleSidebar}
-          className="text-2xl text-gray-900 dark:text-white"
-        >
-          {sidebarOpen ? <FaTimes /> : <FaBars />}
-        </button>
-      </div>
+      
 
             {/* Logo */}
             <div className="flex items-center space-x-2">
@@ -428,86 +359,6 @@ const ShopNavbar = () => {
         </div>
       </nav>
      
-      <div className={`lg:w-1/4 w-full lg:pr-8 mb-8 lg:mb-0 lg:block ${sidebarOpen ? "block" : "hidden"} transition-all`}>
-  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg space-y-6">
-    {/* Home Button */}
-    <button
-      onClick={handleHomeClick}
-      className="w-full mt-14 sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-    >
-      <HomeIcon className="h-5 w-5 text-black dark:text-white"/> {/* Home Icon */}
-      <span>Home</span>
-    </button>
-
-    {/* Categories Section */}
-    <button
-      className="w-full mt-14 sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-    >
-      <FaThList className="h-5 w-5 text-black dark:text-white"/> {/* Category Icon */}
-      <span>Categories</span>
-    </button>
-
-    {/* Categories List */}
-    {!showSubcategories && (
-      <div className="space-y-4">
-        {categories.map((category) => (
-          <div
-            key={category.name}
-            className="relative"
-            onMouseEnter={() => handleCategoryHover(category)} // Show dropdown on hover
-            onMouseLeave={handleCategoryLeave} // Hide dropdown when mouse leaves
-          >
-            {/* Category Button */}
-            <button
-              onClick={() => handleCategoryClick(category)}
-              className={`flex items-center justify-between w-full text-left px-4 py-3 rounded-md text-lg font-medium transition-all duration-300 ease-in-out ${
-                selectedCategory === category.name
-                  ? "bg-primary text-white shadow-lg"
-                  : "bg-gray-100 dark:bg-gray-700 dark:text-white text-gray-700 hover:bg-primary hover:text-white"
-              }`}
-            >
-              <span>{category.name}</span>
-              {/* Right Arrow Icon for Dropdown */}
-              <FaChevronRight className="text-gray-600 dark:text-white" />
-            </button>
-          </div>
-        ))}
-      </div>
-    )}
-
-    {/* Subcategories view (when a category is selected) */}
-    {showSubcategories && selectedCategory && (
-      <div className="space-y-4">
-        {/* Back Button */}
-        <button
-          onClick={handleBackClick}
-          className="flex items-center text-gray-700 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-all duration-200"
-        >
-          <FaChevronLeft className="mr-2" />
-          Back to Categories
-        </button>
-
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-4">
-          {selectedCategory} Subcategories
-        </h3>
-        <ul>
-          {categories
-            .find((category) => category.name === selectedCategory)
-            ?.subcategories.map((subcategory) => (
-              <li
-                key={subcategory}
-                onClick={() => handleSubcategoryClick(subcategory)}
-                className="cursor-pointer flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-all duration-200 transform hover:scale-105 hover:bg-primary/20 px-4 py-2 rounded-md"
-              >
-                <FaChevronRight className="text-sm text-gray-500 dark:text-gray-300" />
-                {subcategory}
-              </li>
-            ))}
-        </ul>
-      </div>
-    )}
-  </div>
-</div>
       {showModal &&
         !isAuthenticated && ( // Only show modal when showModal is true and user is not authenticated
           <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
