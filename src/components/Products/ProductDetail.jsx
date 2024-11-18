@@ -1,137 +1,149 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // useNavigate for redirection
-import { FaStar, FaShoppingCart, FaHeart, FaShoppingBag, FaChevronUp, FaChevronDown } from 'react-icons/fa';
-import { ProductsData } from '../Products/Products';
-import { useCart } from '../../context/CartContext'; // Assuming you're using a CartContext for global state
+import { useParams, useNavigate } from 'react-router-dom';
+import { FaArrowLeft, FaStar, FaShoppingCart, FaHeart, FaMoneyBillAlt } from 'react-icons/fa';
+import { useProducts } from '../../context/ProductsContext';
+import { useCart } from '../../context/CartContext'; // Import the useCart hook
 
 const ProductDetail = () => {
-  const { id } = useParams(); // Get the product ID from the URL
-  const product = ProductsData.find((item) => item.id === parseInt(id)); // Find the product by ID
-  const { addToCart } = useCart(); // Access addToCart from the cart context
-  const navigate = useNavigate(); // For programmatically navigating to the Cart page
+  const products = useProducts(); // Get products from context
+  const { id } = useParams(); // Get product ID from URL
+  const navigate = useNavigate();
+  
+  const { addToCart } = useCart(); // Get addToCart function from CartContext
 
-  // If product is not found
-  if (!product) {
-    return <div className="text-center py-10">Product not found.</div>;
+  // Check if products are loaded
+  if (!products) {
+    return <div>Loading...</div>; // Or some loading spinner
   }
 
-  // Manage quantity state
-  const [quantity, setQuantity] = useState(1); // State to track quantity
-  const [mainImage, setMainImage] = useState(product.img); // Set the main image for product view
+  const product = products.find((item) => item.id === parseInt(id, 10));
 
-  // Handle increase and decrease in quantity
-  const handleQuantityChange = (action) => {
-    if (action === 'increase') {
-      setQuantity((prevQuantity) => prevQuantity + 1);
-    } else if (action === 'decrease' && quantity > 1) {
-      setQuantity((prevQuantity) => prevQuantity - 1);
+  if (!product) {
+    return <div>Product not found.</div>;
+  }
+
+  const [mainImage, setMainImage] = useState(product?.img || '');
+  const [isWishlist, setIsWishlist] = useState(false); // Wishlist state
+  const [quantity, setQuantity] = useState(1); // Quantity state
+
+  const handleGoBack = () => {
+    navigate('/view-all'); // Go back to the products list
+  };
+
+  const handleWishlistToggle = () => {
+    setIsWishlist((prev) => !prev); // Toggle wishlist state
+  };
+
+  const handleIncrement = () => {
+    setQuantity((prev) => prev + 1); // Increment quantity
+  };
+
+  const handleDecrement = () => {
+    if (quantity > 1) {
+      setQuantity((prev) => prev - 1); // Decrement quantity (prevent going below 1)
     }
   };
 
-  // Add product to cart and redirect to CartPage
   const handleAddToCart = () => {
-    const productToAdd = { ...product, quantity };
-    addToCart(productToAdd); // Add the product to the cart context
-    navigate('/cart'); // Redirect to the CartPage
-  };
-
-  // Add to cart and stay on the page (no redirect)
-  const handleBuyNow = () => {
-    const productToAdd = { ...product, quantity };
-    addToCart(productToAdd); // Add the product to the cart context
-    navigate('/checkout'); // Redirect to Checkout page directly
+    addToCart({ ...product, quantity }); // Add the product with the current quantity to the cart
+    navigate('/cart')
   };
 
   return (
-    <div className="mt-16 sm:mt-5 mb-12 container px-4 lg:px-16 dark:bg-gray-900 dark:text-white">
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Product Image and Thumbnails */}
-        <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0">
-          <img
-            src={mainImage}
-            alt={product.title}
-            className="w-full max-w-sm lg:max-w-md h-auto object-cover rounded-xl shadow-lg transition-transform transform hover:scale-105"
-          />
-          <div className="flex gap-4 mt-4">
-            {/* Dynamically render thumbnails based on product images */}
-            {product.images.map((image, index) => (
-              <img
-                key={index}
-                src={image}
-                alt={`thumbnail-${index}`}
-                className="h-20 w-20 object-cover rounded-md cursor-pointer transition-transform transform hover:scale-110"
-                onClick={() => setMainImage(image)} // Change the main image on thumbnail click
-              />
-            ))}
-          </div>
-        </div>
+    <div className="min-h-screen flex items-center justify-center sm:mt-0 mt-10 bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto  p-4 max-w-4xl">
+        <button
+          onClick={handleGoBack}
+          className="text-xl text-primary dark:text-white flex items-center gap-2 mb-4"
+        >
+          <FaArrowLeft className="text-lg" />
+          Back to Products
+        </button>
 
-        {/* Product Details Section */}
-        <div className="space-y-6 flex-1">
-          <div className="flex justify-between items-center">
-            <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">{product.title}</h2>
-            <FaHeart className="text-2xl text-gray-600 dark:text-white cursor-pointer hover:text-red-500 transition-colors" />
-          </div>
-
-          <p className="text-lg text-gray-700 dark:text-gray-300">Color: <span className="font-semibold">{product.color}</span></p>
-
-          {/* Rating Section */}
-          <div className="flex items-center space-x-2 text-yellow-500">
-            {[...Array(5)].map((_, index) => (
-              <FaStar key={index} className={index < product.rating ? 'text-yellow-400' : 'text-gray-300'} />
-            ))}
-            <span className="text-gray-600 dark:text-gray-300">({product.rating})</span>
-          </div>
-
-          {/* Price Section */}
-          <div className="text-2xl font-semibold text-gray-800 dark:text-white mt-4">
-            <span className="text-primary">₹{product.price ? product.price : 'Price not available'}</span>
-          </div>
-
-          {/* Quantity Selection */}
-          <div className="mt-6 flex items-center gap-6">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Quantity</h3>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => handleQuantityChange('decrease')}
-                className="w-12 h-12 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white rounded-full flex items-center justify-center focus:outline-none hover:bg-gray-300 dark:hover:bg-gray-600 transition-all transform active:scale-95"
-              >
-                <FaChevronDown className="text-lg" />
-              </button>
-
-              <div className="flex items-center justify-center w-16 h-12 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-md border-2 border-gray-300 dark:border-gray-600 text-lg font-semibold">
-                {quantity}
-              </div>
-
-              <button
-                onClick={() => handleQuantityChange('increase')}
-                className="w-12 h-12 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white rounded-full flex items-center justify-center focus:outline-none hover:bg-gray-300 dark:hover:bg-gray-600 transition-all transform active:scale-95"
-              >
-                <FaChevronUp className="text-lg" />
-              </button>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Product Image */}
+          <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0">
+            <img
+              src={mainImage}
+              alt={product.name}
+              className="w-full max-w-sm lg:max-w-md h-96 object-cover rounded-xl shadow-lg"
+            />
+            <div className="flex gap-4 mt-4">
+              {product.images.map((image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt={`Thumbnail ${index + 1}`}
+                  className="h-20 w-20 object-cover rounded-md cursor-pointer"
+                  onClick={() => setMainImage(image)}
+                />
+              ))}
             </div>
           </div>
 
-          {/* Add to Cart and Buy Now Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mt-6">
-            <button
-              onClick={handleAddToCart}
-              className="w-full sm:w-36 py-3 bg-primary text-white font-semibold rounded-md shadow-md hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
-            >
-              <FaShoppingCart /> Add to Cart
-            </button>
-            <button
-              onClick={handleBuyNow}
-              className="w-full sm:w-36 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <FaShoppingBag /> Buy Now
-            </button>
-          </div>
+          {/* Product Details */}
+          <div className="space-y-6 flex-1">
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">{product.name}</h2>
+              <button
+                onClick={handleWishlistToggle}
+                className={`text-2xl ${isWishlist ? 'text-red-500' : 'text-gray-500'}`}
+              >
+                <FaHeart />
+              </button>
+            </div>
 
-          {/* Product Description */}
-          <div className="mt-8">
-            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">Product Description</h3>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">{product.description ? product.description : 'Description not available'}</p>
+            <p className="text-lg text-gray-700 dark:text-gray-300">{product.description}</p>
+
+            <div className="flex items-center space-x-2 text-yellow-500">
+              {[...Array(5)].map((_, index) => (
+                <FaStar
+                  key={index}
+                  className={index < product.rating ? 'text-yellow-400' : 'text-gray-300'}
+                />
+              ))}
+              <span className="text-gray-600 dark:text-gray-300">({product.rating})</span>
+            </div>
+
+            <div className="text-2xl font-semibold text-gray-800 dark:text-white mt-4">
+              ₹{product.price}
+            </div>
+
+            {/* Quantity Section */}
+            <div className="flex items-center space-x-2 mt-4">
+              <button
+                onClick={handleDecrement}
+                className="px-4 py-2 bg-gray-200 rounded-md"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(Math.max(1, e.target.value))}
+                className="w-16 text-center border border-gray-300 rounded-md"
+              />
+              <button
+                onClick={handleIncrement}
+                className="px-4 py-2 bg-gray-200 rounded-md"
+              >
+                +
+              </button>
+            </div>
+
+            <div className="flex space-x-4 mt-6">
+              <button
+                onClick={handleAddToCart} // Call addToCart when the button is clicked
+                className="w-full sm:w-36 py-3 bg-primary text-white font-semibold rounded-md shadow-md hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+              >
+                <FaShoppingCart /> Add to Cart
+              </button>
+
+              {/* Buy Now Button */}
+              <button className="w-full sm:w-36 py-3 bg-green-500 text-white font-semibold rounded-md shadow-md hover:bg-green-600 transition-colors flex items-center justify-center gap-2">
+                <FaMoneyBillAlt /> Buy Now
+              </button>
+            </div>
           </div>
         </div>
       </div>

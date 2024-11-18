@@ -1,20 +1,19 @@
-import React from 'react';
-import ShopNavbar from '../Products/ShopNavbar';
-import { Sidebar } from '../Sidebar';
-import Footer from '../Footer/Footer'; // Ensure the correct path
-const ShopLayout = ({ children }) => {
-    console.log('ShopLayout is rendering');
+import React from 'react'
+import ShopNavbar from '../Products/ShopNavbar'
+import Footer from '../Footer/Footer'
+
+const ShopLayout = ({children}) => {
   return (
     <div>
-      <ShopNavbar/>  {/* This will always render */}
-      <div className='flex'>
-      <div><Sidebar/></div>
-      <div><main>{children}</main></div>  {/* This renders whatever is passed as children */}
-      </div>
-      
-      <Footer />  {/* This will always render */}
+    <ShopNavbar/>  {/* This will always render */}
+    <div className='flex'>
+    
+    <div><main>{children}</main></div>  {/* This renders whatever is passed as children */}
     </div>
-  );
-};
+    
+    <Footer />  {/* This will always render */}
+  </div>
+  )
+}
 
-export default ShopLayout;
+export default ShopLayout
