@@ -207,12 +207,9 @@ const ShopNavbar = () => {
         <div className="max-w-screen-xl mx-auto flex items-center justify-between px-4 py-2">
           {/* Left Side (Toggle Menu and Logo) */}
           <div className="flex items-center space-x-4">
-           {/* Sidebar Menu (Mobile View - Toggle Menu) */}
-      
-
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <span className="text-2xl font-bold">Hexo</span>
+              <span className="text-2xl font-bold ml-10 sm:ml-0">Hexo</span>
             </div>
           </div>
 
