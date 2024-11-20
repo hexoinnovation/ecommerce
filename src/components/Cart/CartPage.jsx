@@ -1,146 +1,251 @@
-import React from 'react';
-import { FaTrash, FaShoppingCart, FaArrowLeft, FaEye } from 'react-icons/fa'; // Import the FaEye icon
+import React, { useState, useEffect } from 'react';
+import { FaTrash, FaShoppingCart, FaArrowLeft, FaEye ,  FaArrowRight} from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../Authcontext'; // Access currentUser
 import { useNavigate } from 'react-router-dom';
+import { db, doc, collection, setDoc, deleteDoc } from '../firebase'; // Firestore methods
 
 const CartPage = () => {
-  const { cartItems, removeFromCart } = useCart(); // Get cart items and remove function
+  const [step, setStep] = useState(0);
+  const { cartItems, removeFromCart } = useCart();
+  const { currentUser } = useAuth(); // Access currentUser from AuthContext
   const navigate = useNavigate();
 
-  // Calculate the total price by summing the price of each item * quantity
+  // Calculate the total price and final total
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-
-  // Define a fixed shipping charge
   const shippingCharge = 50;
-
-  // Calculate the final total (product total + shipping charge)
   const finalTotal = totalPrice + shippingCharge;
 
-  // Handle the navigation to checkout page
+  // Firestore reference for the user's cart subcollection
+  const userCartRef = currentUser
+    ? collection(doc(db, 'users', currentUser.email), 'cart')
+    : null;
+
+  // Sync cart items to Firestore whenever they change
+  useEffect(() => {
+    if (currentUser && userCartRef) {
+      cartItems.forEach(async (item) => {
+        await setDoc(doc(userCartRef, item.id), item); // Save each item by ID in Firestore
+      });
+    }
+  }, [cartItems, currentUser]);
+
+  // Remove item from Firestore when it's removed from the cart
+  const handleRemoveFromCart = async (id) => {
+    if (currentUser && userCartRef) {
+      await deleteDoc(doc(userCartRef, id)); // Delete the item from Firestore
+    }
+    removeFromCart(id); // Remove from local state
+  };
+
   const handleCheckout = () => {
-    navigate('/checkout'); // Replace with your checkout page route
+    navigate('/checkout');
   };
 
-  // Handle the back navigation to the products list page
   const handleContinueShopping = () => {
-    navigate('/view-all'); // Redirect to the products page
+    navigate('/view-all');
   };
 
-  // Handle the back navigation to the specific product detail page
   const handleBackToProductDetails = (id) => {
-    navigate(`/product/${id}`); // Redirect to the product detail page using the product's ID
+    navigate(`/product/${id}`);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 mt-0 py-8">
       <div className="container mx-auto p-4 max-w-7xl">
-        <div className="flex items-center gap-4 mb-8">
-          {/* Continue Shopping Button */}
-          <button
-            onClick={handleContinueShopping}
-            className="text-xl text-primary dark:text-white flex items-center gap-2"
-          >
-            <FaArrowLeft className="text-lg" /> Continue Shopping
-          </button>
-        </div>
+        <ol className="flex items-center w-full p-3 space-x-2 text-sm font-medium text-center text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 sm:p-4 sm:space-x-4 rtl:space-x-reverse">
+          <li className="flex items-center text-blue-600 dark:text-blue-500">
+            <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-blue-600 rounded-full shrink-0 dark:border-blue-500">
+              1
+            </span>
+            Personal <span className="hidden sm:inline-flex sm:ms-2">Info</span>
+            <svg
+              className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 12 10"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="m7 9 4-4-4-4M1 9l4-4-4-4"
+              />
+            </svg>
+          </li>
+          <li className="flex items-center text-blue-600 dark:text-blue-500">
+            <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-blue-600 rounded-full shrink-0 dark:border-blue-500">
+              2
+            </span>
+            Account <span className="hidden sm:inline-flex sm:ms-2">Info</span>
+            <svg
+              className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 12 10"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="m7 9 4-4-4-4M1 9l4-4-4-4"
+              />
+            </svg>
+          </li>
+          <li className="flex items-center text-blue-600 dark:text-blue-500">
+            <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-blue-600 rounded-full shrink-0 dark:border-blue-500">
+              3
+            </span>
+            Shipping <span className="hidden sm:inline-flex sm:ms-2">Info</span>
+            <svg
+              className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 12 10"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="m7 9 4-4-4-4M1 9l4-4-4-4"
+              />
+            </svg>
+          </li>
+          <li className="flex items-center text-blue-600 dark:text-blue-500">
+            <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-blue-600 rounded-full shrink-0 dark:border-blue-500">
+              4
+            </span>
+            Review
+          </li>
+        </ol>
 
-        <h2 className="text-4xl font-semibold text-gray-900 dark:text-white mb-8 text-center">
-          Your Shopping Cart
-        </h2>
+        <div className="mt-8">
+          {step === 0 && (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Personal Info</h2>
+              <form>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Full Name</label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Email Address</label>
+                  <input
+                    type="email"
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                    placeholder="Enter your email"
+                  />
+                </div>
+              </form>
+            </div>
+          )}
 
-        {/* Cart Section */}
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left Side - Cart Items */}
-          <div className="flex-1 space-y-6">
-            {cartItems.length === 0 ? (
-              <div className="text-center text-gray-500 dark:text-gray-300">
-                <FaShoppingCart className="text-6xl mb-4" />
-                <p>Your cart is empty.</p>
-              </div>
-            ) : (
-              cartItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl hover:shadow-2xl transition-shadow"
-                >
-                  {/* Product Info */}
-                  <div className="flex items-center gap-6">
-                    <img
-                      src={item.img}
-                      alt={item.name}
-                      className="w-20 h-20 object-cover rounded-md border border-gray-200"
-                    />
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{item.name}</h3>
-                      <p className="text-gray-600 dark:text-gray-300">{item.description}</p>
-                      <div className="flex items-center mt-2">
-                        <span className="text-gray-800 dark:text-white text-lg font-semibold">
-                          ₹{item.price * item.quantity}
-                        </span>
-                        <span className="text-gray-500 dark:text-gray-400 ml-4">
-                          Quantity : {item.quantity}
-                        </span>
+          {step === 1 && (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Account Info</h2>
+              <form>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Username</label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                    placeholder="Choose a username"
+                  />
+                </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Password</label>
+                  <input
+                    type="password"
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                    placeholder="Enter a password"
+                  />
+                </div>
+              </form>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Shipping Info</h2>
+              <form>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Shipping Address</label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                    placeholder="Enter your address"
+                  />
+                </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Phone Number</label>
+                  <input
+                    type="tel"
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+              </form>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Review</h2>
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Items in Your Cart</h3>
+                <ul className="mt-2">
+                  {cartItems.map((item) => (
+                    <li key={item.id} className="flex items-center justify-between mb-2">
+                      <div>
+                        <strong>{item.name}</strong> x {item.quantity} - ${item.price}
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Buttons Section */}
-                  <div className="flex flex-col sm:flex-row items-center gap-4">
-                    {/* Back to Product Details Button with Eye Icon */}
-                    <button
-                      onClick={() => handleBackToProductDetails(item.id)}
-                      className="text-xl text-blue-600 dark:text-white flex items-center gap-2 ml-4"
-                    >
-                      <FaEye className="text-lg" /> View Details
-                    </button>
-
-                    {/* Remove from cart */}
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-red-500 hover:text-red-700 transition-colors"
-                    >
-                      <FaTrash className="text-2xl" />
-                    </button>
-                  </div>
+                      <button
+                        onClick={() => handleRemoveFromCart(item.id)}
+                        className="text-red-600 dark:text-red-500"
+                      >
+                        <FaTrash />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-4">
+                  <div className="text-sm font-semibold">Total: ${totalPrice.toFixed(2)}</div>
+                  <div className="text-sm font-semibold">Shipping: ${shippingCharge}</div>
+                  <div className="text-lg font-bold">Final Total: ${finalTotal.toFixed(2)}</div>
                 </div>
-              ))
-            )}
-          </div>
-
-          {/* Right Side - Total Section */}
-          <div className="lg:w-80 space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl">
-            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">Cart Summary</h3>
-
-            {/* Price and Shipping Information */}
-            {cartItems.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex justify-between text-lg font-medium text-gray-900 dark:text-white">
-                  <h4>Subtotal</h4>
-                  <span>₹{totalPrice}</span>
-                </div>
-
-                {/* Shipping Charge */}
-                <div className="flex justify-between text-lg font-medium text-gray-900 dark:text-white">
-                  <h4>Shipping</h4>
-                  <span>₹{shippingCharge}</span>
-                </div>
-
-                {/* Final Total */}
-                <div className="flex justify-between text-2xl font-semibold text-gray-900 dark:text-white border-t pt-4">
-                  <h4>Total</h4>
-                  <span>₹{finalTotal}</span>
-                </div>
-
-                {/* Checkout Button */}
-                <div className="mt-8 text-center">
-                  <button
-                    onClick={handleCheckout}
-                    className="w-full py-4 px-8 bg-primary text-white font-semibold rounded-lg shadow-xl hover:bg-primary-dark transition-all"
-                  >
+                <div className="mt-4">
+                  <button onClick={handleCheckout} className="btn btn-primary">
                     Proceed to Checkout
                   </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          <div className="mt-8">
+            <button
+              onClick={() => setStep((prevStep) => Math.max(0, prevStep - 1))}
+              className="btn btn-outline mr-4"
+            >
+              <FaArrowLeft /> Back
+            </button>
+            {step < 3 && (
+              <button
+                onClick={() => setStep((prevStep) => Math.min(3, prevStep + 1))}
+                className="btn btn-primary"
+              >
+                Next <FaArrowRight />
+              </button>
             )}
           </div>
         </div>

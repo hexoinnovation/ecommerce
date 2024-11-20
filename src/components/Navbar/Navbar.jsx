@@ -459,128 +459,277 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Lower Navbar (Desktop View - Category Links) */}
-        <div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white ">
-          <div className="max-w-screen-xl mx-auto py-1 px-4">
-            <div className="flex justify-center space-x-6 py-2">
-              {/* Electronics Dropdown */}
-              <button
-                onClick={() => handleDropdownToggle(0)}
-                className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-lg flex items-center space-x-2"
-              >
-                <span>Electronics</span>
-                <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-              </button>
-              {openDropdown === 0 && (
-                <div className="absolute bg-white shadow-lg mt-2 py-2 px-4 w-auto rounded-md z-10">
-                  <Link to="/electronics/phones" className="block py-1">Phones</Link>
-                  <Link to="/electronics/laptops" className="block py-1">Laptops</Link>
-                  <Link to="/electronics/accessories" className="block py-1">Accessories</Link>
-                </div>
-              )}
-
-              {/* Fashion Dropdown */}
-              <Link to="/view-all">
-                <button
-                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-                >
-                  <span>Fashion</span>
-                  <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-                </button>
-              </Link>
-
-              {/* Toys Dropdown */}
-              <button
-                onClick={() => handleDropdownToggle(2)}
-                className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-              >
-                <span>Toys</span>
-                <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-              </button>
-              {openDropdown === 2 && (
-                <div className="absolute bg-white shadow-lg mt-2 py-2 px-4 w-auto rounded-md z-10">
-                  <Link to="/toys/action-figures" className="block py-1">Action Figures</Link>
-                  <Link to="/toys/board-games" className="block py-1">Board Games</Link>
-                </div>
-              )}
-
-              {/* Jewelry Dropdown */}
-              <button
-                onClick={() => handleDropdownToggle(3)}
-                className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-              >
-                <span>Jewelry</span>
-                <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-              </button>
-              {openDropdown === 3 && (
-                <div className="absolute bg-white shadow-lg mt-2 py-2 px-4 w-auto rounded-md z-10">
-                  <Link to="/jewelry/rings" className="block py-1">Rings</Link>
-                  <Link to="/jewelry/necklaces" className="block py-1">Necklaces</Link>
-                </div>
-              )}
-
-              {/* Decoration Dropdown */}
-              <button
-                onClick={() => handleDropdownToggle(4)}
-                className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-              >
-                <span>Decoration</span>
-                <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-              </button>
-              {openDropdown === 4 && (
-                <div className="absolute bg-white shadow-lg mt-2 py-2 px-4 w-auto rounded-md z-10">
-                  <Link to="/decoration/furniture" className="block py-1">Furniture</Link>
-                  <Link to="/decoration/lighting" className="block py-1">Lighting</Link>
-                </div>
-              )}
-
-              {/* Sports Dropdown */}
-              <button
-                onClick={() => handleDropdownToggle(5)}
-                className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-              >
-                <span>Sports</span>
-                <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-              </button>
-              {openDropdown === 5 && (
-                <div className="absolute bg-white shadow-lg mt-2 py-2 px-4 w-auto rounded-md z-10">
-                  <Link to="/sports/outdoor" className="block py-1">Outdoor</Link>
-                  <Link to="/sports/fitness" className="block py-1">Fitness</Link>
-                </div>
-              )}
-
-              {/* Gift Dropdown */}
-              <button
-                onClick={() => handleDropdownToggle(6)}
-                className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-              >
-                <span>Gift</span>
-                <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-              </button>
-              {openDropdown === 6 && (
-                <div className="absolute bg-white shadow-lg mt-2 py-2 px-4 w-auto rounded-md z-10">
-                  <Link to="/gift/for-her" className="block py-1">For Her</Link>
-                  <Link to="/gift/for-him" className="block py-1">For Him</Link>
-                </div>
-              )}
-
-              {/* Books Dropdown */}
-              <button
-                onClick={() => handleDropdownToggle(7)}
-                className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-              >
-                <span>Books</span>
-                <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-              </button>
-              {openDropdown === 7 && (
-                <div className="absolute bg-white shadow-lg mt-2 py-2 px-4 w-auto rounded-md z-10">
-                  <Link to="/books/fiction" className="block py-1">Fiction</Link>
-                  <Link to="/books/non-fiction" className="block py-1">Non-Fiction</Link>
-                </div>
-              )}
-            </div>
-          </div>
+       {/* Lower Navbar (Desktop View - Category Links) */}
+<div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white">
+  <div className="max-w-screen-xl mx-auto py-1 px-4">
+    <div className="flex justify-center space-x-6 py-2">
+      {/* Electronics Dropdown */}
+      <div className="relative">
+        <button
+          onClick={() => handleDropdownToggle(0)}
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+        >
+          <span>Electronics</span>
+          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+        </button>
+        {openDropdown === 0 && (
+          <div
+          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-auto rounded-md z-10 transition-all duration-300 hover:scale-105"
+          onMouseLeave={() => handleDropdownToggle(null)}
+        >
+          <Link
+            to="/electronics/phones"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Phones
+          </Link>
+          <Link
+            to="/electronics/laptops"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Laptops
+          </Link>
+          <Link
+            to="/electronics/accessories"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Accessories
+          </Link>
         </div>
+        )}
+      </div>
+
+      {/* Fashion Dropdown */}
+      <div className="relative">
+
+      {/* Fashion Dropdown */}
+      <div className="relative">
+        <button
+          onClick={() => handleDropdownToggle(1)}
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+        >
+          <span>Fashion</span>
+          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+        </button>
+        {openDropdown === 1 && (
+          <div
+          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-auto rounded-md z-10 transition-all duration-300 hover:scale-105"
+          onMouseLeave={() => handleDropdownToggle(null)}
+        >
+          <Link
+            to="/Fashion/Mens"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Mens
+          </Link>
+          <Link
+            to="/Fashion/Womens"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Womens
+          </Link>
+          <Link
+            to="/Fashion/Kids"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Kids
+          </Link>
+        </div>
+        )}
+      </div>
+      </div>
+
+      {/* Toys Dropdown */}
+      <div className="relative">
+        <button
+          onClick={() => handleDropdownToggle(2)}
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+        >
+          <span>Toys</span>
+          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+        </button>
+        {openDropdown === 2 && (
+          <div
+          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[190px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+          onMouseLeave={() => handleDropdownToggle(null)}
+        >
+          <Link
+            to="/toys/action-figures"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+           Action Figures
+          </Link>
+          <Link
+            to="/toys/board-games"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Board Games
+          </Link>
+          
+        </div>
+        )}
+      </div>
+
+      {/* Jewelry Dropdown */}
+      <div className="relative">
+        <button
+          onClick={() => handleDropdownToggle(3)}
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+        >
+          <span>Jewelry</span>
+          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+        </button>
+        {openDropdown === 3 && (
+          <div
+          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+          onMouseLeave={() => handleDropdownToggle(null)}
+        >
+          <Link
+            to="/jewelry/rings"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+           Rings
+          </Link>
+          <Link
+            to="/jewelry/necklaces"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Necklaces
+          </Link>
+          
+        </div>
+        )}
+        
+      </div>
+
+      {/* Decoration Dropdown */}
+      <div className="relative">
+        <button
+          onClick={() => handleDropdownToggle(4)}
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+        >
+          <span>Decoration</span>
+          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+        </button>
+        {openDropdown === 4 && (
+          <div
+          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+          onMouseLeave={() => handleDropdownToggle(null)}
+        >
+          <Link
+            to="/decoration/furniture"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+           Furniture
+          </Link>
+          <Link
+            to="/decoration/lighting"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Lighting
+          </Link>
+          
+        </div>
+        )}
+      </div>
+
+      {/* Sports Dropdown */}
+      <div className="relative">
+        <button
+          onClick={() => handleDropdownToggle(5)}
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+        >
+          <span>Sports</span>
+          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+        </button>
+        {openDropdown === 5 && (
+          <div
+          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+          onMouseLeave={() => handleDropdownToggle(null)}
+        >
+          <Link
+            to="/sports/outdoor"
+            className="w-full  sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+           Outdoor
+          </Link>
+          <Link
+            to="/sports/fitness"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Fitness
+          </Link>
+          
+        </div>
+        )}
+      </div>
+
+      {/* Gift Dropdown */}
+      <div className="relative">
+        <button
+          onClick={() => handleDropdownToggle(6)}
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+        >
+          <span>Gift</span>
+          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+        </button>
+        {openDropdown === 6 && (
+          <div
+          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+          onMouseLeave={() => handleDropdownToggle(null)}
+        >
+          <Link
+            to="/gift/for-her"
+            className="w-full  sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+           For Her
+          </Link>
+          <Link
+            to="/gift/for-him"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            For Him
+          </Link>
+          
+        </div>
+        )}
+      </div>
+
+      {/* Books Dropdown */}
+      <div className="relative">
+        <button
+          onClick={() => handleDropdownToggle(7)}
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+        >
+          <span>Books</span>
+          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+        </button>
+
+        {openDropdown === 7 && (
+          <div
+          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[170px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+          onMouseLeave={() => handleDropdownToggle(null)}
+        >
+          <Link
+            to="/books/fiction"
+            className="w-full  sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+           Fiction
+          </Link>
+          <Link
+            to="/books/non-fiction"
+            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+          >
+            Non-Fiction
+          </Link>
+          
+        </div>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
+
 
         {showModal && !isAuthenticated && (  // Only show modal when showModal is true and user is not authenticated
           <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
