@@ -12,14 +12,18 @@ import {
   LogoutIcon,
 } from "@heroicons/react/solid"; // Importing icons from Heroicons
 import { FaUser, FaLock, FaSignInAlt } from "react-icons/fa"; // Importing icons
-import {doc, setDoc, getDoc } from "firebase/firestore";
-import {
+import {doc, setDoc, getDoc,getFirestore } from "firebase/firestore";
+// //import {
   
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+//   createUserWithEmailAndPassword,
+//   signInWithEmailAndPassword,
+// } from "firebase/auth";
 import {  useNavigate } from "react-router-dom";
 import { useAuth } from "../Authcontext";
+import CartPage from '../Cart/CartPage';
+import CartDrawer from '../Navbar/CartDrawer';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { app } from "../firebase"; // Your firebase configuration
 const ShopNavbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false); // For login dropdown
   const [isDarkMode, setIsDarkMode] = useState(false); // For dark mode toggle
@@ -44,12 +48,33 @@ const ShopNavbar = () => {
   const closeModal = () => {
     setShowModal(false); // Close the modal by setting showModal to false
   };
+ // Toggle login dropdown
+ const toggleLoginDropdown = () => {
+  setDropdownOpen(!dropdownOpen);
+};
+const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State to manage drawer visibility
 
+const toggleDrawer = () => {
+  setIsDrawerOpen(!isDrawerOpen); // Toggle the drawer open/close
+};
+const [isCartDrawerOpen, setCartDrawerOpen] = useState(false); // State to manage the drawer visibility
+
+// Function to open the cart drawer
+const toggleCartDrawer = () => {
+  setCartDrawerOpen(!isCartDrawerOpen);
+};
+const dropdownRef = useRef(null);
+const { cartCount } = useAuth(); // Access cartCount from context
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState("");
+  const [error, setError] = useState('');  // Add state for error message
+  const [successMessage, setSuccessMessage] = useState(''); // Success message
+  //const db = getFirestore(app);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
   useEffect(() => {
     const authStatus = localStorage.getItem("isAuthenticated");
     const storedUsername = localStorage.getItem("username");
@@ -196,10 +221,6 @@ const ShopNavbar = () => {
     }
   };
  
-
-  
-
-  
   return (
     <div>
       {/* Upper Navbar */}
@@ -226,115 +247,94 @@ const ShopNavbar = () => {
               </button>
             </div>
           </div>
+  {/* Right Side (Login, Cart, Theme Toggle, Admin Icon) */}
+  <div className="flex items-center space-x-4">
+              <div className="relative">
+                <button
+                  className="text-black dark:text-white font-semibold flex items-center space-x-2"
+                  onClick={() => setDropdownOpen(!dropdownOpen)} // Toggle dropdown on click
+                >
+                  {isAuthenticated ? (
+                    <span>{username}</span> // Display the username if logged in
+                  ) : (
+                    <span>Login</span> // Display "Login" if not authenticated
+                  )}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
 
-          {/* Right Side (Login, Cart, Theme Toggle, Admin Icon) */}
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <button
-                className="text-black dark:text-white font-semibold flex items-center space-x-2"
-                onClick={() => setDropdownOpen(!dropdownOpen)} // Toggle dropdown on click
-              >
-                {isAuthenticated ? (
-                  <span>{username}</span> // Display the username if logged in
-                ) : (
-                  <span>Login</span> // Display "Login" if not authenticated
+                {/* Dropdown when authenticated */}
+                {dropdownOpen && isAuthenticated && (
+                  <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2">
+                    <button onClick={handleAccountClick} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <UserCircleIcon className="w-5 h-5 mr-2" />
+                      My Account
+                    </button>
+                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <ShoppingBagIcon className="w-5 h-5 mr-2" />
+                      My Orders
+                    </button>
+                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <ShoppingCartIcon className="w-5 h-5 mr-2" />
+                      My Wishlist
+                    </button>
+                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <CogIcon className="w-5 h-5 mr-2" />
+                      Settings
+                    </button>
+                    <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <LogoutIcon className="w-5 h-5 mr-2" />
+                      Logout
+                    </button>
+                  </div>
                 )}
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+
+                {/* Dropdown when not authenticated */}
+                {dropdownOpen && !isAuthenticated && (
+                  <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2">
+                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" onClick={handleModalToggle}>
+                      <UserCircleIcon className="w-5 h-5 mr-2" />
+                      Login
+                    </button>
+                    <button onClick={handleAccountClick} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <UserCircleIcon className="w-5 h-5 mr-2" />
+                      My Account
+                    </button>
+                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <ShoppingBagIcon className="w-5 h-5 mr-2" />
+                      My Orders
+                    </button>
+                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <ShoppingCartIcon className="w-5 h-5 mr-2" />
+                      My Wishlist
+                    </button>
+                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <CogIcon className="w-5 h-5 mr-2" />
+                      Settings
+                    </button>
+                    <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <LogoutIcon className="w-5 h-5 mr-2" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button className="text-black dark:text-white" onClick={toggleCartDrawer}>
+                <ShoppingCartIcon className="w-6 h-6" />
+                {cartCount > 0 && (
+                  <span className="absolute top-1 right-28 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+
               </button>
-
-              {/* Dropdown when authenticated */}
-              {dropdownOpen && isAuthenticated && (
-                <div
-                  ref={dropdownRef}
-                  className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2"
-                >
-                  <button
-                    onClick={handleAccountClick}
-                    className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    <UserCircleIcon className="w-5 h-5 mr-2" />
-                    My Account
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <ShoppingBagIcon className="w-5 h-5 mr-2" />
-                    My Orders
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <ShoppingCartIcon className="w-5 h-5 mr-2" />
-                    My Wishlist
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <CogIcon className="w-5 h-5 mr-2" />
-                    Settings
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    <LogoutIcon className="w-5 h-5 mr-2" />
-                    Logout
-                  </button>
-                </div>
-              )}
-
-              {/* Dropdown when not authenticated */}
-              {dropdownOpen && !isAuthenticated && (
-                <div
-                  ref={dropdownRef}
-                  className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2"
-                >
-                  <button
-                    className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={handleModalToggle}
-                  >
-                    <UserCircleIcon className="w-5 h-5 mr-2" />
-                    Login
-                  </button>
-                  <button
-                    onClick={handleAccountClick}
-                    className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    <UserCircleIcon className="w-5 h-5 mr-2" />
-                    My Account
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <ShoppingBagIcon className="w-5 h-5 mr-2" />
-                    My Orders
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <ShoppingCartIcon className="w-5 h-5 mr-2" />
-                    My Wishlist
-                  </button>
-                  <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <CogIcon className="w-5 h-5 mr-2" />
-                    Settings
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    <LogoutIcon className="w-5 h-5 mr-2" />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-            {/* Cart Icon */}
-            <button className="text-black dark:text-white">
-              <ShoppingCartIcon className="w-6 h-6" />
-            </button>
+              {/* Drawer for Cart */}
+              {/* Cart Drawer */}
+              <CartDrawer
+                isOpen={isCartDrawerOpen}
+                closeDrawer={toggleCartDrawer} // Function to close the drawer when clicked outside or when user clicks the close button
+              />
 
             {/* Admin Icon (replaced with User Icon for now) */}
             <button className="text-black dark:text-white">
