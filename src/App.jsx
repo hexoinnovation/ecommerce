@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
 import TopProducts from './components/TopProducts/TopProducts';
