@@ -194,6 +194,10 @@ const Navbar = () => {
   const handleAccountClick = () => {
     navigate('/account'); // Navigate to the account page when "My Account" is clicked
   };
+  const handleMyOrdersClick = () => {
+    navigate('/myorders'); // Navigate to the account page when "My Account" is clicked
+  };
+
   const { logout, resetUserData } = useAuth();
 
   const handleLogout = async () => {
@@ -336,7 +340,7 @@ const Navbar = () => {
                       <UserCircleIcon className="w-5 h-5 mr-2" />
                       My Account
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button onClick={handleMyOrdersClick} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <ShoppingBagIcon className="w-5 h-5 mr-2" />
                       My Orders
                     </button>
@@ -366,7 +370,7 @@ const Navbar = () => {
                       <UserCircleIcon className="w-5 h-5 mr-2" />
                       My Account
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button onClick={handleMyOrdersClick} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <ShoppingBagIcon className="w-5 h-5 mr-2" />
                       My Orders
                     </button>

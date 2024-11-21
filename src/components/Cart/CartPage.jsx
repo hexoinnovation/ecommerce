@@ -11,6 +11,24 @@ const CartPage = () => {
   const { currentUser } = useAuth(); // Access currentUser from AuthContext
   const navigate = useNavigate();
 
+  const steps = [
+    { label: "Cart", description: "Review your items" },
+    { label: "Details", description: "Enter your details" },
+    { label: "Payment", description: "Confirm your order" }
+  ];
+
+  const handleNext = () => {
+    if (step < steps.length - 1) {
+      setStep(step + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 0) {
+      setStep(step - 1);
+    }
+  };
+
   // Calculate the total price and final total
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   const shippingCharge = 50;
@@ -29,6 +47,74 @@ const CartPage = () => {
       });
     }
   }, [cartItems, currentUser]);
+
+
+  const [shippingAddress, setShippingAddress] = useState({
+    fullName: '',
+    phoneNumber: '',
+    email: '',
+    company: '',
+    address1: '',
+    address2: '',
+    country: '',
+    zipCode: '',
+  });
+
+  const [billingAddress, setBillingAddress] = useState({
+    fullName: '',
+    phoneNumber: '',
+    email: '',
+    company: '',
+    address1: '',
+    address2: '',
+    country: '',
+    zipCode: '',
+  });
+
+  const [sameAsShipping, setSameAsShipping] = useState(false);
+
+  const handleInputChange = (e, addressType) => {
+    const { name, value } = e.target;
+    if (addressType === 'shipping') {
+      setShippingAddress({ ...shippingAddress, [name]: value });
+      if (sameAsShipping) {
+        setBillingAddress({ ...shippingAddress, [name]: value });
+      }
+    } else {
+      setBillingAddress({ ...billingAddress, [name]: value });
+    }
+  };
+
+  const handleCheckboxChange = () => {
+    setSameAsShipping(!sameAsShipping);
+    if (!sameAsShipping) {
+      setBillingAddress({ ...shippingAddress });
+    }
+  };
+
+  
+
+  const [subtotal, setSubtotal] = useState(670); // Initialize with $670.00
+  const [shipping, setShipping] = useState(0); // Default to 0
+  const [tax, setTax] = useState(0); // Default to 0
+  const [discount, setDiscount] = useState(0); // Default to 0
+  const [total, setTotal] = useState(subtotal); // Initialize total
+
+  // Update total whenever any value changes
+  const calculateTotal = () => {
+    const calculatedTotal = subtotal + shipping + tax - discount;
+    setTotal(calculatedTotal);
+  };
+
+  const handleFieldChange = (setter) => (e) => {
+    const value = parseFloat(e.target.value) || 0; // Convert input to a number
+    setter(value);
+  };
+
+  React.useEffect(() => {
+    calculateTotal();
+  }, [subtotal, shipping, tax, discount]); // Recalculate when these values change
+
 
   // Remove item from Firestore when it's removed from the cart
   const handleRemoveFromCart = async (id) => {
@@ -52,15 +138,25 @@ const CartPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 mt-0 py-8">
-      <div className="container mx-auto p-4 max-w-7xl">
-        <ol className="flex items-center w-full p-3 space-x-2 text-sm font-medium text-center text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 sm:p-4 sm:space-x-4 rtl:space-x-reverse">
-          <li className="flex items-center text-blue-600 dark:text-blue-500">
-            <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-blue-600 rounded-full shrink-0 dark:border-blue-500">
-              1
-            </span>
-            Personal <span className="hidden sm:inline-flex sm:ms-2">Info</span>
+    <div className="container mx-auto p-4 max-w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl ml-4 sm:ml-4 md:ml-4 lg:ml-">
+    {/* Stepper */}
+    <ol className="flex flex-wrap items-center  mr-10 sm:ml-20  space-x-2 sm:space-x-8 text-sm font-medium text-center sm:h-10 h-20 sm:ml-0 text-gray-500 border border-yellow-200 rounded-lg shadow-sm dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 rtl:space-x-reverse">
+      {steps.map((stepData, index) => (
+        <li
+          key={index}
+          className={`flex items-center ${index <= step ? "text-blue-600 dark:text-blue-500" : "text-gray-400 dark:text-gray-600"}`}
+        >
+          <span
+            className={`flex items-center ml-0 sm:ml-20 justify-center w-6 h-6 text-xs border ${index <= step ? "border-blue-600 dark:border-blue-500" : "border-gray-400 dark:border-gray-600"} rounded-full`}
+          >
+            {index + 1}
+          </span>
+          <span className={`ml-2 ${index <= step ? "font-semibold" : "font-normal"}`}>
+            {stepData.label}
+          </span>
+          {index < steps.length - 1 && (
             <svg
-              className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180"
+              className="w-3 h-3 ms-2 rtl:rotate-180"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -74,183 +170,161 @@ const CartPage = () => {
                 d="m7 9 4-4-4-4M1 9l4-4-4-4"
               />
             </svg>
-          </li>
-          <li className="flex items-center text-blue-600 dark:text-blue-500">
-            <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-blue-600 rounded-full shrink-0 dark:border-blue-500">
-              2
-            </span>
-            Account <span className="hidden sm:inline-flex sm:ms-2">Info</span>
-            <svg
-              className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 12 10"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m7 9 4-4-4-4M1 9l4-4-4-4"
+          )}
+        </li>
+      ))}
+    </ol>
+
+    {/* Step Content */}
+    <div className="mt-8">
+      {step === 0 && (
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Cart</h2>
+          <p className="text-gray-600 dark:text-gray-400">Review your items in the cart.</p>
+        </div>
+      )}
+
+      {step === 1 && (
+        <div className="p-6 bg-gray-100 rounded-lg max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Shipping and Billing Section */}
+        <div>
+          {/* Shipping Address */}
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-4">Shipping Address</h3>
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.keys(shippingAddress).map((field, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  name={field}
+                  placeholder={field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+                  value={shippingAddress[field]}
+                  onChange={(e) => handleInputChange(e, "shipping")}
+                  className="border rounded p-2 rounded-lg"
+                />
+              ))}
+            </form>
+          </div>
+  
+          {/* Same as Shipping Checkbox */}
+          <div className="mb-6 flex items-center">
+            <input
+              type="checkbox"
+              id="sameAsShipping"
+              checked={sameAsShipping}
+              onChange={handleCheckboxChange}
+              className="mr-2"
+            />
+            <label htmlFor="sameAsShipping" className="text-lg">
+              Same as shipping address
+            </label>
+          </div>
+  
+          {/* Billing Address */}
+          {!sameAsShipping && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Billing Address</h3>
+              <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.keys(billingAddress).map((field, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    name={field}
+                    placeholder={field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+                    value={billingAddress[field]}
+                    onChange={(e) => handleInputChange(e, "billing")}
+                    className="border rounded p-2 rounded-lg"
+                  />
+                ))}
+              </form>
+            </div>
+          )}
+        </div>
+  
+        {/* Summary Section */}
+        <div>
+          <h3 className="text-xl font-semibold mb-4">Summary</h3>
+          <div className="space-y-4">
+            {/* Subtotal */}
+            <div className="flex justify-between items-center">
+              <label className="font-semibold">Subtotal:</label>
+              <span className="text-lg">${subtotal.toFixed(2)}</span>
+            </div>
+  
+            {/* Shipping */}
+            <div className="flex justify-between items-center">
+              <label className="font-semibold">Shipping:</label>
+              <input
+                type="number"
+                value={shipping}
+                onChange={handleFieldChange(setShipping)}
+                className="border rounded p-2 w-24"
               />
-            </svg>
-          </li>
-          <li className="flex items-center text-blue-600 dark:text-blue-500">
-            <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-blue-600 rounded-full shrink-0 dark:border-blue-500">
-              3
-            </span>
-            Shipping <span className="hidden sm:inline-flex sm:ms-2">Info</span>
-            <svg
-              className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 12 10"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m7 9 4-4-4-4M1 9l4-4-4-4"
+            </div>
+  
+            {/* Tax */}
+            <div className="flex justify-between items-center">
+              <label className="font-semibold">Tax:</label>
+              <input
+                type="number"
+                value={tax}
+                onChange={handleFieldChange(setTax)}
+                className="border rounded p-2 w-24"
               />
-            </svg>
-          </li>
-          <li className="flex items-center text-blue-600 dark:text-blue-500">
-            <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-blue-600 rounded-full shrink-0 dark:border-blue-500">
-              4
-            </span>
-            Review
-          </li>
-        </ol>
-
-        <div className="mt-8">
-          {step === 0 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Personal Info</h2>
-              <form>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Full Name</label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Email Address</label>
-                  <input
-                    type="email"
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
-                    placeholder="Enter your email"
-                  />
-                </div>
-              </form>
             </div>
-          )}
-
-          {step === 1 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Account Info</h2>
-              <form>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Username</label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
-                    placeholder="Choose a username"
-                  />
-                </div>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Password</label>
-                  <input
-                    type="password"
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
-                    placeholder="Enter a password"
-                  />
-                </div>
-              </form>
+  
+            {/* Discount */}
+            <div className="flex justify-between items-center">
+              <label className="font-semibold">Discount:</label>
+              <input
+                type="number"
+                value={discount}
+                onChange={handleFieldChange(setDiscount)}
+                className="border rounded p-2 w-24"
+              />
             </div>
-          )}
-
-          {step === 2 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Shipping Info</h2>
-              <form>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Shipping Address</label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
-                    placeholder="Enter your address"
-                  />
-                </div>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Phone Number</label>
-                  <input
-                    type="tel"
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-              </form>
+  
+            {/* Total */}
+            <div className="flex justify-between items-center mt-4 border-t pt-4">
+              <label className="font-bold text-lg">Total:</label>
+              <span className="text-xl font-semibold">${total.toFixed(2)}</span>
             </div>
-          )}
-
-          {step === 3 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Review</h2>
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Items in Your Cart</h3>
-                <ul className="mt-2">
-                  {cartItems.map((item) => (
-                    <li key={item.id} className="flex items-center justify-between mb-2">
-                      <div>
-                        <strong>{item.name}</strong> x {item.quantity} - ${item.price}
-                      </div>
-                      <button
-                        onClick={() => handleRemoveFromCart(item.id)}
-                        className="text-red-600 dark:text-red-500"
-                      >
-                        <FaTrash />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-4">
-                  <div className="text-sm font-semibold">Total: ${totalPrice.toFixed(2)}</div>
-                  <div className="text-sm font-semibold">Shipping: ${shippingCharge}</div>
-                  <div className="text-lg font-bold">Final Total: ${finalTotal.toFixed(2)}</div>
-                </div>
-                <div className="mt-4">
-                  <button onClick={handleCheckout} className="btn btn-primary">
-                    Proceed to Checkout
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="mt-8">
-            <button
-              onClick={() => setStep((prevStep) => Math.max(0, prevStep - 1))}
-              className="btn btn-outline mr-4"
-            >
-              <FaArrowLeft /> Back
-            </button>
-            {step < 3 && (
-              <button
-                onClick={() => setStep((prevStep) => Math.min(3, prevStep + 1))}
-                className="btn btn-primary"
-              >
-                Next <FaArrowRight />
-              </button>
-            )}
           </div>
         </div>
       </div>
+
+
+      )}
+
+      
+      {step === 2 && (
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Payment</h2>
+          <p className="text-gray-600 dark:text-gray-400">Confirm your order and proceed.</p>
+        </div>
+      )}
+
+      {/* Navigation Buttons */}
+      <div className="mt-8 flex flex-col sm:flex-row justify-between gap-4 sm:gap-8">
+        <button
+          onClick={handleBack}
+          className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md w-full sm:w-auto"
+          disabled={step === 0}
+        >
+          Back
+        </button>
+        <button
+          onClick={handleNext}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md w-full sm:w-auto"
+          disabled={step === 3}
+        >
+          {step === 2 ? "Complete" : "Next"}
+        </button>
+      </div>
     </div>
+  </div>
+</div>
+
   );
 };
 

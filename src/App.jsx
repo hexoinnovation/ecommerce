@@ -19,6 +19,7 @@ import AccountPage from './components/Navbar/AccountPage'; // Adjust the path to
 
 import ShopNavbar from './components/Products/ShopNavbar';
 import ShopLayout from './components/Layout/ShopLayout';
+import MyOrders from './components/Navbar/MyOrders';
 import { Products } from './components/Products/Products';
 import { ShopPage } from './components/Products/ShopPage';
 import ProductDetail from './components/Products/ProductDetail';
@@ -64,7 +65,7 @@ const App = () => {
                 </>
               }
             />
-
+          <Route path="/myorders" element={<MyOrders />} />
             {/* Account Page Route */}
             <Route path="/account" element={<AccountPage />} />
 
