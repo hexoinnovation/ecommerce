@@ -5,7 +5,7 @@ import { useProducts } from '../../context/ProductsContext';
 import { useCart } from '../../context/CartContext'; // Import the useCart hook
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
-import { getFirestore, doc, setDoc,getDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc,getDoc,deleteDoc } from "firebase/firestore";
 import {collection } from 'firebase/firestore';
 import { useAuth } from "../Authcontext"; // Import the Auth context
 import { UserCircleIcon } from '@heroicons/react/outline';  // or @heroicons/react/solid
@@ -236,8 +236,7 @@ const { currentUser } = useAuth(); // Access current user from AuthProvider
       console.error('Error updating wishlist:', error);
     }
   };
-  
-  
+
   useEffect(() => {
     const checkWishlist = async () => {
       if (currentUser) {

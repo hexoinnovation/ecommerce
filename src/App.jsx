@@ -23,7 +23,7 @@ import { Products } from './components/Products/Products';
 import { ShopPage } from './components/Products/ShopPage';
 import ProductDetail from './components/Products/ProductDetail';
 import { ProductsProvider } from './context/ProductsContext';
-
+import Wishlist from './components/Navbar/Wishlist';
 const App = () => {
   const [orderPopup, setOrderPopup] = useState(false);
 
@@ -55,6 +55,7 @@ const App = () => {
                 <>
                   <Navbar handleOrderPopup={handleOrderPopup} />
                   <Hero handleOrderPopup={handleOrderPopup} />
+              
                   <ShopPage/>
                   <TopProducts handleOrderPopup={handleOrderPopup} />
                   <Banner />
@@ -93,7 +94,7 @@ const App = () => {
             />
             <Route path='/view-all' element={<ShopLayout><Products/></ShopLayout>}/>
             <Route path="/product/:id" element={<ShopLayout><ProductDetail /></ShopLayout>} />
-
+            <Route path="/wishlist" element={<Wishlist />} />
           </Routes>
           
           {/* Popup for Order */}

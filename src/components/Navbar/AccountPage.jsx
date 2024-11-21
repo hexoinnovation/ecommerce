@@ -137,6 +137,7 @@ const AccountPage = () => {
         <button className="text-lg hover:text-gray-400 transition-colors">
           My Wishlist
         </button>
+      
       </li>
     </ul>
   </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MoonIcon, SunIcon, ShoppingCartIcon, UserIcon, UserCircleIcon, ShoppingBagIcon, CogIcon, LogoutIcon } from '@heroicons/react/solid'; // Importing icons from Heroicons
 import { FaUser, FaLock, FaSignInAlt, FaTimes } from 'react-icons/fa'; // Importing icons
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc,deleteDoc,collection,getDocs } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
 import { Link, useNavigate } from 'react-router-dom';
@@ -252,6 +252,25 @@ const Navbar = () => {
       setOpenDropdown(index); // Open the clicked dropdown
     }
   };
+  const [wishlistItems, setWishlistItems] = useState([]);
+  const { currentUser } = useAuth(); // Access currentUser from AuthContext
+  const fetchWishlist = async () => {
+    try {
+      const wishlistRef = collection(db, 'users', currentUser.email, 'Wishlist');
+      const querySnapshot = await getDocs(wishlistRef);
+  
+      const items = querySnapshot.docs.map((doc) => ({
+        id: doc.id, // Firestore document ID
+        ...doc.data(), // Other item data
+      }));
+  
+      setWishlistItems(items); // Update state with the fetched items
+      navigate('/wishlist', { state: { items } });
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+    }
+  };
+  
   return (
     <div>
       <Topbar />
@@ -340,7 +359,7 @@ const Navbar = () => {
                       <ShoppingBagIcon className="w-5 h-5 mr-2" />
                       My Orders
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button  onClick={fetchWishlist}className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
@@ -370,7 +389,7 @@ const Navbar = () => {
                       <ShoppingBagIcon className="w-5 h-5 mr-2" />
                       My Orders
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button  onClick={fetchWishlist} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
