@@ -10,6 +10,8 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
   const auth = getAuth(); // Firebase Auth instance
   const db = getFirestore(); // Firestore instance
 
+  
+
   useEffect(() => {
     // Function to fetch cart items from Firestore
     const fetchCartFromFirestore = async () => {

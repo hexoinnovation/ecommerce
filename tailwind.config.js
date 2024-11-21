@@ -15,6 +15,9 @@ export default {
           sm: "3rem",
         },
       },
+      spacing: {
+        '30': '7.5rem',  // Custom spacing for ml-30
+      },
     },
   },
   plugins: [],

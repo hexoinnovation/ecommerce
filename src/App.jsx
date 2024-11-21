@@ -16,14 +16,18 @@ import CartPage from './components/Cart/CartPage';
 import { AuthProvider } from './components/Authcontext'; // Adjust the path
 import { CartProvider } from './context/CartContext'; // Ensure you're importing your CartProvider
 import AccountPage from './components/Navbar/AccountPage'; // Adjust the path to AccountPage.js
-
+import CheckoutPage from './components/Navbar/CheckoutPage';
+// import { CheckoutPage } from './components/Navbar/CheckoutPage';
 import ShopNavbar from './components/Products/ShopNavbar';
 import ShopLayout from './components/Layout/ShopLayout';
+import MyOrders from './components/Navbar/MyOrders';
+
 import { Products } from './components/Products/Products';
 import { ShopPage } from './components/Products/ShopPage';
 import ProductDetail from './components/Products/ProductDetail';
 import { ProductsProvider } from './context/ProductsContext';
 import Wishlist from './components/Navbar/Wishlist';
+
 const App = () => {
   const [orderPopup, setOrderPopup] = useState(false);
 
@@ -65,7 +69,9 @@ const App = () => {
                 </>
               }
             />
-
+          <Route path="/myorders" element={<MyOrders />} />
+          
+          <Route path="/checkout" element={<CheckoutPage />} />
             {/* Account Page Route */}
             <Route path="/account" element={<AccountPage />} />
 
