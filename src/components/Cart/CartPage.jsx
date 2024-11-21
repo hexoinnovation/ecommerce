@@ -12,6 +12,7 @@ const CartPage = () => {
   const navigate = useNavigate();
 
   const steps = [
+    
     { label: "Cart", description: "Review your items" },
     { label: "Details", description: "Enter your details" },
     { label: "Payment", description: "Confirm your order" }
