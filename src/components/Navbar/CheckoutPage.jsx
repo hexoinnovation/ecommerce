@@ -299,8 +299,8 @@ const CartPage = () => {
       
       {step === 1 && (
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Payment</h2>
-          <p className="text-gray-600 dark:text-gray-400">Confirm your order and proceed.</p>
+          <h2 className="text-2xl ml-80 font-bold text-gray-900 dark:text-white">Payment</h2>
+          <p className="text-gray-600 ml-80 dark:text-gray-400">Confirm your order and proceed.</p>
         </div>
       )}
 

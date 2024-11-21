@@ -12,7 +12,7 @@ const CartPage = () => {
   const navigate = useNavigate();
 
   const steps = [
-    
+
     { label: "Cart", description: "Review your items" },
     { label: "Details", description: "Enter your details" },
     { label: "Payment", description: "Confirm your order" }
@@ -139,9 +139,9 @@ const CartPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 mt-0 py-8">
-    <div className="container mx-auto p-4 max-w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl ml-4 sm:ml-4 md:ml-4 lg:ml-">
+    <div className="container mx-auto  p-4 max-w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl ml-4 sm:ml-4 md:ml-4 lg:ml-">
     {/* Stepper */}
-    <ol className="flex flex-wrap items-center  mr-10 sm:ml-20  space-x-2 sm:space-x-8 text-sm font-medium text-center sm:h-10 h-20 sm:ml-0 text-gray-500 border border-yellow-200 rounded-lg shadow-sm dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 rtl:space-x-reverse">
+    <ol className="flex flex-wrap items-center  mr-10 sm:ml-80  space-x-2 sm:space-x-8 text-sm font-medium text-center sm:h-10 h-20 sm:ml-0 text-gray-500 border border-yellow-200 rounded-lg shadow-sm dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 rtl:space-x-reverse">
       {steps.map((stepData, index) => (
         <li
           key={index}
@@ -180,13 +180,13 @@ const CartPage = () => {
     <div className="mt-8">
       {step === 0 && (
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Cart</h2>
-          <p className="text-gray-600 dark:text-gray-400">Review your items in the cart.</p>
+          <h2 className="text-2xl ml-80 font-bold text-gray-900 dark:text-white">Cart</h2>
+          <p className="text-gray-600 ml-80  dark:text-gray-400">Review your items in the cart.</p>
         </div>
       )}
 
       {step === 1 && (
-        <div className="p-6 bg-gray-100 rounded-lg max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="p-6 bg-gray-100 ml-80 rounded-lg max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Shipping and Billing Section */}
         <div>
           {/* Shipping Address */}
@@ -300,8 +300,8 @@ const CartPage = () => {
       
       {step === 2 && (
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Payment</h2>
-          <p className="text-gray-600 dark:text-gray-400">Confirm your order and proceed.</p>
+          <h2 className="text-2xl font-bold  ml-80 text-gray-900 dark:text-white">Payment</h2>
+          <p className="text-gray-600 ml-80 dark:text-gray-400">Confirm your order and proceed.</p>
         </div>
       )}
 
@@ -309,7 +309,7 @@ const CartPage = () => {
       <div className="mt-8 flex flex-col sm:flex-row justify-between gap-4 sm:gap-8">
         <button
           onClick={handleBack}
-          className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md w-full sm:w-auto"
+          className="bg-gray-300 ml-80 text-gray-800 px-4 py-2 rounded-md w-full sm:w-auto"
           disabled={step === 0}
         >
           Back
