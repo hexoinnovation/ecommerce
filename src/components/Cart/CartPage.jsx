@@ -7,7 +7,8 @@ import { db, doc, collection, setDoc, deleteDoc, getDocs ,getDoc} from '../fireb
 import { getAuth } from 'firebase/auth'; // Firebase Auth
 import { faTrash , faArrowRight,faHeart,faTimes} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FaHeartBroken ,FaRegHeart,FaHeart} from 'react-icons/fa'; 
+import { FaCreditCard } from 'react-icons/fa'; // Import a payment-related icon
+
 const CartPage = () => {
   const [step, setStep] = useState(0);
   const [cartItems, setCartItems] = useState([]);
@@ -451,8 +452,116 @@ const CartPage = () => {
          
           )}
 
-          {step === 2 && <div>Step 3: Confirm your order</div>}
+          {step === 2 && (
+            <div>
+              <div className="p-6 bg-gray-100 rounded-lg max-w-6xl ml-40 mr-40 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+           <div>
+        <h1 className="text-2xl font-bold ml-20 t-4p-4 text-center rounded-lg flex items-center space-x-4">
+  <span>Payment</span>
+  <div className="relative">
+  <FaCreditCard className="text-[#ff0080] animate-neon" /> {/* Custom neon pink color */}
+</div>
+</h1>
+       
+    
+        {/* Payment Methods */}
+        <div className="mt-6 ml-0">
+          <h3 className="text-xl font-semibold ml-20 mb-4">Choose a Payment Method</h3>
+    
+          {/* Credit Card Option */}
+          <div className="mb-4 ml-20 ">
+            <input type="radio" id="creditCard" name="paymentMethod" value="creditCard" />
+            <label htmlFor="creditCard" className="ml-2">Credit Card</label>
+          </div>
+    
+          {/* PayPal Option */}
+          <div className="mb-4 ml-20">
+            <input type="radio" id="paypal" name="paymentMethod" value="paypal" />
+            <label htmlFor="paypal" className="ml-2">PayPal</label>
+          </div>
+    
+          {/* Stripe Option */}
+          <div className="mb-4 ml-20">
+            <input type="radio" id="stripe" name="paymentMethod" value="stripe" />
+            <label htmlFor="stripe" className="ml-2">Stripe</label>
+          </div>
+    
+          {/* Order Summary Section */}
+          <div className="mt-6 ml-20">
+            <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
+            <div className="flex justify-between items-center">
+              <label className="font-semibold ml-20">Subtotal:</label>
+              <span className="text-lg">${totalPrice.toFixed(2)}</span>
+            </div>
+    
+            <div className="flex justify-between items-center ml-20">
+              <label className="font-semibold">Shipping:</label>
+              <span className="text-lg">${shippingCharge.toFixed(2)}</span>
+            </div>
+    
+            <div className="flex justify-between items-center ml-20">
+              <label className="font-semibold">Total:</label>
+              <span className="text-xl font-semibold">${finalTotal.toFixed(2)}</span>
+            </div>
+          </div>
+    
+          {/* Payment Form (for Credit Card) */}
+          <div className="mt-6">
+            {document.querySelector('input[name="paymentMethod"]:checked')?.value === 'creditCard' && (
+              <div>
+                <h4 className="font-semibold">Enter Credit Card Details</h4>
+                <form className="space-y-4">
+                  <div>
+                    <label htmlFor="cardNumber" className="block text-sm">Card Number</label>
+                    <input type="text" id="cardNumber" className="border rounded p-2 w-full" placeholder="XXXX XXXX XXXX XXXX" />
+                  </div>
+                  <div className="flex justify-between">
+                    <div>
+                      <label htmlFor="expiryDate" className="block text-sm">Expiry Date</label>
+                      <input type="text" id="expiryDate" className="border rounded p-2 w-24" placeholder="MM/YY" />
+                    </div>
+                    <div>
+                      <label htmlFor="cvv" className="block text-sm">CVV</label>
+                      <input type="text" id="cvv" className="border rounded p-2 w-24" placeholder="CVV" />
+                    </div>
+                  </div>
+                </form>
+              </div>
+            )}
+    
+            {/* Payment Form (for PayPal/Stripe) */}
+            {document.querySelector('input[name="paymentMethod"]:checked')?.value === 'paypal' && (
+              <div>
+                <h4 className="font-semibold">Redirecting to PayPal...</h4>
+                <p>You will be redirected to PayPal to complete your payment.</p>
+              </div>
+            )}
+    
+            {document.querySelector('input[name="paymentMethod"]:checked')?.value === 'stripe' && (
+              <div>
+                <h4 className="font-semibold">Redirecting to Stripe...</h4>
+                <p>You will be redirected to Stripe to complete your payment.</p>
+              </div>
+            )}
+          </div>
+    
+          {/* Confirmation Button */}
+          <div className="mt-6">
+            <button
+              onClick={() => handleCheckout()} 
+              className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
+            >
+              Confirm and Pay
+            </button>
+          </div>
         </div>
+      </div>
+      </div>
+      </div>
+    )}
+     
+ 
+        
 
         {/* Navigation Buttons */}
         <div className="mt-8 flex justify-between">
@@ -472,6 +581,7 @@ const CartPage = () => {
           </button>
         </div>
       </div>
+    </div>
     </div>
   );
 };

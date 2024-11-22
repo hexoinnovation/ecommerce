@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { FaTrash, FaShoppingCart, FaArrowLeft, FaEye ,  FaArrowRight} from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../Authcontext'; // Access currentUser
 import { useNavigate } from 'react-router-dom';
@@ -300,7 +299,7 @@ const CartPage = () => {
       {step === 1 && (
         <div className="p-6 bg-gray-100 rounded-lg max-w-6xl ml-80 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
            <div>
-        <h1 className="text-2xl font-bold ml-0 t-4 p-4 text-center rounded-lg flex items-center space-x-4">
+        <h1 className="text-2xl font-bold ml-0 t-4p-4 text-center rounded-lg flex items-center space-x-4">
   <span>Payment</span>
   <div className="relative">
   <FaCreditCard className="text-[#ff0080] animate-neon" /> {/* Custom neon pink color */}
