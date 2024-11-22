@@ -1,69 +1,109 @@
 import React from 'react';
 import Navbar from './Navbar';
 import Footer from '../Footer/Footer';
-
-// Sample data for orders (you can replace this with dynamic data from an API or a database)
+import cam1 from "../../assets/camera/cam1.jpg";
+import e3 from "../../assets/common/e3.jpg";
+import phn2 from "../../assets/phone/phn2.jpg";
+import { FaShoppingCart } from 'react-icons/fa';  // Import the icon
 const orders = [
-  { id: 1, date: '2024-11-10', total: 100.50, status: 'Shipped' },
-  { id: 2, date: '2024-11-12', total: 59.75, status: 'Processing' },
-  { id: 3, date: '2024-11-15', total: 200.00, status: 'Delivered' },
-  { id: 4, date: '2024-11-18', total: 350.25, status: 'Shipped' },
+  {
+    id: 1,
+    date: 'Cancelled on Oct 15, 2023',
+    items: 'Siril Dyed, Embellished, Solid/Plain Bol...',
+    color: 'Blue',
+    size: 'Free',
+    price: '₹244',
+    status: 'Cancelled',
+    image: cam1,
+  },
+  {
+    id: 2,
+    date: 'Delivered on Nov 18, 2023',
+    items: 'Product C',
+    color: 'Red',
+    size: 'Medium',
+    price: '₹120',
+    status: 'Delivered',
+    image: e3,
+  },
+  {
+    id: 3,
+    date: 'Shipped on Nov 20, 2023',
+    items: 'Product D, Product E, Product F',
+    color: 'Black',
+    size: 'Large',
+    price: '₹400',
+    status: 'Shipped',
+    image: phn2,
+  },
 ];
 
 const MyOrders = () => {
   return (
     <div>
-   <Navbar/>
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-4">My Orders</h1>
-
-      <div className="overflow-x-auto bg-white shadow-lg rounded-lg">
-        <table className="min-w-full table-auto">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Order ID</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Date</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Total</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Status</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.id} className="border-b">
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">{order.id}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{order.date}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">${order.total.toFixed(2)}</td>
-                <td className="px-6 py-4 text-sm">
-                  <span
-                    className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
-                      order.status === 'Shipped'
-                        ? 'bg-blue-100 text-blue-800'
-                        : order.status === 'Delivered'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}
-                  >
-                    {order.status}
+      <Navbar />
+      <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold ml-40 p-4 text-center rounded-lg flex items-center space-x-4">
+        <span>My Orders</span>
+        <div className="relative">
+          <FaShoppingCart className="text-3xl animate-dr" /> {/* Apply the move animation */}
+        </div>
+      </h1>
+        <div className="grid gap-6 mt-5">
+          {orders.map((order) => (
+            <div
+              key={order.id}
+              className="bg-gray-100 w-full max-w-lg mx-auto p-4 rounded shadow-lg hover:shadow-xl transition-shadow flex items-center space-x-4"
+              style={{
+                height: '180px', // Fixed height for all containers
+                minWidth: '900px', // Minimum width for consistency
+              }}
+            >
+              <img
+                src={order.image}
+                alt={`Order ${order.id}`}
+                className="w-40 h-40 object-cover rounded"
+              />
+              <div className="flex-1 text-sm flex justify-between items-center">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-lg">{order.items}</span>
+                  <span className="text-gray-600 text-base">
+                    <strong>Color:</strong> {order.color}
                   </span>
-                </td>
-                <td className="px-6 py-4 text-sm">
-                  <button
-                    className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-                    onClick={() => alert(`Viewing details for Order ${order.id}`)}
-                  >
-                    View Details
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <Footer/>
-    </div>
+                  <span className="text-gray-600">
+                    <strong>Size:</strong> {order.size}
+                  </span>
+                </div>
+                <div className="flex flex-col items-end">
+  <div
+    className="flex items-center justify-center"
+    style={{
+      height: '50px', // Set a specific height for the div
+    }}
+  >
+    <span className="text-lg font-bold text-center">{order.price}</span>
+  </div>
+  <span
+    className={`text-sm font-bold ${
+      order.status === 'Cancelled'
+        ? 'text-red-500'
+        : order.status === 'Delivered'
+        ? 'text-green-500'
+        : 'text-yellow-500'
+    }`}
+  >
+    {order.status}
+  </span>
+  <span className="text-gray-500">{order.date}</span>
+</div>
 
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <Footer />
+    </div>
   );
 };
 

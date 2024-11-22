@@ -74,9 +74,9 @@ export const ViewAllProducts = () => {
                     className="w-full h-56 object-cover rounded-md cursor-pointer"
                     onClick={() => handleProductClick(product.id)} // Trigger navigation to ProductDetails page
                   />
-                  <FaHeart
+                  {/* <FaHeart
                     className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors text-xl cursor-pointer"
-                  />
+                  /> */}
                 </div>
 
                 {/* Product Details */}

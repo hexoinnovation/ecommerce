@@ -11,6 +11,7 @@ const Wishlist = () => {
   const location = useLocation();
   const [wishlistItems, setWishlistItems] = useState(location.state?.items || []);
   const { currentUser } = useAuth();
+  
 
   // Fetch wishlist items
   const fetchWishlist = async () => {
