@@ -295,13 +295,13 @@ const Navbar = () => {
 
               {/* Logo */}
               <div className="flex items-center space-x-2">
-                <span className="text-2xl font-bold">Hexo</span>
+                <span className="text-xl font-bold">Hexo</span>
               </div>
             </div>
 
             {/* Desktop View - Search Bar and Icons */}
-            <div className="hidden lg:flex items-center space-x-4 w-full justify-center ">
-              <div className="flex items-center space-x-2 flex-grow max-w-3xl">
+            <div className="hidden lg:flex items-center space-x-4 w-full justify-center  ">
+              <div className="flex items-center space-x-2 flex-grow max-w-3xl ">
                 <input
                   type="text"
                   className="w-half py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
@@ -313,25 +313,23 @@ const Navbar = () => {
 
                 <button
                   onClick={handleHomeClick}
-                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-lg flex items-center space-x-2 ml-" // ml-3 for slight right margin
+                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-s flex items-center space-x-2 ml-" // ml-3 for slight right margin
                 >
-                  <HomeIcon className="h-5 w-5 text-black dark:text-white" /> {/* Home Icon */}
+                  <HomeIcon className="h-5 w-5 text-black  dark:text-white text-xl" /> {/* Home Icon */}
                   <span>Home</span>
                 </button>
 
                 <Link to={'/view-all'}>
-                  <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 mr-5 ml-3"> {/* ml-3 for slight right margin */}
-                    <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" /> {/* Shop Icon */}
+                  <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-s flex items-center space-x-2 mr-5 ml-3"> {/* ml-3 for slight right margin */}
+                    <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white " /> {/* Shop Icon */}
                     <span>Shop</span>
                   </button>
                 </Link>
 
-                <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 mr-5 ml-3"> {/* ml-3 for slight right margin */}
-                  <PhoneIcon className="h-5 w-5 text-black dark:text-white" /> {/* Contact Us Icon */}
+                <button className="w-full  sm:w-1/2 hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-s flex items-center space-x-2 mr-5 ml-3"> {/* ml-3 for slight right margin */}
+                  <PhoneIcon className="h-5 w-5 text-black dark:text-white " /> {/* Contact Us Icon */}
                   <span>Contact Us</span>
                 </button>
-
-
               </div>
             </div>
 
@@ -408,17 +406,14 @@ const Navbar = () => {
                   </div>
                 )}
               </div>
-              <button className="text-black dark:text-white" onClick={toggleCartDrawer}>
-                <ShoppingCartIcon className="w-6 h-6" />
-                {cartCount > 0 && (
-                  <span className="absolute top-1 right-28 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-
-              </button>
-              {/* Drawer for Cart */}
-              {/* Cart Drawer */}
+              <button className="relative text-black dark:text-white" onClick={toggleCartDrawer}>
+  <ShoppingCartIcon className="w-6 h-6" />
+  {cartCount > 0 && (
+    <span className="absolute -top-4 -right-4 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+      {cartCount}
+    </span>
+  )}
+</button>
               <CartDrawer
                 isOpen={isCartDrawerOpen}
                 closeDrawer={toggleCartDrawer} // Function to close the drawer when clicked outside or when user clicks the close button
@@ -476,21 +471,19 @@ const Navbar = () => {
                 <PhoneIcon className="h-5 w-5 text-black dark:text-white" /> {/* Contact Us Icon */}
                 <span>Contact Us</span>
               </button>
-
             </div>
-
           </div>
         </div>
 
        {/* Lower Navbar (Desktop View - Category Links) */}
 <div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white">
-  <div className="max-w-screen-xl mx-auto py-1 px-4">
+  <div className="max-w-screen-xl mx-auto py-1 px-4 mt-20">
     <div className="flex justify-center space-x-6 py-2">
       {/* Electronics Dropdown */}
       <div className="relative">
         <button
           onClick={() => handleDropdownToggle(0)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-s flex items-center space-x-2"
         >
           <span>Electronics</span>
           <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
@@ -529,7 +522,7 @@ const Navbar = () => {
       <div className="relative">
         <button
           onClick={() => handleDropdownToggle(1)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-s flex items-center space-x-2"
         >
           <span>Fashion</span>
           <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
@@ -566,7 +559,7 @@ const Navbar = () => {
       <div className="relative">
         <button
           onClick={() => handleDropdownToggle(2)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-s flex items-center space-x-2"
         >
           <span>Toys</span>
           <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
@@ -597,7 +590,7 @@ const Navbar = () => {
       <div className="relative">
         <button
           onClick={() => handleDropdownToggle(3)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-s flex items-center space-x-2"
         >
           <span>Jewelry</span>
           <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
@@ -629,7 +622,7 @@ const Navbar = () => {
       <div className="relative">
         <button
           onClick={() => handleDropdownToggle(4)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-s flex items-center space-x-2"
         >
           <span>Decoration</span>
           <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
@@ -660,7 +653,7 @@ const Navbar = () => {
       <div className="relative">
         <button
           onClick={() => handleDropdownToggle(5)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-s flex items-center space-x-2"
         >
           <span>Sports</span>
           <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
@@ -691,7 +684,7 @@ const Navbar = () => {
       <div className="relative">
         <button
           onClick={() => handleDropdownToggle(6)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-s flex items-center space-x-2"
         >
           <span>Gift</span>
           <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
@@ -722,7 +715,7 @@ const Navbar = () => {
       <div className="relative">
         <button
           onClick={() => handleDropdownToggle(7)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-s flex items-center space-x-2"
         >
           <span>Books</span>
           <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
