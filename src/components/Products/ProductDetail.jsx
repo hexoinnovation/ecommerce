@@ -10,6 +10,9 @@ import {collection } from 'firebase/firestore';
 import { useAuth } from "../Authcontext"; // Import the Auth context
 import { UserCircleIcon } from '@heroicons/react/outline';  // or @heroicons/react/solid
 import {  FaShoppingBag ,FaTimes,FaUser,FaLock, FaSignInAlt,FaCheckCircle,FaTimesCircle} from "react-icons/fa";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHandPointLeft } from '@fortawesome/free-solid-svg-icons';
+
 const ProductDetail = () => {
   const products = useProducts(); // Get products from context
   const { id } = useParams(); // Get product ID from URL
@@ -251,13 +254,13 @@ const { currentUser } = useAuth(); // Access current user from AuthProvider
   return (
     <div className="min-h-screen flex items-center justify-center sm:mt-0 mt-10 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto  p-4 max-w-4xl">
-        <button
+        {/* <button
           onClick={handleGoBack}
           className="text-xl text-primary dark:text-white flex items-center gap-2 mb-4"
         >
           <FaArrowLeft className="text-lg" />
-          Back to Products
-        </button>
+          Back to Shop
+        </button> */}
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Product Image */}
@@ -344,6 +347,13 @@ const { currentUser } = useAuth(); // Access current user from AuthProvider
               </button>
            
             </div>
+            <button
+  onClick={handleGoBack}
+  className="text-xl text-primary dark:text-white flex items-center gap-2 mb-4 ml-40"
+>
+  <FontAwesomeIcon icon={faHandPointLeft} className="text-2xl" />
+  Back to Shop
+</button>
             {/* Success or Error Message */}
  {successMessage && (
   <div className="flex items-center bg-white-500 text-yellow-800 p-3 rounded-lg shadow-lg mb-4 animate-slideIn">

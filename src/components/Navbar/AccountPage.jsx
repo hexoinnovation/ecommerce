@@ -6,11 +6,12 @@ import Navbar from './Navbar';
 import Footer from '../Footer/Footer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCogs, faBox } from '@fortawesome/free-solid-svg-icons';
-
+import { Link } from 'react-router-dom'; // Import Link from React Router
 const AccountPage = () => {
   const { currentUser, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isAddressAdding, setIsAddressAdding] = useState(false);
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -63,6 +64,10 @@ const AccountPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleClick = () => {
+    navigate('/wishlist'); // Redirect to /wishlist page
   };
 
   const handleSave = async () => {
@@ -134,9 +139,19 @@ const AccountPage = () => {
         <b>My Stuff</b>
       </h2>
       <li>
-        <button className="text-lg hover:text-gray-400 transition-colors">
-          My Wishlist
-        </button>
+      <Link to="/wishlist">
+      <button className="text-lg hover:text-gray-400 transition-colors">
+        My Wishlist
+      </button>
+    </Link>
+      
+      </li>
+      <li>
+      <Link to="/MyOrders">
+      <button className="text-lg hover:text-gray-400 transition-colors">
+        My Orders
+      </button>
+    </Link>
       
       </li>
     </ul>
