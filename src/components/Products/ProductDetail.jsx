@@ -180,12 +180,12 @@ const ProductDetail = () => {
       setError(error.message || 'An error occurred. Please try again.');
     }
   };
-  const { isLoggedIn } = useAuth(); 
-  const [loginPrompt, setLoginPrompt] = useState(false); 
-  const [error, setError] = useState('');  // Add state for error message
-  const [successMessage, setSuccessMessage] = useState(''); // Success message
-  const [errorMessage, setErrorMessage] = useState('');
-  const [isSignup, setIsSignup] = useState(false);
+const { isLoggedIn } = useAuth(); 
+const [loginPrompt, setLoginPrompt] = useState(false); 
+const [error, setError] = useState('');  // Add state for error message
+const [successMessage, setSuccessMessage] = useState(''); // Success message
+const [errorMessage, setErrorMessage] = useState('');
+const [isSignup, setIsSignup] = useState(false);
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [isAuthenticated, setIsAuthenticated] = useState(false);

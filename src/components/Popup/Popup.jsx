@@ -1,4 +1,4 @@
-import React, { useState } from "react"; 
+import React, { useState,useEffect } from "react"; 
 import { FaStar, FaShoppingCart, FaHeart, FaShoppingBag ,FaTimes,FaUser,FaLock, FaSignInAlt,FaCheckCircle,FaTimesCircle} from "react-icons/fa"; 
 import { useCart } from "../../context/CartContext"; // Import useCart to access Cart context
 import { useNavigate } from "react-router-dom";
@@ -6,9 +6,11 @@ import { useAuth } from "../Authcontext"; // Import the Auth context
 import { UserCircleIcon } from '@heroicons/react/outline';  // or @heroicons/react/solid
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
-import { getFirestore, doc, setDoc,getDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc,getDoc,deleteDoc } from "firebase/firestore";
 import {collection } from 'firebase/firestore';
 //import { getAuth } from 'firebase/auth';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const Popup = ({ product, onClose }) => {
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ const Popup = ({ product, onClose }) => {
   const [successMessage, setSuccessMessage] = useState(''); // Success message
   const [errorMessage, setErrorMessage] = useState('');
   const [cartItems, setCartItems] = useState([]);
-
+  const { currentUser } = useAuth();
   if (!product) return null; // Ensure product exists before rendering
   const db = getFirestore(app);
   const auth = getAuth(app);
@@ -96,10 +98,7 @@ const [isAuthenticated, setIsAuthenticated] = useState(false);
 const [username, setUsername] = useState('');
 const [showModal, setShowModal] = useState(false); // Initially set to false
 const { incrementCartCount } = useAuth();
-// Close modal
-const closeModal = () => {
-  setShowModal(false); // Close the modal by setting showModal to false
-};
+
 const handleSignup = async () => {
   setError('');
   setSuccessMessage('');
@@ -187,7 +186,50 @@ const handleLogin = async () => {
     setError(error.message || 'An error occurred. Please try again.');
   }
 };
+const [isWishlist, setIsWishlist] = useState(false); // Local state for wishlist toggle
+const [wishlist, setWishlist] = useState([]); // Default to array
 
+const handleWishlistToggle = async () => {
+  if (!currentUser) {
+    alert('Please login to add products to your wishlist.');
+    return;
+  }
+
+  try {
+    // Ensure the ID is converted to a string
+    const wishlistRef = doc(db, 'users', currentUser.email, 'Wishlist', String(product.id));
+
+    // Check if the product is already in the wishlist
+    const docSnap = await getDoc(wishlistRef);
+
+    if (docSnap.exists()) {
+      // If the product is already in the wishlist, remove it
+      await deleteDoc(wishlistRef);
+      setIsWishlist(false);
+    } else {
+      console.log('Product being added to wishlist:', product); // Debug log
+      await setDoc(wishlistRef, product);
+      setIsWishlist(true);
+    }
+  } catch (error) {
+    console.error('Error updating wishlist:', error);
+  }
+};
+
+useEffect(() => {
+  const checkWishlist = async () => {
+    if (currentUser) {
+      const wishlistRef = doc(db, 'users', currentUser.email, 'Wishlist', product.id);
+      const docSnap = await getDoc(wishlistRef);
+      setIsWishlist(docSnap.exists());
+    }
+  };
+  checkWishlist();
+}, [currentUser, product.id]);
+
+const closeModal = () => {
+  setLoginPrompt(false);
+};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
@@ -233,7 +275,12 @@ const handleLogin = async () => {
               {/* Title and Favorite Icon */}
               <div className="flex justify-between items-center">
                 <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">{product.title}</h2>
-                <FaHeart className="text-2xl text-gray-600 dark:text-white cursor-pointer mr-6 sm:ml-6 hover:text-red-500 transition-colors" />
+                <button
+      onClick={handleWishlistToggle}
+      className={`text-2xl ${isWishlist ? 'text-red-500' : 'text-gray-500'}`}
+    >
+      <FaHeart />
+    </button>
               </div>
 
               {/* Color and Rating */}
@@ -302,7 +349,6 @@ const handleLogin = async () => {
     <p className="text-center text-lg">{error}</p>
   </div>
 )}
-
               {/* Product Description */}
               <div className="mt-8">
                 <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">Product Description</h3>
@@ -314,9 +360,19 @@ const handleLogin = async () => {
       </div>
 
   {/* Login Prompt */}
-{loginPrompt && (
+  {loginPrompt && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-8 rounded-md shadow-lg">
+    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-8 rounded-md shadow-lg relative">
+        
+      {/* Close Button */}
+      <button
+        onClick={closeModal}
+        className="absolute top-2 right-2 text-gray-900 hover:text-gray-700"
+        aria-label="Close Modal"
+      >
+        <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
+      </button>
+
       <h2 className="text-xl font-semibold">Please log in to access your products.</h2>
       
       {/* Go to Login Button */}
@@ -330,17 +386,11 @@ const handleLogin = async () => {
         <UserCircleIcon className="w-5 h-5 mr-2" />
         Go to Login
       </button>
-      
-      {/* Close Button */}
-      <button
-        onClick={() => setLoginPrompt(false)}
-        className="mt-4 py-2 px-6 bg-gray-300 text-gray-900 rounded-md"
-      >
-        Close
-      </button>
+    
     </div>
   </div>
 )}
+
 
 {/* Show Login Modal after clicking "Go to Login" */}
 {showModal && !isAuthenticated && (

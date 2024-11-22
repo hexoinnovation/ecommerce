@@ -7,6 +7,7 @@ import {
   setDoc,
   deleteDoc,
   getDocs,
+  getDoc
 } from "firebase/firestore"; // Firestore
 
 import { getAuth } from "firebase/auth"; // Firebase Authentication
@@ -27,4 +28,4 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app); // Initialize Firestore
 const auth = getAuth(app); // Initialize Firebase Authentication
 
-export { app, db, auth, doc, collection, setDoc, deleteDoc, getDocs };
+export { app, db, auth, doc, collection, setDoc, deleteDoc, getDocs,getDoc };

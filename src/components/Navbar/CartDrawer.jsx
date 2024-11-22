@@ -105,6 +105,8 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
                   <img src={item.img} alt={item.title} className="w-16 h-16 object-cover rounded-md" />
                   <div className="ml-4">
                     <h3 className="text-lg font-semibold">{item.title}</h3>
+                    <h3 className="text-lg font-semibold">{item.name}</h3>
+                    <h3 className="text-lg font-semibold">{item.category}</h3>
                     <p className="text-sm text-gray-500">₹{item.price}</p>
                     <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                   </div>
