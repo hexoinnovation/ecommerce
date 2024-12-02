@@ -1,8 +1,8 @@
 import React from "react";
-import Image1 from "../../assets/hero/women.png";
-import Image2 from "../../assets/hero/shopping.png";
-import Image3 from "../../assets/hero/sale.png";
 import Slider from "react-slick";
+import Image3 from "../../assets/hero/sale.png";
+import Image2 from "../../assets/hero/shopping.png";
+import Image1 from "../../assets/hero/women.png";
 
 const ImageList = [
   {
@@ -10,27 +10,27 @@ const ImageList = [
     img: Image1,
     title: "Upto 50% off on all Men's Wear",
     description:
-      "lorem His Life will forever be Changed dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "Shop the best of men's fashion with unbeatable prices and modern styles.",
   },
   {
     id: 2,
     img: Image2,
     title: "30% off on all Women's Wear",
     description:
-      "Who's there lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "Discover the latest trends in women's fashion. Stylish, affordable, and available now.",
   },
   {
     id: 3,
     img: Image3,
     title: "70% off on all Products Sale",
     description:
-      "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "Don't miss out! Huge discounts on all products. Limited time offer.",
   },
 ];
 
 const Hero = ({ handleOrderPopup }) => {
-  var settings = {
-    dots: false,
+  const settings = {
+    dots: true,
     arrows: false,
     infinite: true,
     speed: 800,
@@ -43,61 +43,49 @@ const Hero = ({ handleOrderPopup }) => {
   };
 
   return (
-    <div className="relative overflow-hidden min-h-[550px] sm:min-h-[650px] bg-gray-100 flex justify-center items-center dark:bg-gray-950 dark:text-white duration-200 ">
-      {/* background pattern */}
-      <div className="h-[700px] w-[700px] bg-primary/40 absolute -top-1/2 right-0 rounded-3xl rotate-45 -z[8]"></div>
-
-      {/* hero section */}
-      <div className="container mt-2 pb-8 sm:pb-0 h-[600px]">
+    <div className="relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-gray-800 dark:bg-gray-950 min-h-[600px] flex items-center">
+      <div className="absolute inset-0 bg-opacity-60 bg-black"></div>
+      <div className="container mx-auto px-6 z-10">
         <Slider {...settings}>
           {ImageList.map((data) => (
-            <div key={data.id}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 mt-4 sm:mt-0"> {/* Adjusted mt-4 for less top margin */}
-                {/* text content section */}
-                <div className="flex flex-col justify-center gap-4 pt-12 sm:pt-0 text-center sm:text-left order-2 sm:order-1 relative z-10">
+            <div key={data.id} className="relative">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                {/* Text Section */}
+                <div className="text-center lg:text-left">
                   <h1
-                    data-aos="zoom-out"
-                    data-aos-duration="500"
-                    data-aos-once="true"
-                    className="text-5xl sm:text-6xl lg:text-7xl font-bold"
+                    className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 tracking-wide"
+                    data-aos="fade-right"
                   >
                     {data.title}
                   </h1>
                   <p
-                    data-aos="fade-up"
-                    data-aos-duration="500"
-                    data-aos-delay="100"
-                    className="text-sm"
+                    className="text-lg sm:text-xl text-gray-300 mb-6"
+                    data-aos="fade-right"
+                    data-aos-delay="200"
                   >
                     {data.description}
                   </p>
-                  <div
-                    data-aos="fade-up"
-                    data-aos-duration="500"
-                    data-aos-delay="300"
-                  >
+                  <div data-aos="fade-right" data-aos-delay="400">
                     <button
                       onClick={handleOrderPopup}
-                      className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
+                      className="inline-block bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-lg transform transition-transform hover:scale-105"
                     >
-                      Order Now
+                      Shop Now
                     </button>
                   </div>
                 </div>
 
-                {/* image section */}
-                <div className="order-1 sm:order-2">
-                  <div
-                    data-aos="zoom-in"
-                    data-aos-once="true"
-                    className="relative z-10"
-                  >
-                    <img
-                      src={data.img}
-                      alt={data.title}
-                      className="w-[300px] h-[300px] sm:h-[450px] sm:w-[450px] sm:scale-105 lg:scale-120 object-contain mx-auto"
-                    />
-                  </div>
+                {/* Image Section */}
+                <div
+                  className="flex justify-center lg:justify-end"
+                  data-aos="zoom-in"
+                  data-aos-duration="1200"
+                >
+                  <img
+                    src={data.img}
+                    alt={data.title}
+                    className="w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] lg:w-[500px] lg:h-[500px] object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-110"
+                  />
                 </div>
               </div>
             </div>

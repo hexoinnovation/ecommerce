@@ -1,19 +1,39 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { MoonIcon, SunIcon, ShoppingCartIcon, UserIcon, UserCircleIcon, ShoppingBagIcon, CogIcon, LogoutIcon } from '@heroicons/react/solid'; // Importing icons from Heroicons
-import { FaUser, FaLock, FaSignInAlt, FaTimes } from 'react-icons/fa'; // Importing icons
-import { getFirestore, doc, setDoc, getDoc,deleteDoc,collection,getDocs } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  MoonIcon,
+  SunIcon,
+  ShoppingCartIcon,
+  UserIcon,
+  UserCircleIcon,
+  ShoppingBagIcon,
+  CogIcon,
+  LogoutIcon,
+} from "@heroicons/react/solid"; // Importing icons from Heroicons
+import { FaUser, FaLock, FaSignInAlt, FaTimes } from "react-icons/fa"; // Importing icons
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+} from "firebase/firestore";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
-import { Link, useNavigate } from 'react-router-dom';
-import { HomeIcon, PhoneIcon } from '@heroicons/react/outline';
-import { useAuth } from '../Authcontext';
-import CartPage from '../Cart/CartPage';
-import CartDrawer from '../Navbar/CartDrawer';
-import Topbar from './Topbar';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-const Navbar = () => {
+import { Link, useNavigate } from "react-router-dom";
+import { HomeIcon, PhoneIcon } from "@heroicons/react/outline";
+import { useAuth } from "../Authcontext";
+import CartPage from "../Cart/CartPage";
+import CartDrawer from "../Navbar/CartDrawer";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+const Navbar = () => {
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null); // For mobile dropdown toggle
   const [dropdownOpen, setDropdownOpen] = useState(false); // For login dropdown
   const [isDarkMode, setIsDarkMode] = useState(false); // For dark mode toggle
@@ -22,10 +42,9 @@ const Navbar = () => {
   const { cartCount } = useAuth(); // Access cartCount from context
   const db = getFirestore(app);
   const auth = getAuth(app);
-  const [error, setError] = useState('');  // Add state for error message
-  const [successMessage, setSuccessMessage] = useState(''); // Success message
+  const [error, setError] = useState(""); // Add state for error message
+  const [successMessage, setSuccessMessage] = useState(""); // Success message
   const dropdownRef = useRef(null);
-
 
   // Toggle category dropdown visibility for mobile view
   const toggleCategoryDropdown = (index) => {
@@ -50,16 +69,16 @@ const Navbar = () => {
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     if (!isDarkMode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
   };
   const [showModal, setShowModal] = useState(false); // Initially set to false
 
   // Toggle modal visibility
   const handleModalToggle = () => {
-    handleDropdownClick()
+    handleDropdownClick();
     setShowModal(!showModal); // Toggle modal visibility
   };
   // Close modal
@@ -69,39 +88,43 @@ const Navbar = () => {
 
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [isSignup, setIsSignup] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   useEffect(() => {
-    const authStatus = localStorage.getItem('isAuthenticated');
-    const storedUsername = localStorage.getItem('username');
+    const authStatus = localStorage.getItem("isAuthenticated");
+    const storedUsername = localStorage.getItem("username");
 
-    if (authStatus === 'true') {
+    if (authStatus === "true") {
       setIsAuthenticated(true);
-      setUsername(storedUsername);  // Load the username from localStorage
+      setUsername(storedUsername); // Load the username from localStorage
     }
   }, []);
 
   const handleSignup = async () => {
-    setError('');
-    setSuccessMessage('');
+    setError("");
+    setSuccessMessage("");
 
     if (!email || !password || !username) {
-      setError('Please fill in all fields.');
+      setError("Please fill in all fields.");
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError("Password must be at least 6 characters.");
       return;
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       // Save the username in Firestore during signup
-      const userDocRef = doc(db, 'users', email);
+      const userDocRef = doc(db, "users", email);
       await setDoc(userDocRef, {
         email: user.email,
         username: username, // Set the provided username
@@ -109,42 +132,45 @@ const Navbar = () => {
         lastLogin: new Date(),
       });
 
-      setSuccessMessage('Account created successfully! Please log in.');
+      setSuccessMessage("Account created successfully! Please log in.");
       setIsSignup(false); // Switch to login form
-
     } catch (error) {
       console.error("Signup Error: ", error); // Log error
-      setError(error.message || 'An error occurred. Please try again.');
+      setError(error.message || "An error occurred. Please try again.");
     }
   };
 
   const handleLogin = async () => {
-    setError(''); // Reset error message
-    setSuccessMessage(''); // Reset success message
+    setError(""); // Reset error message
+    setSuccessMessage(""); // Reset success message
 
     if (!email || !password) {
-      setError('Please fill in all fields.');
+      setError("Please fill in all fields.");
       return;
     }
 
     try {
       // Log in the user with Firebase Authentication
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       // Check if the user document exists in Firestore
-      const userDocRef = doc(db, 'users', user.email); // Use user.email as the ID
+      const userDocRef = doc(db, "users", user.email); // Use user.email as the ID
       const userDocSnap = await getDoc(userDocRef);
 
-      let fetchedUsername = ''; // Default to empty string
+      let fetchedUsername = ""; // Default to empty string
 
       if (userDocSnap.exists()) {
         // If user document exists, get the username from Firestore
         const userData = userDocSnap.data();
-        fetchedUsername = userData.username || 'Default Username'; // Fallback to 'Default Username'
+        fetchedUsername = userData.username || "Default Username"; // Fallback to 'Default Username'
       } else {
         // If no user document exists, create one with a default username
-        fetchedUsername = 'Default Username'; // Default username for new users
+        fetchedUsername = "Default Username"; // Default username for new users
         await setDoc(userDocRef, {
           email: user.email,
           username: fetchedUsername, // Store default username
@@ -157,17 +183,16 @@ const Navbar = () => {
       setUsername(fetchedUsername);
       setIsAuthenticated(true);
 
-      setSuccessMessage('Login successful!');
+      setSuccessMessage("Login successful!");
       setShowModal(false); // Close modal after login
 
       // Store authentication state and username in localStorage
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('username', fetchedUsername);
-      localStorage.setItem('userEmail', user.email); // Optionally store email as well
-
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("username", fetchedUsername);
+      localStorage.setItem("userEmail", user.email); // Optionally store email as well
     } catch (error) {
       console.error("Login Error: ", error);
-      setError(error.message || 'An error occurred. Please try again.');
+      setError(error.message || "An error occurred. Please try again.");
     }
   };
 
@@ -184,18 +209,18 @@ const Navbar = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
   const navigate = useNavigate();
   const handleAccountClick = () => {
-    navigate('/account'); // Navigate to the account page when "My Account" is clicked
+    navigate("/account"); // Navigate to the account page when "My Account" is clicked
   };
   const handleMyOrdersClick = () => {
-    navigate('/myorders'); // Navigate to the account page when "My Account" is clicked
+    navigate("/myorders"); // Navigate to the account page when "My Account" is clicked
   };
 
   const { logout, resetUserData } = useAuth();
@@ -204,20 +229,20 @@ const Navbar = () => {
     const isConfirmed = window.confirm("Are you sure you want to log out?");
 
     if (isConfirmed) {
-      await logout();  // Log out user from Firebase
-      resetUserData();  // Reset form data
+      await logout(); // Log out user from Firebase
+      resetUserData(); // Reset form data
       alert("Logout successful! Please login to access your details.");
       // Clear localStorage on logout to reset the session
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('username');
-      localStorage.removeItem('userEmail');
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("username");
+      localStorage.removeItem("userEmail");
       // Update the state to reflect that the user is logged out
-      setIsAuthenticated(false);  // Set isAuthenticated to false
-      setDropdownOpen(false);      // Close the dropdown after logout
+      setIsAuthenticated(false); // Set isAuthenticated to false
+      setDropdownOpen(false); // Close the dropdown after logout
     }
   };
   const handleHomeClick = () => {
-    navigate('/');
+    navigate("/");
   };
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State to manage drawer visibility
 
@@ -241,10 +266,10 @@ const Navbar = () => {
         setIsSticky(false);
       }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
   const [openDropdown, setOpenDropdown] = useState(null); // Track which dropdown is open
@@ -260,36 +285,56 @@ const Navbar = () => {
   const { currentUser } = useAuth(); // Access currentUser from AuthContext
   const fetchWishlist = async () => {
     try {
-      const wishlistRef = collection(db, 'users', currentUser.email, 'Wishlist');
+      const wishlistRef = collection(
+        db,
+        "users",
+        currentUser.email,
+        "Wishlist"
+      );
       const querySnapshot = await getDocs(wishlistRef);
-  
+
       const items = querySnapshot.docs.map((doc) => ({
         id: doc.id, // Firestore document ID
         ...doc.data(), // Other item data
       }));
-  
+
       setWishlistItems(items); // Update state with the fetched items
-      navigate('/wishlist', { state: { items } });
+      navigate("/wishlist", { state: { items } });
     } catch (error) {
-      console.error('Error fetching wishlist:', error);
+      console.error("Error fetching wishlist:", error);
     }
   };
-  
+
   return (
     <div>
-      <Topbar />
       <div>
         {/* Upper Navbar */}
         <nav
-          className={`bg-primary/55 text-black dark:bg-gray-900 dark:text-white shadow-md fixed w-full z-50 transition-all duration-300 ease-in-out ${isSticky ? 'top-0' : 'top-12'}`}
+          className={`bg-black text-white dark:bg-white dark:text-black shadow-md fixed w-full z-50 transition-all duration-300 ease-in-out ${
+            isSticky ? "top-0" : "top-0"
+          }`}
         >
           <div className="max-w-screen-xl mx-auto flex items-center justify-between px-4 py-2">
             {/* Left Side (Toggle Menu and Logo) */}
             <div className="flex items-center space-x-3">
               {/* Mobile toggle button */}
-              <button className="lg:hidden text-black dark:text-white" onClick={toggleSidebar}>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              <button
+                className="lg:hidden text-black dark:text-white"
+                onClick={toggleSidebar}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               </button>
 
@@ -315,23 +360,28 @@ const Navbar = () => {
                   onClick={handleHomeClick}
                   className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-lg flex items-center space-x-2 ml-" // ml-3 for slight right margin
                 >
-                  <HomeIcon className="h-5 w-5 text-black dark:text-white" /> {/* Home Icon */}
+                  <HomeIcon className="h-5 w-5 text-black dark:text-white" />{" "}
+                  {/* Home Icon */}
                   <span>Home</span>
                 </button>
 
-                <Link to={'/view-all'}>
-                  <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 mr-5 ml-3"> {/* ml-3 for slight right margin */}
-                    <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" /> {/* Shop Icon */}
+                <Link to={"/view-all"}>
+                  <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 mr-5 ml-3">
+                    {" "}
+                    {/* ml-3 for slight right margin */}
+                    <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" />{" "}
+                    {/* Shop Icon */}
                     <span>Shop</span>
                   </button>
                 </Link>
 
-                <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 mr-5 ml-3"> {/* ml-3 for slight right margin */}
-                  <PhoneIcon className="h-5 w-5 text-black dark:text-white" /> {/* Contact Us Icon */}
+                <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 mr-5 ml-3">
+                  {" "}
+                  {/* ml-3 for slight right margin */}
+                  <PhoneIcon className="h-5 w-5 text-black dark:text-white" />{" "}
+                  {/* Contact Us Icon */}
                   <span>Contact Us</span>
                 </button>
-
-
               </div>
             </div>
 
@@ -339,7 +389,7 @@ const Navbar = () => {
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <button
-                  className="text-black dark:text-white font-semibold flex items-center space-x-2"
+                  className="text-white dark:text-white font-semibold flex items-center space-x-2"
                   onClick={() => setDropdownOpen(!dropdownOpen)} // Toggle dropdown on click
                 >
                   {isAuthenticated ? (
@@ -347,23 +397,45 @@ const Navbar = () => {
                   ) : (
                     <span>Login</span> // Display "Login" if not authenticated
                   )}
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
 
                 {/* Dropdown when authenticated */}
                 {dropdownOpen && isAuthenticated && (
-                  <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2">
-                    <button onClick={handleAccountClick} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <div
+                    ref={dropdownRef}
+                    className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2"
+                  >
+                    <button
+                      onClick={handleAccountClick}
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <UserCircleIcon className="w-5 h-5 mr-2" />
                       My Account
                     </button>
-                    <button onClick={handleMyOrdersClick} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button
+                      onClick={handleMyOrdersClick}
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <ShoppingBagIcon className="w-5 h-5 mr-2" />
                       My Orders
                     </button>
-                    <button  onClick={fetchWishlist}className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button
+                      onClick={fetchWishlist}
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
@@ -371,7 +443,10 @@ const Navbar = () => {
                       <CogIcon className="w-5 h-5 mr-2" />
                       Settings
                     </button>
-                    <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <LogoutIcon className="w-5 h-5 mr-2" />
                       Logout
                     </button>
@@ -380,20 +455,35 @@ const Navbar = () => {
 
                 {/* Dropdown when not authenticated */}
                 {dropdownOpen && !isAuthenticated && (
-                  <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2">
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" onClick={handleModalToggle}>
+                  <div
+                    ref={dropdownRef}
+                    className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white shadow-lg rounded-md py-2"
+                  >
+                    <button
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={handleModalToggle}
+                    >
                       <UserCircleIcon className="w-5 h-5 mr-2" />
                       Login
                     </button>
-                    <button onClick={handleAccountClick} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button
+                      onClick={handleAccountClick}
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <UserCircleIcon className="w-5 h-5 mr-2" />
                       My Account
                     </button>
-                    <button onClick={handleMyOrdersClick} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button
+                      onClick={handleMyOrdersClick}
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <ShoppingBagIcon className="w-5 h-5 mr-2" />
                       My Orders
                     </button>
-                    <button  onClick={fetchWishlist} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button
+                      onClick={fetchWishlist}
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
@@ -401,21 +491,26 @@ const Navbar = () => {
                       <CogIcon className="w-5 h-5 mr-2" />
                       Settings
                     </button>
-                    <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <LogoutIcon className="w-5 h-5 mr-2" />
                       Logout
                     </button>
                   </div>
                 )}
               </div>
-              <button className="text-black dark:text-white" onClick={toggleCartDrawer}>
+              <button
+                className="text-white dark:text-white"
+                onClick={toggleCartDrawer}
+              >
                 <ShoppingCartIcon className="w-6 h-6" />
                 {cartCount > 0 && (
                   <span className="absolute top-1 right-28 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
-
               </button>
               {/* Drawer for Cart */}
               {/* Cart Drawer */}
@@ -429,22 +524,49 @@ const Navbar = () => {
               </button> */}
 
               {/* Theme Toggle Button */}
-              <button onClick={toggleTheme} className="text-black dark:text-white">
-                {isDarkMode ? <SunIcon className="w-6 h-6" /> : <MoonIcon className="w-6 h-6" />}
+              <button
+                onClick={toggleTheme}
+                className="text-white dark:text-white"
+              >
+                {isDarkMode ? (
+                  <SunIcon className="w-6 h-6" />
+                ) : (
+                  <MoonIcon className="w-6 h-6" />
+                )}
               </button>
             </div>
           </div>
         </nav>
 
         {/* Sidebar Menu (Mobile View - Toggle Menu) */}
-        <div className={`lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50 transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300`}>
+        <div
+          className={`lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50 transform ${
+            sidebarOpen ? "translate-x-0" : "translate-x-full"
+          } transition-transform duration-300`}
+        >
           <div className="w-64 bg-white dark:bg-gray-800 p-4 h-full">
             {/* Close Button */}
             <div className="flex justify-between items-center mb-4">
-              <span className="text-2xl font-bold text-black dark:text-white">Hexo</span>
-              <button onClick={toggleSidebar} className="text-black dark:text-white">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              <span className="text-2xl font-bold text-black dark:text-white">
+                Hexo
+              </span>
+              <button
+                onClick={toggleSidebar}
+                className="text-black dark:text-white"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -463,388 +585,401 @@ const Navbar = () => {
                 onClick={handleHomeClick}
                 className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
               >
-                <HomeIcon className="h-5 w-5 text-black dark:text-white" /> {/* Home Icon */}
+                <HomeIcon className="h-5 w-5 text-black dark:text-white" />{" "}
+                {/* Home Icon */}
                 <span>Home</span>
               </button>
-              <Link to={'/view-all'}>
+              <Link to={"/view-all"}>
                 <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
-                  <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" /> {/* Shop Icon */}
+                  <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" />{" "}
+                  {/* Shop Icon */}
                   <span>Shop</span>
-                </button></Link>
+                </button>
+              </Link>
 
               <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
-                <PhoneIcon className="h-5 w-5 text-black dark:text-white" /> {/* Contact Us Icon */}
+                <PhoneIcon className="h-5 w-5 text-black dark:text-white" />{" "}
+                {/* Contact Us Icon */}
                 <span>Contact Us</span>
               </button>
-
             </div>
-
           </div>
         </div>
 
-       {/* Lower Navbar (Desktop View - Category Links) */}
-<div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white">
-  <div className="max-w-screen-xl mx-auto py-1 px-4">
-    <div className="flex justify-center space-x-6 py-2">
-      {/* Electronics Dropdown */}
-      <div className="relative">
-        <button
-          onClick={() => handleDropdownToggle(0)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-        >
-          <span>Electronics</span>
-          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-        </button>
-        {openDropdown === 0 && (
-          <div
-          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-auto rounded-md z-10 transition-all duration-300 hover:scale-105"
-          onMouseLeave={() => handleDropdownToggle(null)}
-        >
-          <Link
-            to="/electronics/phones"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Phones
-          </Link>
-          <Link
-            to="/electronics/laptops"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Laptops
-          </Link>
-          <Link
-            to="/electronics/accessories"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Accessories
-          </Link>
-        </div>
-        )}
-      </div>
-
-      {/* Fashion Dropdown */}
-      <div className="relative">
-
-      {/* Fashion Dropdown */}
-      <div className="relative">
-        <button
-          onClick={() => handleDropdownToggle(1)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-        >
-          <span>Fashion</span>
-          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-        </button>
-        {openDropdown === 1 && (
-          <div
-          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-auto rounded-md z-10 transition-all duration-300 hover:scale-105"
-          onMouseLeave={() => handleDropdownToggle(null)}
-        >
-          <Link
-            to="/Fashion/Mens"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Mens
-          </Link>
-          <Link
-            to="/Fashion/Womens"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Womens
-          </Link>
-          <Link
-            to="/Fashion/Kids"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Kids
-          </Link>
-        </div>
-        )}
-      </div>
-      </div>
-
-      {/* Toys Dropdown */}
-      <div className="relative">
-        <button
-          onClick={() => handleDropdownToggle(2)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-        >
-          <span>Toys</span>
-          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-        </button>
-        {openDropdown === 2 && (
-          <div
-          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[190px] rounded-md z-10 transition-all duration-300 hover:scale-105"
-          onMouseLeave={() => handleDropdownToggle(null)}
-        >
-          <Link
-            to="/toys/action-figures"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-           Action Figures
-          </Link>
-          <Link
-            to="/toys/board-games"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Board Games
-          </Link>
-          
-        </div>
-        )}
-      </div>
-
-      {/* Jewelry Dropdown */}
-      <div className="relative">
-        <button
-          onClick={() => handleDropdownToggle(3)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-        >
-          <span>Jewelry</span>
-          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-        </button>
-        {openDropdown === 3 && (
-          <div
-          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
-          onMouseLeave={() => handleDropdownToggle(null)}
-        >
-          <Link
-            to="/jewelry/rings"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-           Rings
-          </Link>
-          <Link
-            to="/jewelry/necklaces"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Necklaces
-          </Link>
-          
-        </div>
-        )}
-        
-      </div>
-
-      {/* Decoration Dropdown */}
-      <div className="relative">
-        <button
-          onClick={() => handleDropdownToggle(4)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-        >
-          <span>Decoration</span>
-          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-        </button>
-        {openDropdown === 4 && (
-          <div
-          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
-          onMouseLeave={() => handleDropdownToggle(null)}
-        >
-          <Link
-            to="/decoration/furniture"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-           Furniture
-          </Link>
-          <Link
-            to="/decoration/lighting"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Lighting
-          </Link>
-          
-        </div>
-        )}
-      </div>
-
-      {/* Sports Dropdown */}
-      <div className="relative">
-        <button
-          onClick={() => handleDropdownToggle(5)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-        >
-          <span>Sports</span>
-          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-        </button>
-        {openDropdown === 5 && (
-          <div
-          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
-          onMouseLeave={() => handleDropdownToggle(null)}
-        >
-          <Link
-            to="/sports/outdoor"
-            className="w-full  sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-           Outdoor
-          </Link>
-          <Link
-            to="/sports/fitness"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Fitness
-          </Link>
-          
-        </div>
-        )}
-      </div>
-
-      {/* Gift Dropdown */}
-      <div className="relative">
-        <button
-          onClick={() => handleDropdownToggle(6)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-        >
-          <span>Gift</span>
-          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-        </button>
-        {openDropdown === 6 && (
-          <div
-          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
-          onMouseLeave={() => handleDropdownToggle(null)}
-        >
-          <Link
-            to="/gift/for-her"
-            className="w-full  sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-           For Her
-          </Link>
-          <Link
-            to="/gift/for-him"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            For Him
-          </Link>
-          
-        </div>
-        )}
-      </div>
-
-      {/* Books Dropdown */}
-      <div className="relative">
-        <button
-          onClick={() => handleDropdownToggle(7)}
-          className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-        >
-          <span>Books</span>
-          <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
-        </button>
-
-        {openDropdown === 7 && (
-          <div
-          className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[170px] rounded-md z-10 transition-all duration-300 hover:scale-105"
-          onMouseLeave={() => handleDropdownToggle(null)}
-        >
-          <Link
-            to="/books/fiction"
-            className="w-full  sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-           Fiction
-          </Link>
-          <Link
-            to="/books/non-fiction"
-            className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-          >
-            Non-Fiction
-          </Link>
-          
-        </div>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
-
-
-        {showModal && !isAuthenticated && (  // Only show modal when showModal is true and user is not authenticated
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-            <div className="bg-white p-10 rounded-lg w-96 shadow-lg relative">
-              {/* Close button */}
-              <button onClick={closeModal} className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700">
-                <FaTimes className="text-xl" />
-              </button>
-
-              <h2 className="text-3xl mb-6 text-center font-bold text-gray-800 font-serif">{isSignup ? 'Sign Up' : ' Login'}</h2>
-
-              {/* Display Success or Error Message */}
-              {successMessage && <p className="text-green-500 text-center">{successMessage}</p>}
-              {error && <p className="text-red-500 text-center">{error}</p>}
-
-              {/* Login or Signup Form */}
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                isSignup ? handleSignup() : handleLogin();
-              }}>
-                {/* Email Field */}
-                <div className="mb-6">
-                  <div className="relative">
-                    <FaUser className="absolute left-3 top-4 text-black-400" />
-                    <input
-                      type="text"
-                      placeholder="Username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <div className="relative">
-                    <FaUser className="absolute left-3 top-4 text-black-400" />
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Password Field */}
-                <div className="mb-6">
-                  <div className="relative">
-                    <FaLock className="absolute left-3 top-4 text-black-400" />
-                    <input
-                      type="password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <button type="submit" className="w-full bg-gradient-to-r from-yellow-400 to-orange-600 text-white p-3 rounded-lg flex items-center justify-center space-x-2">
-                  <FaSignInAlt />
-                  <span>{isSignup ? 'Sign Up' : 'Login'}</span>
+        {/* Lower Navbar (Desktop View - Category Links) */}
+        <div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white">
+          <div className="max-w-screen-xl mx-auto py-1 px-4">
+            <div className="flex justify-center space-x-6 py-2">
+              {/* Electronics Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => handleDropdownToggle(0)}
+                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+                >
+                  <span>Electronics</span>
+                  <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
                 </button>
-              </form>
-              {/* Switch to Sign Up / Login */}
-              <p className="text-sm mt-4 text-center text-gray-600">
-                {isSignup ? (
-                  <>
-                    Already have an account?{' '}
-                    <button onClick={() => setIsSignup(false)} className="text-blue-500 hover:underline">Login</button>
-                  </>
-                ) : (
-                  <>
-                    Don't have an account?{' '}
-                    <button onClick={() => setIsSignup(true)} className="text-blue-500 hover:underline">Sign Up</button>
-                  </>
+                {openDropdown === 0 && (
+                  <div
+                    className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-auto rounded-md z-10 transition-all duration-300 hover:scale-105"
+                    onMouseLeave={() => handleDropdownToggle(null)}
+                  >
+                    <Link
+                      to="/electronics/phones"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Phones
+                    </Link>
+                    <Link
+                      to="/electronics/laptops"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Laptops
+                    </Link>
+                    <Link
+                      to="/electronics/accessories"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Accessories
+                    </Link>
+                  </div>
                 )}
-              </p>
+              </div>
+
+              {/* Fashion Dropdown */}
+              <div className="relative">
+                {/* Fashion Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => handleDropdownToggle(1)}
+                    className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+                  >
+                    <span>Fashion</span>
+                    <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+                  </button>
+                  {openDropdown === 1 && (
+                    <div
+                      className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-auto rounded-md z-10 transition-all duration-300 hover:scale-105"
+                      onMouseLeave={() => handleDropdownToggle(null)}
+                    >
+                      <Link
+                        to="/Fashion/Mens"
+                        className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                      >
+                        Mens
+                      </Link>
+                      <Link
+                        to="/Fashion/Womens"
+                        className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                      >
+                        Womens
+                      </Link>
+                      <Link
+                        to="/Fashion/Kids"
+                        className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                      >
+                        Kids
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Toys Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => handleDropdownToggle(2)}
+                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+                >
+                  <span>Toys</span>
+                  <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+                </button>
+                {openDropdown === 2 && (
+                  <div
+                    className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[190px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+                    onMouseLeave={() => handleDropdownToggle(null)}
+                  >
+                    <Link
+                      to="/toys/action-figures"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Action Figures
+                    </Link>
+                    <Link
+                      to="/toys/board-games"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Board Games
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Jewelry Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => handleDropdownToggle(3)}
+                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+                >
+                  <span>Jewelry</span>
+                  <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+                </button>
+                {openDropdown === 3 && (
+                  <div
+                    className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+                    onMouseLeave={() => handleDropdownToggle(null)}
+                  >
+                    <Link
+                      to="/jewelry/rings"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Rings
+                    </Link>
+                    <Link
+                      to="/jewelry/necklaces"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Necklaces
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Decoration Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => handleDropdownToggle(4)}
+                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+                >
+                  <span>Decoration</span>
+                  <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+                </button>
+                {openDropdown === 4 && (
+                  <div
+                    className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+                    onMouseLeave={() => handleDropdownToggle(null)}
+                  >
+                    <Link
+                      to="/decoration/furniture"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Furniture
+                    </Link>
+                    <Link
+                      to="/decoration/lighting"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Lighting
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Sports Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => handleDropdownToggle(5)}
+                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+                >
+                  <span>Sports</span>
+                  <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+                </button>
+                {openDropdown === 5 && (
+                  <div
+                    className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+                    onMouseLeave={() => handleDropdownToggle(null)}
+                  >
+                    <Link
+                      to="/sports/outdoor"
+                      className="w-full  sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Outdoor
+                    </Link>
+                    <Link
+                      to="/sports/fitness"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Fitness
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Gift Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => handleDropdownToggle(6)}
+                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+                >
+                  <span>Gift</span>
+                  <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+                </button>
+                {openDropdown === 6 && (
+                  <div
+                    className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[150px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+                    onMouseLeave={() => handleDropdownToggle(null)}
+                  >
+                    <Link
+                      to="/gift/for-her"
+                      className="w-full  sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      For Her
+                    </Link>
+                    <Link
+                      to="/gift/for-him"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      For Him
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Books Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => handleDropdownToggle(7)}
+                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
+                >
+                  <span>Books</span>
+                  <FontAwesomeIcon icon={faChevronDown} className="ml-2" />
+                </button>
+
+                {openDropdown === 7 && (
+                  <div
+                    className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-[170px] rounded-md z-10 transition-all duration-300 hover:scale-105"
+                    onMouseLeave={() => handleDropdownToggle(null)}
+                  >
+                    <Link
+                      to="/books/fiction"
+                      className="w-full  sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Fiction
+                    </Link>
+                    <Link
+                      to="/books/non-fiction"
+                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+                    >
+                      Non-Fiction
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        )}
+        </div>
 
+        {showModal &&
+          !isAuthenticated && ( // Only show modal when showModal is true and user is not authenticated
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+              <div className="bg-white p-10 rounded-lg w-96 shadow-lg relative">
+                {/* Close button */}
+                <button
+                  onClick={closeModal}
+                  className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700"
+                >
+                  <FaTimes className="text-xl" />
+                </button>
 
+                <h2 className="text-3xl mb-6 text-center font-bold text-gray-800 font-serif">
+                  {isSignup ? "Sign Up" : " Login"}
+                </h2>
+
+                {/* Display Success or Error Message */}
+                {successMessage && (
+                  <p className="text-green-500 text-center">{successMessage}</p>
+                )}
+                {error && <p className="text-red-500 text-center">{error}</p>}
+
+                {/* Login or Signup Form */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    isSignup ? handleSignup() : handleLogin();
+                  }}
+                >
+                  {/* Email Field */}
+                  <div className="mb-6">
+                    <div className="relative">
+                      <FaUser className="absolute left-3 top-4 text-black-400" />
+                      <input
+                        type="text"
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <div className="relative">
+                      <FaUser className="absolute left-3 top-4 text-black-400" />
+                      <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password Field */}
+                  <div className="mb-6">
+                    <div className="relative">
+                      <FaLock className="absolute left-3 top-4 text-black-400" />
+                      <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full p-3 pl-10 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:text-black"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-yellow-400 to-orange-600 text-white p-3 rounded-lg flex items-center justify-center space-x-2"
+                  >
+                    <FaSignInAlt />
+                    <span>{isSignup ? "Sign Up" : "Login"}</span>
+                  </button>
+                </form>
+                {/* Switch to Sign Up / Login */}
+                <p className="text-sm mt-4 text-center text-gray-600">
+                  {isSignup ? (
+                    <>
+                      Already have an account?{" "}
+                      <button
+                        onClick={() => setIsSignup(false)}
+                        className="text-blue-500 hover:underline"
+                      >
+                        Login
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      Don't have an account?{" "}
+                      <button
+                        onClick={() => setIsSignup(true)}
+                        className="text-blue-500 hover:underline"
+                      >
+                        Sign Up
+                      </button>
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
       </div>
     </div>
-
   );
 };
 

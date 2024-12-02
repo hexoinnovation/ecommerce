@@ -1,18 +1,20 @@
+import { ShoppingCartIcon } from "@heroicons/react/outline";
 import React, { useState } from "react";
 import { FaStar } from "react-icons/fa";
-import { ShoppingCartIcon } from '@heroicons/react/outline';
-import Popup from "../Popup/Popup"; // Ensure Popup is correctly imported
-import Img6 from "../../assets/shirt/shirt.png";
-import Img7 from "../../assets/shirt/shirt2.png";
-import Img8 from "../../assets/shirt/shirt3.png";
+import { default as Img7 } from "../../assets/women/women.png";
+import {
+  default as Img10,
+  default as Img8,
+} from "../../assets/women/women2.jpg";
+import Img6 from "../../assets/women/women4.jpg";
+import Popup from "../Popup/Popup";
 
-// Data with correct image paths
 const ProductsData = [
   {
     id: 8,
     img: Img6,
     title: "Product 8",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...Lorem ipsum dolor sit amet, consectetur adipiscing elit...Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
     color: "Blue",
     rating: 4,
     price: 999,
@@ -25,7 +27,6 @@ const ProductsData = [
     color: "White",
     rating: 5,
     price: 1299,
-    
   },
   {
     id: 10,
@@ -35,7 +36,15 @@ const ProductsData = [
     color: "Pink",
     rating: 3,
     price: 799,
-    
+  },
+  {
+    id: 12,
+    img: Img10,
+    title: "Product 12",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
+    color: "Purple",
+    rating: 4,
+    price: 1199,
   },
 ];
 
@@ -54,63 +63,85 @@ const TopProducts = () => {
   };
 
   return (
-    <div className="container">
-      <div className="text-left mb-24">
-        <p className="text-sm text-primary">Top Rated Products for you</p>
-        <h1 className="text-3xl font-bold">Best Products</h1>
-        <p className="text-xs text-gray-400">Browse our top-rated selections.</p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 md:gap-5 place-items-center">
-        {ProductsData.map((product) => (
-          <div
-            key={product.id}
-            className="rounded-2xl bg-white hover:bg-black/80 hover:text-white shadow-xl group max-w-[300px]"
-          >
-            <div className="h-[100px]">
-              <img
-                src={product.img}
-                alt={product.title}
-                className="max-w-[140px] block mx-auto transform -translate-y-20 group-hover:scale-105 duration-300"
-              />
-            </div>
-
-            <div className="p-4 text-center">
-              <div className="w-full flex items-center justify-center gap-1">
-                {[...Array(product.rating)].map((_, index) => (
-                  <FaStar key={index} className="text-yellow-500" />
-                ))}
-              </div>
-              <h1 className="text-xl font-bold">{product.title}</h1>
-              <p className="text-gray-500 group-hover:text-white duration-300 text-sm">
-                {product.description}
-              </p>
-              <button
-                onClick={() => openPopup(product)}
-                className="bg-primary text-white py-1 px-4 rounded-full mt-4 flex items-center gap-2 ml-16"
-              >
-                 View Details
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {isPopupOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full relative">
-            {/* Close Button Styling */}
-            <button
-              onClick={closePopup}
-              className="absolute top-4 right-5 text-gray-500 text-3xl font-bold bg-white p-2 rounded-full hover:bg-gray-100 mt-15"
-            >
-              X
-            </button>
-
-            <Popup product={selectedProduct} onClose={closePopup} />
-          </div>
+    <div className="py-16 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen">
+      <div className="container mx-auto px-6">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <p className="text-sm text-gray-400 uppercase tracking-wider">
+            Top Rated Products for You
+          </p>
+          <h1 className="text-4xl font-bold text-white mb-3">Best Products</h1>
+          <p className="text-gray-300">Browse our top-rated selections.</p>
         </div>
-      )}
+
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
+          {ProductsData.map((product) => (
+            <div
+              key={product.id}
+              className="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-600 rounded-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+            >
+              {/* Product Image */}
+              <div className="relative h-56">
+                <img
+                  src={product.img}
+                  alt={product.title}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+              </div>
+
+              {/* Product Info */}
+              <div className="p-6">
+                {/* Rating */}
+                <div className="flex justify-center gap-1 mb-3">
+                  {[...Array(product.rating)].map((_, index) => (
+                    <FaStar key={index} className="text-yellow-400" />
+                  ))}
+                </div>
+                {/* Title */}
+                <h2 className="text-lg font-semibold text-white mb-2">
+                  {product.title}
+                </h2>
+                {/* Description */}
+                <p className="text-sm text-gray-300 line-clamp-3 mb-4">
+                  {product.description}
+                </p>
+                {/* Price */}
+                <p className="text-lg font-semibold text-white">₹{product.price}</p>
+              </div>
+
+              {/* Actions */}
+              <div className="p-4 bg-gray-700 flex justify-between items-center">
+                <button
+                  onClick={() => openPopup(product)}
+                  className="text-sm bg-black text-white py-2 px-4 rounded-full hover:bg-gray-900 transition"
+                >
+                  View Details
+                </button>
+                <button className="text-sm bg-gray-600 text-white py-2 px-4 rounded-full hover:bg-gray-700 transition flex items-center">
+                  <ShoppingCartIcon className="h-5 w-5 mr-2" />
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Popup */}
+        {isPopupOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full relative shadow-xl">
+              <button
+                onClick={closePopup}
+                className="absolute top-4 right-4 text-gray-500 text-xl font-bold hover:text-gray-700 focus:outline-none"
+              >
+                &times;
+              </button>
+              <Popup product={selectedProduct} onClose={closePopup} />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
