@@ -7,10 +7,13 @@ import {
   faClipboardList,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Footer from "../Footer/Footer";
 import Navbar from "./Navbar";
-
+import { auth, db } from '../firebase'; // Make sure to initialize Firebase in your project
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc,  updateDoc } from 'firebase/firestore';
+import { PencilIcon } from "@heroicons/react/solid";
 const AccountPage = () => {
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -27,22 +30,108 @@ const AccountPage = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [image, setImage] = useState(null); // Store the image as a base64 string
+  const [base64Image, setBase64Image] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Check if the user is logged in
+  useEffect(() => {
+    // Subscribe to the auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // If logged in, fetch user data and set it
+        setUserData({
+          username: user.displayName || 'Username not set',
+          email: user.email,
+        });
+        setIsAuthenticated(true); // Set authenticated state to true
+      } else {
+        // If not logged in, set userData to null
+        setUserData(null);
+        setIsAuthenticated(false); // Set authenticated state to false
+      }
+      setLoading(false); // Stop loading once the check is complete
+    });
 
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64String = reader.result.toString();
+        setBase64Image(base64String);
+
+        const userDocRef = doc(db, "users", email);
+        await setDoc(
+          userDocRef,
+          {
+            profileImage: base64String,
+          },
+          { merge: true }
+        );
+
+        console.log("Image successfully saved!");
+      } catch (error) {
+        console.error("Error saving image:", error);
+      }
+    };
+
+    reader.onerror = () => {
+      console.error("Error reading file.");
+    };
+
+    reader.readAsDataURL(file);
+  };
+  
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
       <Navbar />
       <div className="container mx-auto p-6">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
-          <aside className="bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg p-6 shadow-lg lg:w-1/4">
+          <aside className="bg-gradient-to-br from-yellow-700 to-orange-400 text-white rounded-lg p-6 shadow-lg lg:w-1/4">
             <div className="text-center mb-8">
-              <img
-                src="https://via.placeholder.com/100"
-                alt="Profile"
-                className="w-24 h-24 rounded-full mx-auto object-cover"
+            <div className="relative inline-block">
+            <img
+              src={base64Image || "https://via.placeholder.com/100"}
+              alt="Profile"
+              className="w-24 h-24 rounded-full mx-auto object-cover"
+            />
+            <label
+              htmlFor="image-upload"
+              className="absolute bottom-0 right-0 bg-gray-200 rounded-full p-1 cursor-pointer hover:bg-gray-300"
+            >
+              <PencilIcon className="h-5 w-5 text-gray-600" />
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
               />
-              <h2 className="text-xl font-semibold mt-2">John Doe</h2>
-              <p className="text-sm">johndoe@example.com</p>
+            </label>
+          </div>
+          {isAuthenticated ? (
+        // If authenticated, show username
+        <h2 className="text-xl font-semibold mt-2">{userData.username}</h2>
+      ) : (
+        // If not authenticated, show "Not Logged In" and email
+        <div>
+          <h2 className="text-xl font-semibold mt-2">Not Logged In</h2>
+          <p className="text-sm">{userData ? userData.email : "No Email"}</p>
+        </div>
+      )}
             </div>
             <nav>
               <ul className="space-y-4">

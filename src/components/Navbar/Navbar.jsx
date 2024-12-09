@@ -352,36 +352,35 @@ const Navbar = () => {
                   className="w-half py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
                   placeholder="Search for products, brands, and more"
                 />
-                <button className="bg-primary/40 text-black px-4 py-2 rounded-r-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/40 dark:hover:text-white">
+                <button className="bg-primary text-black px-4 py-2 rounded-r-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/40 dark:hover:text-white">
                   Search
                 </button>
 
                 <button
-                  onClick={handleHomeClick}
-                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-s flex items-center space-x-2 ml-" // ml-3 for slight right margin
-                >
-                  <HomeIcon className="h-5 w-5 text-black dark:text-white" />{" "}
-                  {/* Home Icon */}
-                  <span>Home</span>
-                </button>
+  onClick={handleHomeClick}
+  className="w-full sm:w-auto hover:bg-yellow-500  px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 transition duration-300 ease-in-out  "
+>
+  <HomeIcon className="h-5 w-5 text-white" /> {/* White Home Icon */}
+  <span>Home</span>
+</button>
 
                 <Link to={"/view-all"}>
-                  <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 mr-5 ml-3">
+                  <button className="w-full sm:w-auto hover:bg-yellow-500  px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 transition duration-300 ease-in-out ml-6">
                     {" "}
                     {/* ml-3 for slight right margin */}
-                    <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" />{" "}
+                    <ShoppingCartIcon className="h-5 w-5 text-white " />{" "}
                     {/* Shop Icon */}
                     <span>Shop</span>
                   </button>
                 </Link>
 
-                <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 mr-5 ml-3">
-                  {" "}
-                  {/* ml-3 for slight right margin */}
-                  <PhoneIcon className="h-5 w-5 text-black dark:text-white" />{" "}
-                  {/* Contact Us Icon */}
-                  <span>Contact Us</span>
-                </button>
+                <button
+  className="w-full sm:w-auto hover:bg-yellow-500 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 transition duration-300 ease-in-out whitespace-nowrap"
+>
+  <PhoneIcon className="h-5 w-5 text-white" /> {/* White Phone Icon */}
+  <span>Contact Us</span>
+</button>
+
               </div>
             </div>
 
@@ -524,7 +523,7 @@ const Navbar = () => {
               </button> */}
 
               {/* Theme Toggle Button */}
-              <button
+              {/* <button
                 onClick={toggleTheme}
                 className="text-white dark:text-white"
               >
@@ -533,7 +532,7 @@ const Navbar = () => {
                 ) : (
                   <MoonIcon className="w-6 h-6" />
                 )}
-              </button>
+              </button> */}
             </div>
           </div>
         </nav>
@@ -581,14 +580,14 @@ const Navbar = () => {
               <button className="bg-primary/40 text-black px-4 py-2 rounded-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/100 dark:hover:text-white">
                 Search
               </button>
-              <button
-                onClick={handleHomeClick}
-                className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2"
-              >
-                <HomeIcon className="h-5 w-5 text-black dark:text-white" />{" "}
-                {/* Home Icon */}
-                <span>Home</span>
-              </button>
+       <button
+  onClick={handleHomeClick}
+  className="w-full sm:w-auto hover:bg-yellow-600 bg-yellow-500 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 transition duration-300 ease-in-out"
+>
+  <HomeIcon className="h-5 w-5 text-white" /> {/* White Home Icon */}
+  <span>Home</span>
+</button>
+
               <Link to={"/view-all"}>
                 <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
                   <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" />{" "}
@@ -596,20 +595,14 @@ const Navbar = () => {
                   <span>Shop</span>
                 </button>
               </Link>
-
-              <button className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
-                <PhoneIcon className="h-5 w-5 text-black dark:text-white" />{" "}
-                {/* Contact Us Icon */}
-                <span>Contact Us</span>
-              </button>
             </div>
           </div>
         </div>
 
         {/* Lower Navbar (Desktop View - Category Links) */}
-        <div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white">
-          <div className="max-w-screen-xl mx-auto py-1 px-4">
-            <div className="flex justify-center space-x-6 py-2">
+        <div className="bg-white text-black shadow-sm lg:block hidden mt-16 dark:bg-gray-800 dark:text-white ">
+          <div className="max-w-screen-xl mx-auto py-1 px-4 ">
+            <div className="flex justify-center space-x-6 py-2 ">
               {/* Electronics Dropdown */}
               <div className="relative">
                 <button
