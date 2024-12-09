@@ -68,7 +68,7 @@ const CartPage = () => {
         shippingAddress,
         billingAddress: sameAsShipping ? shippingAddress : billingAddress,
         orderSummary: {
-          subtotal,
+          // total,
           shipping,
           tax,
           discount,
@@ -103,7 +103,7 @@ const CartPage = () => {
   
       if (cartSnapshot.exists()) {
         const data = cartSnapshot.data();
-        console.log("Fetched data:", data);
+        console.log("Fetched data from Firestore:", data); // Add this log
         return data; // Return the fetched data
       } else {
         console.error("No such document found!");
@@ -116,17 +116,20 @@ const CartPage = () => {
   useEffect(() => {
     const loadShippingBillingData = async () => {
       const data = await fetchShippingBillingData();
+      console.log('Fetched data in useEffect:', data);
       if (data) {
         setShippingAddress(data.shippingAddress || {});
         setBillingAddress(data.billingAddress || {});
         setSameAsShipping(data.billingAddress === data.shippingAddress);
-        setOrderSummary(data.orderSummary || {});
+        
         setCartItems(data.cartItems || []);
       }
     };
-
-    loadShippingBillingData();
-  }, []);
+  
+    if (user) {
+      loadShippingBillingData();
+    }
+  }, [user]);
 
   const fetchCartItems = async () => {
     if (!currentUser) return;
@@ -637,7 +640,10 @@ const CartPage = () => {
 
   {/* Proceed Button */}
   <button
-    onClick={saveShippingBillingData}
+   onClick={() => {
+    saveShippingBillingData();
+    handleNext();
+  }}
     className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
     disabled={cartItems.length === 0}
   >
