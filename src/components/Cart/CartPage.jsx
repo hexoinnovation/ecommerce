@@ -285,7 +285,29 @@ const CartPage = () => {
     calculateTotal();
   }, [subtotal, shipping, tax, discount]); // Recalculate when these values change
 
+  const [paymentMethod, setPaymentMethod] = useState('');
+ 
 
+
+
+  // WhatsApp sharing function
+  const handleShareOrderSummary = () => {
+    const orderSummaryMessage = `
+      Order Summary:
+      - Subtotal: $${totalPrice.toFixed(2)}
+      - Shipping: $${shipping.toFixed(2)}
+      - Tax: $${tax.toFixed(2)}
+      - Discount: $${discount.toFixed(2)}
+      - Total: $${finalTotal.toFixed(2)}
+  
+      *Confirming your order details.*
+    `;
+  
+    const phoneNumber = '+7358937529'; // Replace with target phone number
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(orderSummaryMessage)}`;
+    window.open(url, '_blank');
+  };
+  
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -539,89 +561,90 @@ const CartPage = () => {
                   )}
                 </div>
 
+              
                 {/* Order Summary Section */}
-                <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 h-3/4">
-                  <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
-                    Order Summary
-                  </h3>
-                  <p className="mb-4 text-gray-700 dark:text-gray-300">
-                    Total Items:{" "}
-                    <span className="font-semibold">{cartItems.length}</span>
-                  </p>
-                  <p className="mb-4 text-gray-700 dark:text-gray-300">
-                    Total Amount:{" "}
-                    <span className="font-semibold">₹{totalAmount}</span>
-                  </p>
+<div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 h-3/4">
+  <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
+    Order Summary
+  </h3>
+  <p className="mb-4 text-gray-700 dark:text-gray-300">
+    Total Items:{" "}
+    <span className="font-semibold">{cartItems.length}</span>
+  </p>
+  <p className="mb-4 text-gray-700 dark:text-gray-300">
+    Total Amount:{" "}
+    <span className="font-semibold">₹{totalAmount}</span>
+  </p>
 
-                  {/* Subtotal */}
-                  <div className="flex justify-between items-center mb-4">
-                    <label className="font-semibold text-gray-800 dark:text-gray-300">
-                      Subtotal:
-                    </label>
-                    <span className="text-lg font-semibold text-gray-800 dark:text-white">
-                      ₹{subtotal.toFixed(2)}
-                    </span>
-                  </div>
+  {/* Total Amount instead of Subtotal */}
+  <div className="flex justify-between items-center mb-4">
+    <label className="font-semibold text-gray-800 dark:text-gray-300">
+      Total Amount:
+    </label>
+    <span className="text-lg font-semibold text-gray-800 dark:text-white">
+      ₹{totalAmount.toFixed(2)}
+    </span>
+  </div>
 
-                  {/* Shipping */}
-                  <div className="flex justify-between items-center mb-4">
-                    <label className="font-semibold text-gray-800 dark:text-gray-300">
-                      Shipping:
-                    </label>
-                    <input
-                      type="number"
-                      value={shipping}
-                      onChange={handleFieldChange(setShipping)}
-                      className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-                    />
-                  </div>
+  {/* Shipping */}
+  <div className="flex justify-between items-center mb-4">
+    <label className="font-semibold text-gray-800 dark:text-gray-300">
+      Shipping:
+    </label>
+    <input
+      type="number"
+      value={shipping}
+      onChange={handleFieldChange(setShipping)}
+      className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+    />
+  </div>
 
-                  {/* Tax */}
-                  <div className="flex justify-between items-center mb-4">
-                    <label className="font-semibold text-gray-800 dark:text-gray-300">
-                      Tax:
-                    </label>
-                    <input
-                      type="number"
-                      value={tax}
-                      onChange={handleFieldChange(setTax)}
-                      className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-                    />
-                  </div>
+  {/* Tax */}
+  <div className="flex justify-between items-center mb-4">
+    <label className="font-semibold text-gray-800 dark:text-gray-300">
+      Tax:
+    </label>
+    <input
+      type="number"
+      value={tax}
+      onChange={handleFieldChange(setTax)}
+      className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+    />
+  </div>
 
-                  {/* Discount */}
-                  <div className="flex justify-between items-center mb-4">
-                    <label className="font-semibold text-gray-800 dark:text-gray-300">
-                      Discount:
-                    </label>
-                    <input
-                      type="number"
-                      value={discount}
-                      onChange={handleFieldChange(setDiscount)}
-                      className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-                    />
-                  </div>
+  {/* Discount */}
+  <div className="flex justify-between items-center mb-4">
+    <label className="font-semibold text-gray-800 dark:text-gray-300">
+      Discount:
+    </label>
+    <input
+      type="number"
+      value={discount}
+      onChange={handleFieldChange(setDiscount)}
+      className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+    />
+  </div>
 
-                  {/* Total */}
-                  <div className="flex justify-between items-center mt-4 border-t pt-4">
-                    <label className="font-bold text-lg text-gray-800 dark:text-white">
-                      Total:
-                    </label>
-                    <span className="text-xl font-semibold text-gray-800 dark:text-white">
-                      ₹{total.toFixed(2)}
-                    </span>
-                  </div>
+  {/* Total */}
+  <div className="flex justify-between items-center mt-4 border-t pt-4">
+    <label className="font-bold text-lg text-gray-800 dark:text-white">
+      Total:
+    </label>
+    <span className="text-xl font-semibold text-gray-800 dark:text-white">
+      ₹{totalAmount.toFixed(2)}
+    </span>
+  </div>
 
-                  {/* Proceed Button */}
-                  <button
-  onClick={saveShippingBillingData}
-  className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
-  disabled={cartItems.length === 0}
->
-  <span>Proceed to Checkout</span>
-  <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
-</button>
-                </div>
+  {/* Proceed Button */}
+  <button
+    onClick={saveShippingBillingData}
+    className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
+    disabled={cartItems.length === 0}
+  >
+    <span>Proceed to Checkout</span>
+    <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
+  </button>
+</div>
               </div>
             </div>
           )}
@@ -629,181 +652,125 @@ const CartPage = () => {
           {step === 2 && (
             <div>
               <div className="p-6 bg-gray-100 rounded-lg max-w-6xl ml-40 mr-40 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div>
-                  <h1 className="text-2xl font-bold ml-20 t-4p-4 text-center rounded-lg flex items-center space-x-4">
-                    <span>Payment</span>
-                    <div className="relative">
-                      <FaCreditCard className="text-[#ff0080] animate-neon" />{" "}
-                      {/* Custom neon pink color */}
-                    </div>
-                  </h1>
+        <div>
+          <h1 className="text-2xl font-bold ml-20 t-4p-4 text-center rounded-lg flex items-center space-x-4">
+            <span>Payment</span>
+            <div className="relative">
+              <FaCreditCard className="text-[#ff0080] animate-neon" />
+            </div>
+          </h1>
 
-                  {/* Payment Methods */}
-                  <div className="mt-6 ml-0">
-                    <h3 className="text-xl font-semibold ml-20 mb-4">
-                      Choose a Payment Method
-                    </h3>
+          {/* Payment Methods */}
+          <div className="mt-6 ml-0">
+            <h3 className="text-xl font-semibold ml-20 mb-4">
+              Choose a Payment Method
+            </h3>
 
-                    {/* Credit Card Option */}
-                    <div className="mb-4 ml-20 ">
-                      <input
-                        type="radio"
-                        id="creditCard"
-                        name="paymentMethod"
-                        value="creditCard"
-                      />
-                      <label htmlFor="creditCard" className="ml-2">
-                        Credit Card
-                      </label>
-                    </div>
+            {/* Cash on Delivery Option */}
+            <div className="mb-4 ml-20">
+              <input
+                type="radio"
+                id="cash-on-delivery"
+                name="paymentMethod"
+                value="cash on delivery"
+                checked={paymentMethod === "cash on delivery"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              <label htmlFor="cash-on-delivery" className="ml-2">
+                Cash on Delivery
+              </label>
+            </div>
 
-                    {/* PayPal Option */}
-                    <div className="mb-4 ml-20">
-                      <input
-                        type="radio"
-                        id="paypal"
-                        name="paymentMethod"
-                        value="paypal"
-                      />
-                      <label htmlFor="paypal" className="ml-2">
-                        PayPal
-                      </label>
-                    </div>
+            {/* Credit Card Option */}
+            <div className="mb-4 ml-20">
+              <input
+                type="radio"
+                id="creditCard"
+                name="paymentMethod"
+                value="creditCard"
+                checked={paymentMethod === "creditCard"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              <label htmlFor="creditCard" className="ml-2">
+                Credit Card
+              </label>
+            </div>
 
-                    {/* Stripe Option */}
-                    <div className="mb-4 ml-20">
-                      <input
-                        type="radio"
-                        id="stripe"
-                        name="paymentMethod"
-                        value="stripe"
-                      />
-                      <label htmlFor="stripe" className="ml-2">
-                        Stripe
-                      </label>
-                    </div>
+            {/* Order Summary Section (shown when Cash on Delivery is selected) */}
+            {paymentMethod === "cash on delivery" && (
+              <div className="mt-6 ml-20">
+                <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
+                  Order Summary
+                </h3>
+                <div className="flex justify-between items-center mb-4">
+                  <label className="font-semibold text-gray-800 dark:text-gray-300">
+                    Subtotal:
+                  </label>
+                  <span className="text-lg text-gray-800 dark:text-white">
+                    ${totalPrice.toFixed(2)}
+                  </span>
+                </div>
 
-                    {/* Order Summary Section */}
-                    <div className="mt-6 ml-20">
-                      <h3 className="text-xl font-semibold mb-4">
-                        Order Summary
-                      </h3>
-                      <div className="flex justify-between items-center">
-                        <label className="font-semibold ml-20">Subtotal:</label>
-                        <span className="text-lg">
-                          ${totalPrice.toFixed(2)}
-                        </span>
-                      </div>
+                {/* Shipping */}
+                <div className="flex justify-between items-center mb-4">
+                  <label className="font-semibold text-gray-800 dark:text-gray-300">
+                    Shipping:
+                  </label>
+                  <input
+                    type="number"
+                    value={shipping}
+                    onChange={handleFieldChange(setShipping)}
+                    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+                  />
+                </div>
 
-                      <div className="flex justify-between items-center ml-20">
-                        <label className="font-semibold">Shipping:</label>
-                        <span className="text-lg">
-                          ${shippingCharge.toFixed(2)}
-                        </span>
-                      </div>
+                {/* Tax */}
+                <div className="flex justify-between items-center mb-4">
+                  <label className="font-semibold text-gray-800 dark:text-gray-300">
+                    Tax:
+                  </label>
+                  <input
+                    type="number"
+                    value={tax}
+                    onChange={handleFieldChange(setTax)}
+                    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+                  />
+                </div>
 
-                      <div className="flex justify-between items-center ml-20">
-                        <label className="font-semibold">Total:</label>
-                        <span className="text-xl font-semibold">
-                          ${finalTotal.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
+                {/* Discount */}
+                <div className="flex justify-between items-center mb-4">
+                  <label className="font-semibold text-gray-800 dark:text-gray-300">
+                    Discount:
+                  </label>
+                  <input
+                    type="number"
+                    value={discount}
+                    onChange={handleFieldChange(setDiscount)}
+                    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+                  />
+                </div>
 
-                    {/* Payment Form (for Credit Card) */}
-                    <div className="mt-6">
-                      {document.querySelector(
-                        'input[name="paymentMethod"]:checked'
-                      )?.value === "creditCard" && (
-                        <div>
-                          <h4 className="font-semibold">
-                            Enter Credit Card Details
-                          </h4>
-                          <form className="space-y-4">
-                            <div>
-                              <label
-                                htmlFor="cardNumber"
-                                className="block text-sm"
-                              >
-                                Card Number
-                              </label>
-                              <input
-                                type="text"
-                                id="cardNumber"
-                                className="border rounded p-2 w-full"
-                                placeholder="XXXX XXXX XXXX XXXX"
-                              />
-                            </div>
-                            <div className="flex justify-between">
-                              <div>
-                                <label
-                                  htmlFor="expiryDate"
-                                  className="block text-sm"
-                                >
-                                  Expiry Date
-                                </label>
-                                <input
-                                  type="text"
-                                  id="expiryDate"
-                                  className="border rounded p-2 w-24"
-                                  placeholder="MM/YY"
-                                />
-                              </div>
-                              <div>
-                                <label htmlFor="cvv" className="block text-sm">
-                                  CVV
-                                </label>
-                                <input
-                                  type="text"
-                                  id="cvv"
-                                  className="border rounded p-2 w-24"
-                                  placeholder="CVV"
-                                />
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      )}
+                {/* Final Total */}
+                <div className="flex justify-between items-center mt-4 border-t pt-4">
+                  <label className="font-bold text-lg text-gray-800 dark:text-white">
+                    Total:
+                  </label>
+                  <span className="text-xl font-semibold text-gray-800 dark:text-white">
+                    ${finalTotal.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
 
-                      {/* Payment Form (for PayPal/Stripe) */}
-                      {document.querySelector(
-                        'input[name="paymentMethod"]:checked'
-                      )?.value === "paypal" && (
-                        <div>
-                          <h4 className="font-semibold">
-                            Redirecting to PayPal...
-                          </h4>
-                          <p>
-                            You will be redirected to PayPal to complete your
-                            payment.
-                          </p>
-                        </div>
-                      )}
-
-                      {document.querySelector(
-                        'input[name="paymentMethod"]:checked'
-                      )?.value === "stripe" && (
-                        <div>
-                          <h4 className="font-semibold">
-                            Redirecting to Stripe...
-                          </h4>
-                          <p>
-                            You will be redirected to Stripe to complete your
-                            payment.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Confirmation Button */}
-                    <div className="mt-6">
-                      <button
-                        onClick={() => handleCheckout()}
-                        className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
-                      >
-                        Confirm and Pay
-                      </button>
-                    </div>
+            {/* Confirmation Button */}
+            <div className="mt-6">
+            <button
+      onClick={handleShareOrderSummary}
+      className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
+    >
+      Confirm and Pay
+    </button>
+            </div>
                   </div>
                 </div>
               </div>
