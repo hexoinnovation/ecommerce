@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Sidebar } from "../Sidebar";
-import { FaStar, FaShoppingCart, FaHeart } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { useProducts } from "../../context/ProductsContext";
+import { Sidebar } from "../Sidebar";
 
 export const ViewAllProducts = () => {
   const products = useProducts();
@@ -51,40 +51,42 @@ export const ViewAllProducts = () => {
       <Sidebar onSubcategorySelect={handleSubcategorySelect} />
 
       {/* Main Product Listing */}
-      <div className="flex-1 p-4 lg:p-8 bg-gray-100 dark:bg-gray-900 dark:text-white">
-        <h2 className="text-2xl font-bold mb-4">All Products</h2>
+      <div className="flex-1 p-6 lg:p-8 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-6">All Products</h2>
         {selectedSubcategory && (
           <h4 className="text-lg font-medium mb-6">
-            Filtered by: <span className="text-primary">{selectedSubcategory}</span>
+            Filtered by:{" "}
+            <span className="text-primary">{selectedSubcategory}</span>
           </h4>
         )}
 
         {currentProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {currentProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex flex-col justify-between"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300"
               >
                 {/* Product Image */}
-                <div className="relative mb-4">
+                <div className="relative mb-4 group">
                   <img
                     src={product.img}
                     alt={product.name}
-                    className="w-full h-56 object-cover rounded-md cursor-pointer"
+                    className="w-full h-56 object-cover rounded-md cursor-pointer group-hover:scale-105 transform transition-all duration-300"
                     onClick={() => handleProductClick(product.id)} // Trigger navigation to ProductDetails page
                   />
-                  {/* <FaHeart
-                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors text-xl cursor-pointer"
-                  /> */}
+                  {/* Heart Icon */}
+                  <FaHeart className="absolute top-4 right-4 text-gray-400 group-hover:text-red-500 cursor-pointer transition-colors" />
                 </div>
 
                 {/* Product Details */}
-                <h3 className="text-xl font-semibold">{product.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+                  {product.name}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                   {product.description}
                 </p>
-                <p className="text-gray-700 dark:text-gray-300">
+                <p className="text-gray-700 dark:text-gray-400">
                   <span className="font-medium">Color:</span> {product.color}
                 </p>
                 <div className="flex items-center justify-between mt-4">
@@ -92,7 +94,11 @@ export const ViewAllProducts = () => {
                     {[...Array(5)].map((_, index) => (
                       <FaStar
                         key={index}
-                        className={index < product.rating ? "text-yellow-400" : "text-gray-300"}
+                        className={
+                          index < product.rating
+                            ? "text-yellow-400"
+                            : "text-gray-300"
+                        }
                       />
                     ))}
                   </div>
@@ -102,7 +108,7 @@ export const ViewAllProducts = () => {
                 </div>
 
                 {/* Action Buttons */}
-                {/* <div className="mt-4 flex space-x-2">
+                <div className="mt-4 flex space-x-4">
                   <button className="flex-1 bg-primary text-white py-2 rounded-lg shadow-md hover:bg-primary-dark transition">
                     <FaShoppingCart className="inline-block mr-2" />
                     Add to Cart
@@ -110,7 +116,7 @@ export const ViewAllProducts = () => {
                   <button className="flex-1 bg-green-600 text-white py-2 rounded-lg shadow-md hover:bg-green-700 transition">
                     Buy Now
                   </button>
-                </div> */}
+                </div>
               </div>
             ))}
           </div>
@@ -122,11 +128,11 @@ export const ViewAllProducts = () => {
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div className="flex justify-center mt-6 space-x-2">
+          <div className="flex justify-center mt-8 space-x-4">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded disabled:opacity-50"
+              className="px-6 py-2 bg-gray-200 dark:bg-gray-700 rounded-md disabled:opacity-50"
             >
               Previous
             </button>
@@ -134,7 +140,7 @@ export const ViewAllProducts = () => {
               <button
                 key={index}
                 onClick={() => handlePageChange(index + 1)}
-                className={`px-4 py-2 rounded ${
+                className={`px-4 py-2 rounded-md transition-all duration-300 ${
                   currentPage === index + 1
                     ? "bg-yellow-500 text-white"
                     : "bg-gray-200 dark:bg-gray-700"
@@ -146,7 +152,7 @@ export const ViewAllProducts = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded disabled:opacity-50"
+              className="px-6 py-2 bg-gray-200 dark:bg-gray-700 rounded-md disabled:opacity-50"
             >
               Next
             </button>

@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, db } from './firebase'; // Firebase auth and Firestore instances
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { auth, db } from "./firebase"; // Firebase auth and Firestore instances
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import {
   collection,
   doc,
@@ -9,7 +9,7 @@ import {
   deleteDoc,
   getDocs,
   getDoc,
-} from 'firebase/firestore';
+} from "firebase/firestore";
 
 // Create the AuthContext
 const AuthContext = createContext();
@@ -22,24 +22,24 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   // Authentication state
   const [currentUser, setCurrentUser] = useState(
-    JSON.parse(localStorage.getItem('currentUser')) || null
+    JSON.parse(localStorage.getItem("currentUser")) || null
   );
   const [userData, setUserData] = useState(
-    JSON.parse(localStorage.getItem('userData')) || {
-      firstName: '',
-      lastName: '',
-      contact: '',
-      gender: '',
-      email: '',
+    JSON.parse(localStorage.getItem("userData")) || {
+      firstName: "",
+      lastName: "",
+      contact: "",
+      gender: "",
+      email: "",
     }
   );
 
   // Cart state
   const [cartItems, setCartItems] = useState(
-    JSON.parse(localStorage.getItem('cartItems')) || []
+    JSON.parse(localStorage.getItem("cartItems")) || []
   );
   const [cartCount, setCartCount] = useState(
-    parseInt(localStorage.getItem('cartCount'), 10) || 0
+    parseInt(localStorage.getItem("cartCount"), 10) || 0
   );
 
   // Monitor auth state changes
@@ -47,10 +47,10 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user);
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem("currentUser", JSON.stringify(user));
 
         // Sync cart from Firestore
-        const userCartRef = collection(db, 'users', user.email, 'AddToCart');
+        const userCartRef = collection(db, "users", user.email, "AddToCart");
         const unsubscribeCart = onSnapshot(userCartRef, (snapshot) => {
           const items = snapshot.docs.map((doc) => ({
             id: doc.id,
@@ -58,8 +58,8 @@ export function AuthProvider({ children }) {
           }));
           setCartItems(items);
           setCartCount(items.length); // Update cart count based on Firestore items
-          localStorage.setItem('cartItems', JSON.stringify(items)); // Sync items with localStorage
-          localStorage.setItem('cartCount', items.length); // Sync count with localStorage
+          localStorage.setItem("cartItems", JSON.stringify(items)); // Sync items with localStorage
+          localStorage.setItem("cartCount", items.length); // Sync count with localStorage
         });
 
         return unsubscribeCart; // Cleanup Firestore listener
@@ -69,9 +69,9 @@ export function AuthProvider({ children }) {
         resetUserData();
         setCartItems([]);
         setCartCount(0);
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('cartCount');
-        localStorage.removeItem('cartItems');
+        localStorage.removeItem("currentUser");
+        localStorage.removeItem("cartCount");
+        localStorage.removeItem("cartItems");
       }
     });
 
@@ -81,21 +81,27 @@ export function AuthProvider({ children }) {
   // Sync cartItems with localStorage for guests
   useEffect(() => {
     if (!currentUser) {
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
-      localStorage.setItem('cartCount', cartItems.length); // Update count for guest users
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+      localStorage.setItem("cartCount", cartItems.length); // Update count for guest users
     }
   }, [cartItems, currentUser]);
 
   // Sync userData with localStorage when it changes
   useEffect(() => {
-    localStorage.setItem('userData', JSON.stringify(userData));
+    localStorage.setItem("userData", JSON.stringify(userData));
   }, [userData]);
 
   // Add to cart
   const addToCart = async (product) => {
     if (currentUser) {
       // For logged-in users, check if the product already exists in Firestore
-      const cartRef = doc(db, 'users', currentUser.email, 'AddToCart', product.id);
+      const cartRef = doc(
+        db,
+        "users",
+        currentUser.email,
+        "AddToCart",
+        product.id
+      );
       const docSnap = await getDoc(cartRef);
 
       if (!docSnap.exists()) {
@@ -104,16 +110,20 @@ export function AuthProvider({ children }) {
       }
 
       // Update cart count and items
-      const updatedCartItems = await getDocs(collection(db, 'users', currentUser.email, 'AddToCart'));
+      const updatedCartItems = await getDocs(
+        collection(db, "users", currentUser.email, "AddToCart")
+      );
       const items = updatedCartItems.docs.map((doc) => doc.data());
       setCartItems(items); // Update state
       setCartCount(items.length); // Update count
-      localStorage.setItem('cartItems', JSON.stringify(items)); // Sync with localStorage
-      localStorage.setItem('cartCount', items.length); // Sync count
+      localStorage.setItem("cartItems", JSON.stringify(items)); // Sync with localStorage
+      localStorage.setItem("cartCount", items.length); // Sync count
     } else {
       // For guest users, update local cart state
       setCartItems((prevCartItems) => {
-        const existingItem = prevCartItems.find((item) => item.id === product.id);
+        const existingItem = prevCartItems.find(
+          (item) => item.id === product.id
+        );
         if (!existingItem) {
           return [...prevCartItems, product];
         }
@@ -125,18 +135,22 @@ export function AuthProvider({ children }) {
   // Remove item from cart
   const removeFromCart = async (id) => {
     if (currentUser) {
-      const cartRef = doc(db, 'users', currentUser.email, 'AddToCart', id);
+      const cartRef = doc(db, "users", currentUser.email, "AddToCart", id);
       await deleteDoc(cartRef);
 
       // Update cart count and items
-      const updatedCartItems = await getDocs(collection(db, 'users', currentUser.email, 'AddToCart'));
+      const updatedCartItems = await getDocs(
+        collection(db, "users", currentUser.email, "AddToCart")
+      );
       const items = updatedCartItems.docs.map((doc) => doc.data());
       setCartItems(items); // Update state
       setCartCount(items.length); // Update count
-      localStorage.setItem('cartItems', JSON.stringify(items)); // Sync with localStorage
-      localStorage.setItem('cartCount', items.length); // Sync count
+      localStorage.setItem("cartItems", JSON.stringify(items)); // Sync with localStorage
+      localStorage.setItem("cartCount", items.length); // Sync count
     } else {
-      setCartItems((prevCartItems) => prevCartItems.filter((item) => item.id !== id));
+      setCartItems((prevCartItems) =>
+        prevCartItems.filter((item) => item.id !== id)
+      );
     }
   };
 
@@ -148,23 +162,23 @@ export function AuthProvider({ children }) {
       resetUserData();
       setCartItems([]);
       setCartCount(0);
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('userData');
-      localStorage.removeItem('cartItems');
-      localStorage.removeItem('cartCount');
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("userData");
+      localStorage.removeItem("cartItems");
+      localStorage.removeItem("cartCount");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
   // Reset user data
   const resetUserData = () => {
     setUserData({
-      firstName: '',
-      lastName: '',
-      contact: '',
-      gender: '',
-      email: '',
+      firstName: "",
+      lastName: "",
+      contact: "",
+      gender: "",
+      email: "",
     });
   };
 
