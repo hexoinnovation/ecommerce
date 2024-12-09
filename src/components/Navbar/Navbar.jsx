@@ -340,13 +340,13 @@ const Navbar = () => {
 
               {/* Logo */}
               <div className="flex items-center space-x-2">
-                <span className="text-2xl font-bold">Hexo</span>
+                <span className="text-xl font-bold">Hexo</span>
               </div>
             </div>
 
             {/* Desktop View - Search Bar and Icons */}
-            <div className="hidden lg:flex items-center space-x-4 w-full justify-center ">
-              <div className="flex items-center space-x-2 flex-grow max-w-3xl">
+            <div className="hidden lg:flex items-center space-x-4 w-full justify-center  ">
+              <div className="flex items-center space-x-2 flex-grow max-w-3xl ">
                 <input
                   type="text"
                   className="w-half py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
@@ -358,7 +358,7 @@ const Navbar = () => {
 
                 <button
                   onClick={handleHomeClick}
-                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-lg flex items-center space-x-2 ml-" // ml-3 for slight right margin
+                  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-1 rounded-md font-bold text-s flex items-center space-x-2 ml-" // ml-3 for slight right margin
                 >
                   <HomeIcon className="h-5 w-5 text-black dark:text-white" />{" "}
                   {/* Home Icon */}
