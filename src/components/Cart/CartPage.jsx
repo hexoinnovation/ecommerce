@@ -49,6 +49,85 @@ const CartPage = () => {
     if (step > 0) setStep(step - 1);
   };
 
+
+
+  const user = auth.currentUser;
+  const saveShippingBillingData = async () => {
+    try {
+      if (!user || !user.email) {
+        console.error("User not authenticated or email not available");
+        return;
+      }
+  
+      // Reference to a specific document within the ShippingBilling subcollection
+      const userDocRef = doc(db, "users", user.email);
+      const cartRef = doc(userDocRef, "ShippingBilling", "latest");
+  
+      // Data to save or update
+      const shippingBillingData = {
+        shippingAddress,
+        billingAddress: sameAsShipping ? shippingAddress : billingAddress,
+        orderSummary: {
+          subtotal,
+          shipping,
+          tax,
+          discount,
+          total,
+        },
+        cartItems,
+        timestamp: new Date(),
+      };
+  
+      // Create or update the "latest" document
+      await setDoc(cartRef, shippingBillingData, { merge: true }); // `merge: true` updates only specified fields
+      console.log("Data successfully updated in Firestore");
+    } catch (error) {
+      console.error("Error saving data to Firestore:", error.message);
+    }
+  };
+
+  const [orderSummary, setOrderSummary] = useState({});
+  const fetchShippingBillingData = async () => {
+    try {
+      if (!user || !user.email) {
+        console.error("User not authenticated or email not available");
+        return;
+      }
+  
+      // Reference to the "latest" document in the ShippingBilling subcollection
+      const userDocRef = doc(db, "users", user.email);
+      const cartRef = doc(userDocRef, "ShippingBilling", "latest");
+  
+      // Fetch the document data
+      const cartSnapshot = await getDoc(cartRef);
+  
+      if (cartSnapshot.exists()) {
+        const data = cartSnapshot.data();
+        console.log("Fetched data:", data);
+        return data; // Return the fetched data
+      } else {
+        console.error("No such document found!");
+      }
+    } catch (error) {
+      console.error("Error fetching data from Firestore:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    const loadShippingBillingData = async () => {
+      const data = await fetchShippingBillingData();
+      if (data) {
+        setShippingAddress(data.shippingAddress || {});
+        setBillingAddress(data.billingAddress || {});
+        setSameAsShipping(data.billingAddress === data.shippingAddress);
+        setOrderSummary(data.orderSummary || {});
+        setCartItems(data.cartItems || []);
+      }
+    };
+
+    loadShippingBillingData();
+  }, []);
+
   const fetchCartItems = async () => {
     if (!currentUser) return;
     const cartRef = collection(db, "users", currentUser.email, "AddToCart");
@@ -206,6 +285,8 @@ const CartPage = () => {
     calculateTotal();
   }, [subtotal, shipping, tax, discount]); // Recalculate when these values change
 
+
+  
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="container mx-auto p-4 max-w-6xl">
@@ -373,13 +454,14 @@ const CartPage = () => {
                 <p>Total Items: {cartItems.length}</p>
                 <p>Total Amount: ₹{totalAmount}</p>
                 <button
-                  onClick={handleNext}
-                  className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
-                  disabled={cartItems.length === 0}
-                >
-                  <span>Proceed to Checkout</span>
-                  <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
-                </button>{" "}
+    onClick={handleNext}
+    className="w-full sm:w-3/4 lg:w-1/2 py-2 bg-blue-500 text-white rounded-lg transition-transform duration-200 ease-in-out hover:bg-blue-600 hover:shadow-lg active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+    aria-label="Proceed to Checkout"
+    disabled={cartItems.length === 0}
+  >
+    <span>Proceed to Checkout</span>
+    <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
+  </button>
               </div>
             </div>
           )}
@@ -532,13 +614,13 @@ const CartPage = () => {
 
                   {/* Proceed Button */}
                   <button
-                    onClick={handleNext}
-                    className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
-                    disabled={cartItems.length === 0}
-                  >
-                    <span>Proceed to Checkout</span>
-                    <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
-                  </button>
+  onClick={saveShippingBillingData}
+  className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
+  disabled={cartItems.length === 0}
+>
+  <span>Proceed to Checkout</span>
+  <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
+</button>
                 </div>
               </div>
             </div>
