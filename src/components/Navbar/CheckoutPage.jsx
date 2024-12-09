@@ -5,9 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import { db, doc, collection, setDoc, deleteDoc } from '../firebase'; // Firestore methods
 import Navbar from './Navbar';
 import Footer from '../Footer/Footer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaCreditCard } from 'react-icons/fa'; // Import a payment-related icon
-
+import { faTrash , faArrowRight,faHeart,faTimes} from '@fortawesome/free-solid-svg-icons';
 const CartPage = () => {
+  const [totalAmount, setTotalAmount] = useState(0);
   const [step, setStep] = useState(0);
   const { cartItems, removeFromCart } = useCart();
   const { currentUser } = useAuth(); // Access currentUser from AuthContext
@@ -183,119 +185,134 @@ const CartPage = () => {
     {/* Step Content */}
     <div className="mt-8">
 
-      {step === 0 && (
-        <div className="p-6 bg-gray-100 rounded-lg max-w-6xl ml-80 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Shipping and Billing Section */}
-        <div>
-          {/* Shipping Address */}
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold mb-4">Shipping Address</h3>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.keys(shippingAddress).map((field, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  name={field}
-                  placeholder={field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
-                  value={shippingAddress[field]}
-                  onChange={(e) => handleInputChange(e, "shipping")}
-                  className="border rounded p-2 rounded-lg"
-                />
-              ))}
-            </form>
-          </div>
-  
-          {/* Same as Shipping Checkbox */}
-          <div className="mb-6 flex items-center">
-            <input
-              type="checkbox"
-              id="sameAsShipping"
-              checked={sameAsShipping}
-              onChange={handleCheckboxChange}
-              className="mr-2"
-            />
-            <label htmlFor="sameAsShipping" className="text-lg">
-              Same as shipping address
-            </label>
-          </div>
-  
-          {/* Billing Address */}
-          {!sameAsShipping && (
-            <div>
-              <h3 className="text-xl font-semibold mb-4">Billing Address</h3>
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.keys(billingAddress).map((field, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    name={field}
-                    placeholder={field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
-                    value={billingAddress[field]}
-                    onChange={(e) => handleInputChange(e, "billing")}
-                    className="border rounded p-2 rounded-lg"
-                  />
-                ))}
-              </form>
-            </div>
+    {step === 0 && (
+         <div className="p-6 bg-gray-100 dark:bg-gray-900 rounded-lg max-w-7xl mx-auto ml-60">
+         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+           {/* Shipping and Billing Section */}
+           <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+             <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
+               Shipping and Billing Details
+             </h3>
+       
+             {/* Shipping Address */}
+             <div className="mb-6">
+               <h4 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-300">Shipping Address</h4>
+               <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 {Object.keys(shippingAddress).map((field, index) => (
+                   <input
+                     key={index}
+                     type="text"
+                     name={field}
+                     placeholder={field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+                     value={shippingAddress[field]}
+                     onChange={(e) => handleInputChange(e, "shipping")}
+                     className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-gray-800 dark:text-gray-200"
+                   />
+                 ))}
+               </form>
+             </div>
+       
+             {/* Same as Shipping Checkbox */}
+             <div className="mb-6 flex items-center">
+               <input
+                 type="checkbox"
+                 id="sameAsShipping"
+                 checked={sameAsShipping}
+                 onChange={handleCheckboxChange}
+                 className="mr-2 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+               />
+               <label htmlFor="sameAsShipping" className="text-lg text-gray-800 dark:text-gray-300">
+                 Same as shipping address
+               </label>
+             </div>
+       
+             {/* Billing Address */}
+             {!sameAsShipping && (
+               <div>
+                 <h4 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-300">Billing Address</h4>
+                 <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   {Object.keys(billingAddress).map((field, index) => (
+                     <input
+                       key={index}
+                       type="text"
+                       name={field}
+                       placeholder={field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+                       value={billingAddress[field]}
+                       onChange={(e) => handleInputChange(e, "billing")}
+                       className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-gray-800 dark:text-gray-200"
+                     />
+                   ))}
+                 </form>
+               </div>
+             )}
+           </div>
+       
+           {/* Order Summary Section */}
+           <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 h-3/4">
+             <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">Order Summary</h3>
+             <p className="mb-4 text-gray-700 dark:text-gray-300">Total Items: <span className="font-semibold">{cartItems.length}</span></p>
+             <p className="mb-4 text-gray-700 dark:text-gray-300">Total Amount: <span className="font-semibold">₹{totalAmount}</span></p>
+       
+             {/* Subtotal */}
+             <div className="flex justify-between items-center mb-4">
+               <label className="font-semibold text-gray-800 dark:text-gray-300">Subtotal:</label>
+               <span className="text-lg font-semibold text-gray-800 dark:text-white">₹{subtotal.toFixed(2)}</span>
+             </div>
+       
+             {/* Shipping */}
+             <div className="flex justify-between items-center mb-4">
+               <label className="font-semibold text-gray-800 dark:text-gray-300">Shipping:</label>
+               <input
+                 type="number"
+                 value={shipping}
+                 onChange={handleFieldChange(setShipping)}
+                 className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+               />
+             </div>
+       
+             {/* Tax */}
+             <div className="flex justify-between items-center mb-4">
+               <label className="font-semibold text-gray-800 dark:text-gray-300">Tax:</label>
+               <input
+                 type="number"
+                 value={tax}
+                 onChange={handleFieldChange(setTax)}
+                 className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+               />
+             </div>
+       
+             {/* Discount */}
+             <div className="flex justify-between items-center mb-4">
+               <label className="font-semibold text-gray-800 dark:text-gray-300">Discount:</label>
+               <input
+                 type="number"
+                 value={discount}
+                 onChange={handleFieldChange(setDiscount)}
+                 className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+               />
+             </div>
+       
+             {/* Total */}
+             <div className="flex justify-between items-center mt-4 border-t pt-4">
+               <label className="font-bold text-lg text-gray-800 dark:text-white">Total:</label>
+               <span className="text-xl font-semibold text-gray-800 dark:text-white">₹{total.toFixed(2)}</span>
+             </div>
+       
+             {/* Proceed Button */}
+             <button
+  onClick={handleNext}
+  className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
+  disabled={cartItems.length === 0}
+>
+  <span>Proceed to Checkout</span>
+  <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
+</button>
+           </div>
+         </div>
+       </div>
+       
+         
           )}
-        </div>
-  
-        {/* Summary Section */}
-        <div>
-          <h3 className="text-xl font-semibold mb-4">Summary</h3>
-          <div className="space-y-4">
-            {/* Subtotal */}
-            <div className="flex justify-between items-center">
-              <label className="font-semibold">Subtotal:</label>
-              <span className="text-lg">${subtotal.toFixed(2)}</span>
-            </div>
-  
-            {/* Shipping */}
-            <div className="flex justify-between items-center">
-              <label className="font-semibold">Shipping:</label>
-              <input
-                type="number"
-                value={shipping}
-                onChange={handleFieldChange(setShipping)}
-                className="border rounded p-2 w-24"
-              />
-            </div>
-  
-            {/* Tax */}
-            <div className="flex justify-between items-center">
-              <label className="font-semibold">Tax:</label>
-              <input
-                type="number"
-                value={tax}
-                onChange={handleFieldChange(setTax)}
-                className="border rounded p-2 w-24"
-              />
-            </div>
-  
-            {/* Discount */}
-            <div className="flex justify-between items-center">
-              <label className="font-semibold">Discount:</label>
-              <input
-                type="number"
-                value={discount}
-                onChange={handleFieldChange(setDiscount)}
-                className="border rounded p-2 w-24"
-              />
-            </div>
-  
-            {/* Total */}
-            <div className="flex justify-between items-center mt-4 border-t pt-4">
-              <label className="font-bold text-lg">Total:</label>
-              <span className="text-xl font-semibold">${total.toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-      )}
-
-      
       {step === 1 && (
         <div className="p-6 bg-gray-100 rounded-lg max-w-6xl ml-80 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
            <div>
@@ -427,5 +444,4 @@ const CartPage = () => {
     </div>
   );
 };
-
 export default CartPage;
