@@ -293,22 +293,57 @@ const CartPage = () => {
 
 
 
-  // WhatsApp sharing function
-  const handleShareOrderSummary = () => {
-    const orderSummaryMessage = `
-      Order Summary:
-      - Subtotal: $${totalPrice.toFixed(2)}
-      - Shipping: $${shipping.toFixed(2)}
-      - Tax: $${tax.toFixed(2)}
-      - Discount: $${discount.toFixed(2)}
-      - Total: $${finalTotal.toFixed(2)}
+  const handleShareOrderSummary = async () => {
+    try {
+      if (!user || !user.email) {
+        console.error("User not authenticated or email not available");
+        return;
+      }
   
-      *Confirming your order details.*
-    `;
+      // Reference to the document in Firestore
+      const userDocRef = doc(db, "users", user.email);
+      const cartRef = doc(userDocRef, "ShippingBilling", "latest");
   
-    const phoneNumber = '+7358937529'; // Replace with target phone number
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(orderSummaryMessage)}`;
-    window.open(url, '_blank');
+      // Fetch the document data
+      const cartSnapshot = await getDoc(cartRef);
+  
+      if (cartSnapshot.exists()) {
+        const data = cartSnapshot.data();
+        console.log("Fetched data:", data);
+  
+        // Build the order summary message
+        const orderSummaryMessage = `
+          Order Summary:
+          - Subtotal: $${(data.totalPrice || 0).toFixed(2)}
+          - Shipping: $${(data.shipping || 0).toFixed(2)}
+          - Tax: $${(data.tax || 0).toFixed(2)}
+          - Discount: $${(data.discount || 0).toFixed(2)}
+          - Total: $${(data.finalTotal || 0).toFixed(2)}
+ Shipping Address:
+    ${Object.entries(shippingAddress)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n')}
+
+    Billing Address:
+    ${sameAsShipping 
+      ? "Same as shipping address" 
+      : Object.entries(billingAddress)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join('\n')}
+
+    *Confirming your order details.*
+  `;
+  
+        // WhatsApp sharing logic
+        const phoneNumber = "+7358937529"; // Replace with target phone number
+        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(orderSummaryMessage)}`;
+        window.open(url, "_blank");
+      } else {
+        console.error("No such document found!");
+      }
+    } catch (error) {
+      console.error("Error fetching data from Firestore:", error.message);
+    }
   };
   
   
@@ -708,63 +743,63 @@ const CartPage = () => {
                 <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
                   Order Summary
                 </h3>
-                <div className="flex justify-between items-center mb-4">
-                  <label className="font-semibold text-gray-800 dark:text-gray-300">
-                    Subtotal:
-                  </label>
-                  <span className="text-lg text-gray-800 dark:text-white">
-                    ${totalPrice.toFixed(2)}
-                  </span>
-                </div>
+                <p className="mb-4 text-gray-700 dark:text-gray-300">
+    Total Items:{" "}
+    <span className="font-semibold">{cartItems.length}</span>
+  </p>
+  <p className="mb-4 text-gray-700 dark:text-gray-300">
+    Total Amount:{" "}
+    <span className="font-semibold">₹{totalAmount}</span>
+  </p>
 
                 {/* Shipping */}
-                <div className="flex justify-between items-center mb-4">
-                  <label className="font-semibold text-gray-800 dark:text-gray-300">
-                    Shipping:
-                  </label>
-                  <input
-                    type="number"
-                    value={shipping}
-                    onChange={handleFieldChange(setShipping)}
-                    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-                  />
-                </div>
+  <div className="flex justify-between items-center mb-4">
+    <label className="font-semibold text-gray-800 dark:text-gray-300">
+      Shipping:
+    </label>
+    <input
+      type="number"
+      value={shipping}
+      onChange={handleFieldChange(setShipping)}
+      className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+    />
+  </div>
 
-                {/* Tax */}
-                <div className="flex justify-between items-center mb-4">
-                  <label className="font-semibold text-gray-800 dark:text-gray-300">
-                    Tax:
-                  </label>
-                  <input
-                    type="number"
-                    value={tax}
-                    onChange={handleFieldChange(setTax)}
-                    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-                  />
-                </div>
+  {/* Tax */}
+  <div className="flex justify-between items-center mb-4">
+    <label className="font-semibold text-gray-800 dark:text-gray-300">
+      Tax:
+    </label>
+    <input
+      type="number"
+      value={tax}
+      onChange={handleFieldChange(setTax)}
+      className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+    />
+  </div>
 
-                {/* Discount */}
-                <div className="flex justify-between items-center mb-4">
-                  <label className="font-semibold text-gray-800 dark:text-gray-300">
-                    Discount:
-                  </label>
-                  <input
-                    type="number"
-                    value={discount}
-                    onChange={handleFieldChange(setDiscount)}
-                    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-                  />
-                </div>
+  {/* Discount */}
+  <div className="flex justify-between items-center mb-4">
+    <label className="font-semibold text-gray-800 dark:text-gray-300">
+      Discount:
+    </label>
+    <input
+      type="number"
+      value={discount}
+      onChange={handleFieldChange(setDiscount)}
+      className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+    />
+  </div>
 
-                {/* Final Total */}
-                <div className="flex justify-between items-center mt-4 border-t pt-4">
-                  <label className="font-bold text-lg text-gray-800 dark:text-white">
-                    Total:
-                  </label>
-                  <span className="text-xl font-semibold text-gray-800 dark:text-white">
-                    ${finalTotal.toFixed(2)}
-                  </span>
-                </div>
+               {/* Total */}
+  <div className="flex justify-between items-center mt-4 border-t pt-4">
+    <label className="font-bold text-lg text-gray-800 dark:text-white">
+      Total:
+    </label>
+    <span className="text-xl font-semibold text-gray-800 dark:text-white">
+      ₹{totalAmount.toFixed(2)}
+    </span>
+  </div>
               </div>
             )}
 
