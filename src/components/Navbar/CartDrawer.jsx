@@ -96,8 +96,8 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
         {/* Cart Header */}
         <div className="flex justify-between items-center mb-6">
           <FaShoppingCart className="text-3xl text-primary" />
-          <h2 className="text-xl font-bold">Your Cart</h2>
-          <button className="text-xl" onClick={closeDrawer}>
+          <h2 className="text-xl font-bold text-black">Your Cart</h2>
+          <button className="text-xl text-black font-bold" onClick={closeDrawer}>
             X
           </button>
         </div>
@@ -126,8 +126,8 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
                     alt={item.title}
                     className="w-16 h-16 object-cover rounded-md"
                   />
-                  <div className="ml-4">
-                    <h3 className="text-lg font-semibold">{item.title}</h3>
+                  <div className="ml-4 text-black">
+                    <h3 className="text-lg font-semibold ">{item.title}</h3>
                     <h3 className="text-lg font-semibold">{item.name}</h3>
                     <h3 className="text-lg font-semibold">{item.category}</h3>
                     <p className="text-sm text-gray-500">₹{item.price}</p>
