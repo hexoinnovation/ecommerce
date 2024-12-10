@@ -127,6 +127,7 @@ const Navbar = () => {
       const userDocRef = doc(db, "users", email);
       await setDoc(userDocRef, {
         email: user.email,
+        password:password,
         username: username, // Set the provided username
         createdAt: new Date(),
         lastLogin: new Date(),
