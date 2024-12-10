@@ -502,16 +502,17 @@ const Navbar = () => {
                 )}
               </div>
               <button
-                className="text-white dark:text-white"
-                onClick={toggleCartDrawer}
-              >
-                <ShoppingCartIcon className="w-6 h-6" />
-                {cartCount > 0 && (
-                  <span className="absolute top-1 right-28 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
+  className="relative text-white dark:text-white"
+  onClick={toggleCartDrawer}
+>
+  <ShoppingCartIcon className="w-6 h-6" />
+  {cartCount > 0 && (
+    <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+      {cartCount}
+    </span>
+  )}
+</button>
+
               {/* Drawer for Cart */}
               {/* Cart Drawer */}
               <CartDrawer
