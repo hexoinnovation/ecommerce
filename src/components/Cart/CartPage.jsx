@@ -345,13 +345,10 @@ const CartPage = () => {
       console.error("Error fetching data from Firestore:", error.message);
     }
   };
-  
-  
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="container mx-auto p-4 max-w-6xl">
         {/* Stepper */}
-
         <ol className="relative flex justify-between items-center space-x-4 text-sm font-medium text-gray-500 dark:text-gray-400">
           {steps.map((stepData, index) => (
             <li
@@ -427,7 +424,6 @@ const CartPage = () => {
                           />
                           Remove
                         </button>
-
                         {/* Modal */}
                         {showModal && (
                           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
