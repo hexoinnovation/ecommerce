@@ -6,6 +6,7 @@ import {
   faUser,
   faClipboardList,
 } from "@fortawesome/free-solid-svg-icons";
+import { FaLock ,FaMapMarked, FaUser,FaCreditCard,FaCalendarAlt,FaHeart} from 'react-icons/fa';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState, useEffect } from "react";
 import Footer from "../Footer/Footer";
@@ -15,10 +16,12 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc,  updateDoc,setDoc, } from 'firebase/firestore';
 import { PencilIcon } from "@heroicons/react/solid";
 import Swal from 'sweetalert2';
-
+import { Link } from 'react-router-dom'; 
+import { useNavigate } from "react-router-dom";
+import Notiflix from 'notiflix';
 const AccountPage = () => {
   const [activeTab, setActiveTab] = useState("overview");
-
+  const navigate = useNavigate(); 
   const tabs = [
     { id: "overview", label: "Overview", icon: faUser },
     { id: "personal", label: "Personal Information", icon: faCogs },
@@ -26,7 +29,8 @@ const AccountPage = () => {
     { id: "password", label: "Change Password", icon: faHeart },
     { id: "payment", label: "Payment Methods", icon: faCreditCard },
     { id: "orders", label: "Order History", icon: faClipboardList },
-    { id: "wishlist", label: "Wishlist", icon: faHeart },
+    //{ id: "wishlist", label: "Wishlist", icon: faHeart },
+    
   ];
 
   const handleTabChange = (tab) => {
@@ -59,8 +63,11 @@ const AccountPage = () => {
   const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] = useState(false);
   const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+  const [cardNumber, setCardNumber] = useState('');
+  const [expirationDate, setExpirationDate] = useState('');
+  const [cvc, setCvc] = useState('');
+  const [paymentData, setPaymentData] = useState(null); 
   useEffect(() => {
-    // Set up listener for authentication state changes
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true); // Set loading to true while fetching data
   
@@ -68,44 +75,60 @@ const AccountPage = () => {
         setIsAuthenticated(true);
         setEmail(user.email);
   
-        // Fetch user data
-        const userDocRef = doc(db, "users", user.email);
-        const userDocSnap = await getDoc(userDocRef);
+        try {
+          // Fetch user data from Firestore
+          const userDocRef = doc(db, 'users', user.email);
+          const userDocSnap = await getDoc(userDocRef);
   
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data();
-          setFirstName(userData.firstName || "");
-          setLastName(userData.lastName || "");
-          setPhoneNumber(userData.phoneNumber || "");
-          setGender(userData.gender || "");
-          setDob(userData.dob || "");
-          setUsername(userData.username || "Username not set");
-          setUserData({
-            username: userData.username || "Username not set",
-            email: user.email,
-          });
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            setUserData(userData);
   
-          // Fetch address data if exists
-          const addressData = userData.address || {};
-          setAddressLine1(addressData.addressLine1 || "");
-          setAddressLine2(addressData.addressLine2 || "");
-          setCity(addressData.city || "");
-          setState(addressData.state || "");
-          setZipCode(addressData.zipCode || "");
-          setCountry(addressData.country || "");
+            // Fetch current password (this is just an example, and storing passwords in Firestore directly is not recommended)
+            setCurrentPassword(userData.password || ''); // Set current password
   
-          // Fetch profile image if exists
-          const profileRef = doc(userDocRef, "profile", "profile_image");
-          const profileSnap = await getDoc(profileRef);
-          if (profileSnap.exists()) {
-            setBase64Image(profileSnap.data().image); // Set the profile image if it exists
+            // Fetch other user details (name, phone, etc.)
+            setFirstName(userData.firstName || '');
+            setLastName(userData.lastName || '');
+            setPhoneNumber(userData.phoneNumber || '');
+            setGender(userData.gender || '');
+            setDob(userData.dob || '');
+            setUsername(userData.username || 'Username not set');
+  
+            // Fetch address data if exists
+            const addressData = userData.address || {};
+            setAddressLine1(addressData.addressLine1 || '');
+            setAddressLine2(addressData.addressLine2 || '');
+            setCity(addressData.city || '');
+            setState(addressData.state || '');
+            setZipCode(addressData.zipCode || '');
+            setCountry(addressData.country || '');
+  
+            // Fetch payment details if they exist
+            const paymentData = userData.payment || {};
+            setCardNumber(paymentData.cardNumber || '');
+            setExpirationDate(paymentData.expirationDate || '');
+            setCvc(paymentData.cvc || '');
+  
+            // Fetch profile image if exists
+            const profileRef = doc(userDocRef, 'profile', 'profile_image');
+            const profileSnap = await getDoc(profileRef);
+            if (profileSnap.exists()) {
+              setBase64Image(profileSnap.data().image); // Set profile image if it exists
+            }
+          } else {
+            Notiflix.Notify.failure('User not found.');
           }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          Notiflix.Notify.failure('Failed to fetch user data.');
         }
       } else {
         // If user is not authenticated, reset state
         setIsAuthenticated(false);
         setUserData(null);
-        setBase64Image(null); // Reset image if logged out
+        setBase64Image(null);
+        setCurrentPassword(''); // Reset password
       }
   
       setLoading(false); // Set loading to false after fetching data
@@ -159,6 +182,12 @@ const AccountPage = () => {
       setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
     }
   };
+  const handleTabClick = (tab) => {
+    setActiveTab(tab); // Set the active tab when clicked
+    if (tab === "wishlist") {
+      navigate("/wishlist"); // Redirect to /wishlist route when wishlist tab is clicked
+    }
+  };
   const handleSave = async (e) => {
     e.preventDefault();
     console.log("Save button clicked!");
@@ -172,6 +201,13 @@ const AccountPage = () => {
       });
       return;
     }
+  
+    // Collect payment details
+    const paymentData = {
+      cardNumber: cardNumber, // Add state for cardNumber
+      expirationDate: expirationDate, // Add state for expiration date
+      cvc: cvc, // Add state for CVC
+    };
   
     // Collect user info and address data
     const addressData = {
@@ -192,6 +228,7 @@ const AccountPage = () => {
       gender,
       dob,
       address: addressData, // Add address as a nested object
+      payment: paymentData, // Add payment details
     };
   
     const userDocRef = doc(db, 'users', email);
@@ -204,7 +241,7 @@ const AccountPage = () => {
       Swal.fire({
         icon: 'success',
         title: 'Success!',
-        text: 'User and address data saved successfully!',
+        text: 'User, address, and payment data saved successfully!',
       });
     } catch (error) {
       console.error('Error saving user data: ', error); // Log error to console
@@ -215,58 +252,90 @@ const AccountPage = () => {
       });
     }
   };
+  
+
   const handleChangePassword = async (e) => {
     e.preventDefault();
-
-    // Validate passwords
+  
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setError('All fields are required.');
+      Notiflix.Notify.failure('All fields are required.', {
+        timeout: 4000,
+        position: 'right-top',
+        cssAnimationStyle: 'fade',
+        showOnlyTheLastOne: true,
+      });
       return;
     }
+  
     if (newPassword !== confirmPassword) {
-      setError('New password and confirm password do not match.');
+      Notiflix.Notify.failure('New password and confirm password do not match.', {
+        timeout: 4000,
+      });
       return;
     }
-
-    setError('');
+  
     setLoading(true);
-
+  
     try {
-      // Get the current password from Firestore
-      const userDocRef = doc(db, 'users', email);
+      const userDocRef = doc(db, 'users', email); // Replace email with the logged-in user's email
       const userDocSnap = await getDoc(userDocRef);
-
+  
       if (userDocSnap.exists()) {
         const userData = userDocSnap.data();
-        
-        // Check if the current password matches
+  
         if (userData.password !== currentPassword) {
-          setError('Current password is incorrect.');
+          Notiflix.Notify.failure('Current password is incorrect.', {
+            timeout: 4000,
+          });
           setLoading(false);
           return;
         }
-
-        // Update password in Firestore
-        await updateDoc(userDocRef, {
-          password: newPassword,  // Update password
-        });
-
-        // Optionally, you can also update the password in Firebase Authentication
-        // await updatePassword(auth.currentUser, newPassword);
-
+  
+        await updateDoc(userDocRef, { password: newPassword });
+  
         setLoading(false);
-        alert('Password updated successfully!');
+        Notiflix.Notify.success('Password updated successfully!', {
+          timeout: 4000,
+        });
       } else {
-        setError('User not found.');
+        Notiflix.Notify.failure('User not found.', {
+          timeout: 4000,
+        });
         setLoading(false);
       }
     } catch (error) {
       setLoading(false);
-      setError('Failed to update password. Please try again later.');
+      Notiflix.Notify.failure('Failed to update password. Please try again later.', {
+        timeout: 4000,
+      });
       console.error(error);
     }
   };
   
+  // useEffect(() => {
+  //   const fetchCurrentPassword = async () => {
+  //     try {
+  //       const userDocRef = doc(db, 'users', email); // Replace email with the logged-in user's email
+  //       const userDocSnap = await getDoc(userDocRef);
+
+  //       if (userDocSnap.exists()) {
+  //         const userData = userDocSnap.data();
+  //         setCurrentPassword(userData.password || ''); // Fetch and set the current password
+  //       } else {
+  //         Notiflix.Notify.failure('User not found.', {
+  //           timeout: 4000,
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching current password:', error);
+  //       Notiflix.Notify.failure('Failed to fetch current password.', {
+  //         timeout: 4000,
+  //       });
+  //     }
+  //   };
+
+  //   fetchCurrentPassword();
+  // }, [email]);
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
       <Navbar />
@@ -328,10 +397,24 @@ const AccountPage = () => {
                       <FontAwesomeIcon icon={tab.icon} />
                       <span>{tab.label}</span>
                     </button>
+                    
                   </li>
                 ))}
               </ul>
+             
             </nav>
+            <div
+  onClick={() => handleTabClick("wishlist")}
+  className={`w-full text-left py-2 px-4 mt-4 rounded-lg flex items-center gap-4 ${
+    activeTab === "wishlist"
+      ? "bg-white text-blue-600 shadow-md" // Active state styling
+      : "text-gray-200 hover:bg-white hover:text-blue-600 transition" // Inactive state styling
+  }`}
+>
+  <FaHeart className="mr-2" />
+  <span>Wishlist</span>
+</div>
+
           </aside>
 
           {/* Main Dashboard */}
@@ -350,9 +433,12 @@ const AccountPage = () => {
             )}
             {activeTab === "personal" && (
               <div>
-              <h2 className="text-2xl font-semibold mb-4 ml-60">
-  Personal Information
-</h2>
+                <div className="flex items-center mb-8 ml-60">
+               <FaUser className="text-yellow-500 text-3xl animate-pulse" />
+      <h2 className="text-2xl font-semibold text-gray-800 animate-text ml-4">
+   Personal Information
+      </h2>
+    </div>
 <form className="space-y-8 max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-xl">
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div className="relative">
@@ -434,7 +520,12 @@ const AccountPage = () => {
             )}
             {activeTab === "address" && (
               <div>
-              <h2 className="text-2xl font-semibold mb-6 text-center">Manage Address</h2>
+               <div className="flex items-center mb-8 ml-60">
+               <FaMapMarked className="text-yellow-500 text-3xl animate-pulse" />
+      <h2 className="text-2xl font-semibold text-gray-800 animate-text ml-4">
+      Manage Address
+      </h2>
+    </div>
 <form className="space-y-6 max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
 <div className="relative">
           <i className="fa fa-home absolute left-4 top-4 text-gray-500"></i>
@@ -528,87 +619,126 @@ const AccountPage = () => {
             )}
             {activeTab === "password" && (
               <div>
-                <h2 className="text-2xl font-semibold mb-4">Change Password</h2>
-                <form className="space-y-4" onSubmit={handleChangePassword}>
-        {error && <div className="text-red-500">{error}</div>}
-        
-        <div className="relative">
-          <input
+                <div className="flex items-center mb-8 ml-60">
+      <FaLock className="text-yellow-500 text-3xl animate-pulse" />
+      <h2 className="text-2xl font-semibold text-gray-800 animate-text ml-4">
+        Password Settings
+      </h2>
+    </div>
+                <form className="space-y-6 max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg" onSubmit={handleChangePassword}>
+ 
+  <div className="relative">
+    <label className="text-sm font-medium text-gray-600 mb-2 block">Current Password</label>
+    <input
             type={isCurrentPasswordVisible ? 'text' : 'password'}
-            placeholder="Current Password"
+            placeholder="Enter Current Password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full p-3 border rounded-md"
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
           />
           <i
-            className={`fa ${isCurrentPasswordVisible ? 'fa-eye-slash' : 'fa-eye'} absolute right-4 top-4 cursor-pointer text-gray-400`}
+            className={`fa ${isCurrentPasswordVisible ? 'fa-eye-slash' : 'fa-eye'} absolute right-4 top-12 cursor-pointer text-gray-400`}
             onClick={() => togglePasswordVisibility('current')}
           ></i>
-        </div>
+  </div>
 
-        <div className="relative">
-          <input
-            type={isNewPasswordVisible ? 'text' : 'password'}
-            placeholder="New Password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full p-3 border rounded-md"
-          />
-          <i
-            className={`fa ${isNewPasswordVisible ? 'fa-eye-slash' : 'fa-eye'} absolute right-4 top-4 cursor-pointer text-gray-400`}
-            onClick={() => togglePasswordVisibility('new')}
-          ></i>
-        </div>
+  <div className="relative">
+    <label className="text-sm font-medium text-gray-600 mb-2 block">New Password</label>
+    <input
+      type={isNewPasswordVisible ? 'text' : 'password'}
+      placeholder="Enter New Password"
+      value={newPassword}
+      onChange={(e) => setNewPassword(e.target.value)}
+      className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+    />
+    <i
+      className={`fa ${isNewPasswordVisible ? 'fa-eye-slash' : 'fa-eye'} absolute right-4 top-12 cursor-pointer text-gray-400`}
+      onClick={() => togglePasswordVisibility('new')}
+    ></i>
+  </div>
 
-        <div className="relative">
-          <input
-            type={isConfirmPasswordVisible ? 'text' : 'password'}
-            placeholder="Confirm New Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full p-3 border rounded-md"
-          />
-          <i
-            className={`fa ${isConfirmPasswordVisible ? 'fa-eye-slash' : 'fa-eye'} absolute right-4 top-4 cursor-pointer text-gray-400`}
-            onClick={() => togglePasswordVisibility('confirm')}
-          ></i>
-        </div>
+  <div className="relative">
+    <label className="text-sm font-medium text-gray-600 mb-2 block">Confirm Password</label>
+    <input
+      type={isConfirmPasswordVisible ? 'text' : 'password'}
+      placeholder="Confirm New Password"
+      value={confirmPassword}
+      onChange={(e) => setConfirmPassword(e.target.value)}
+      className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+    />
+    <i
+      className={`fa ${isConfirmPasswordVisible ? 'fa-eye-slash' : 'fa-eye'} absolute right-4 top-12 cursor-pointer text-gray-400`}
+      onClick={() => togglePasswordVisibility('confirm')}
+    ></i>
+  </div>
 
-        <button
-          type="submit"
-          className="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
-          disabled={loading}
-        >
-          {loading ? 'Updating...' : 'Change Password'}
-        </button>
-      </form>
+  <button
+    type="submit"
+    className="w-full bg-gradient-to-r from-yellow-700 to-orange-500 text-white py-3 rounded-lg text-lg transition hover:opacity-90"
+    disabled={loading}
+  >
+    {loading ? 'Updating...' : 'Change Password'}
+  </button>
+</form>
               </div>
             )}
-            {activeTab === "payment" && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-4">Payment Methods</h2>
-                <form className="space-y-4">
-                  <input
-                    type="text"
-                    placeholder="Card Number"
-                    className="w-full p-3 border rounded-md"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Expiration Date (MM/YY)"
-                    className="w-full p-3 border rounded-md"
-                  />
-                  <input
-                    type="text"
-                    placeholder="CVC"
-                    className="w-full p-3 border rounded-md"
-                  />
-                  <button className="w-full bg-teal-500 text-white py-2 rounded-md hover:bg-teal-600 transition">
-                    Save Payment Method
-                  </button>
-                </form>
-              </div>
-            )}
+        {activeTab === "payment" && (
+  <div className="bg-white p-6 rounded-xl shadow-lg max-w-lg mx-auto">
+    <div className="flex items-center mb-6">
+      <FaCreditCard className="text-yellow-500 text-3xl mr-4 hover:text-yellow-600 transition-colors" />
+      <h2 className="text-2xl font-semibold text-gray-800">Payment Methods</h2>
+    </div>
+    <form className="space-y-6" onSubmit={handleSave}>
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Card Number"
+          value={cardNumber}
+          onChange={(e) => setCardNumber(e.target.value)}
+          className="w-full p-4 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200"
+        />
+        <div className="absolute top-3 left-3 text-gray-500">
+          <FaCreditCard />
+        </div>
+      </div>
+      
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Expiration Date (MM/YY)"
+          value={expirationDate}
+          onChange={(e) => setExpirationDate(e.target.value)}
+          className="w-full p-4 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200"
+        />
+        <div className="absolute top-3 left-3 text-gray-500">
+          <FaCalendarAlt />
+        </div>
+      </div>
+
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="CVC"
+          value={cvc}
+          onChange={(e) => setCvc(e.target.value)}
+          className="w-full p-4 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200"
+        />
+        <div className="absolute top-3 left-3 text-gray-500">
+          <FaLock />
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        className="w-full bg-gradient-to-r from-yellow-700 to-orange-500  text-white py-3 rounded-lg hover:bg-teal-600 transition duration-300"
+      >
+        Save Payment Method
+      </button>
+    </form>
+  </div>
+)}
+
+
             {activeTab === "orders" && (
               <div>
                 <h2 className="text-2xl font-semibold mb-4">Order History</h2>
@@ -618,15 +748,15 @@ const AccountPage = () => {
                 {/* Add dynamic order history content */}
               </div>
             )}
-            {activeTab === "wishlist" && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-4">Wishlist</h2>
-                <p className="text-gray-700 dark:text-gray-300">
-                  Manage your favorite products here.
-                </p>
-                {/* Add dynamic wishlist content */}
-              </div>
-            )}
+           
+        {activeTab === "wishlist" && (
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Wishlist</h2>
+          <p className="text-gray-700 dark:text-gray-300">
+            Manage your favorite products here.
+          </p>
+        </div>
+      )}
           </main>
         </div>
       </div>
