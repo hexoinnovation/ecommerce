@@ -3,6 +3,8 @@ import { FaTrash, FaShoppingCart } from "react-icons/fa";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../Authcontext";
 import { useNavigate } from "react-router-dom";
+import Notiflix from 'notiflix';
+
 import {
   db,
   doc,
@@ -21,6 +23,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FaCreditCard } from "react-icons/fa"; // Import a payment-related icon
+import Swal from 'sweetalert2';
 
 const CartPage = () => {
   const [step, setStep] = useState(0);
@@ -287,7 +290,6 @@ const CartPage = () => {
 
   const [paymentMethod, setPaymentMethod] = useState('');
   const [orderSummaryMessage, setOrderSummaryMessage] = useState(""); // State to hold the order summary message
-
   const handleShareOrderSummary = async () => {
     try {
         if (!user || !user.email) {
@@ -340,13 +342,15 @@ ${billingAddressString}
             const phoneNumber = "+7358937529"; // Replace with target phone number
             const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(orderSummaryMessage)}`;
             window.open(url, "_blank");
+
+            // Update state to notify on returning
+            localStorage.setItem("orderShared", "true");
         } else {
             console.error("No such document found!");
         }
     } catch (error) {
         console.error("Error fetching data from Firestore:", error.message);
     }
-
 };
   
 
@@ -363,6 +367,19 @@ const handleFieldChange = (setter) => (e) => {
   const value = parseFloat(e.target.value) || 0;
   setter(value);
 };
+
+
+
+  useEffect(() => {
+      // Check if the order was shared via WhatsApp
+      const orderShared = localStorage.getItem("orderShared");
+      if (orderShared === "true") {
+          Notiflix.Notify.success("Order confirmed! Proceed with payment.");
+          // Clear the flag
+          localStorage.removeItem("orderShared");
+      }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="container mx-auto p-4 max-w-6xl">
@@ -705,15 +722,16 @@ const handleFieldChange = (setter) => (e) => {
           )}
 
           {step === 2 && (
-            <div>
-              <div className="p-6 bg-gray-100 rounded-lg max-w-6xl ml-40 mr-40 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <h1 className="text-2xl font-bold ml-20 t-4p-4 text-center rounded-lg flex items-center space-x-4">
-            <span>Payment</span>
-            <div className="relative">
-              <FaCreditCard className="text-[#ff0080] animate-neon" />
-            </div>
-          </h1>
+             <div>
+            <div className="p-6 bg-gray-100 rounded-lg max-w-6xl ml-40 mr-40 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Payment Form Code */}
+                <div>
+                    <h1 className="text-2xl font-bold ml-20 t-4p-4 text-center rounded-lg flex items-center space-x-4">
+                        <span>Payment</span>
+                        <div className="relative">
+                            <FaCreditCard className="text-[#ff0080] animate-neon" />
+                        </div>
+                    </h1>
 
           {/* Payment Methods */}
           <div className="mt-6 ml-0">
@@ -820,11 +838,22 @@ const handleFieldChange = (setter) => (e) => {
             {/* Confirmation Button */}
             <div className="mt-6">
             <button
-      onClick={handleShareOrderSummary}
-      className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
-    >
-      Confirm and Pay
-    </button>
+  onClick={async () => {
+    // Show SweetAlert confirmation
+    await Swal.fire({
+      title: 'Order Confirmed!',
+      text: 'Your order has been successfully placed.',
+      icon: 'success',
+      confirmButtonText: 'Continue to Payment',
+    });
+
+    // Execute the WhatsApp sharing logic
+    await handleShareOrderSummary();
+  }}
+  className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
+>
+  Confirm and Pay
+</button>
             </div>
                   </div>
                 </div>
