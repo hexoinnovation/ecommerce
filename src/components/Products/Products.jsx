@@ -2,7 +2,7 @@ import React from "react";
 import { Route, Routes, useNavigate } from "react-router-dom"; // Import useNavigate
 import { ProductsProvider } from "../../context/ProductsContext";
 import ProductDetail from "./ProductDetail";
-import { ViewAllProducts } from "./ViewAllProducts";
+import  {ViewAllProducts}from "./ViewAllProducts";
 
 export const Products = () => {
   const navigate = useNavigate();
