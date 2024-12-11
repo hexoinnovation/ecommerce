@@ -5,7 +5,7 @@ import { useProducts } from '../../context/ProductsContext';
 import { useCart } from '../../context/CartContext'; // Import the useCart hook
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
-import { getFirestore, doc, setDoc,getDoc,deleteDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc,getDoc,deleteDoc ,getDocs} from "firebase/firestore";
 import {collection } from 'firebase/firestore';
 import { useAuth } from "../Authcontext"; // Import the Auth context
 import { UserCircleIcon } from '@heroicons/react/outline';  // or @heroicons/react/solid
@@ -14,25 +14,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandPointLeft } from '@fortawesome/free-solid-svg-icons';
 
 const ProductDetail = () => {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
   const products = useProducts(); // Get products from context
-  const { id } = useParams(); // Get product ID from URL
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   
   const { addToCart } = useCart(); // Get addToCart function from CartContext
-
-  // Check if products are loaded
-  if (!products) {
-    return <div>Loading...</div>; // Or some loading spinner
-  }
-
-  const product = products.find((item) => item.id === parseInt(id, 10));
-
-  if (!product) {
-    return <div>Product not found.</div>;
-  }
-
-  const [mainImage, setMainImage] = useState(product?.img || '');
-  
   const [quantity, setQuantity] = useState(1); // Quantity state
 
   const handleGoBack = () => {
@@ -49,8 +37,6 @@ const ProductDetail = () => {
       setQuantity((prev) => prev - 1); // Decrement quantity (prevent going below 1)
     }
   };
-
-  
   const db = getFirestore(app);
   const auth = getAuth(app);
   const handleAddToCart = async (product) => {
@@ -81,7 +67,6 @@ const ProductDetail = () => {
       }
     }
   };
-  
 
   const handleBuyNow = () => {
     if (!isLoggedIn) {
@@ -196,6 +181,10 @@ const [username, setUsername] = useState('');
 const [showModal, setShowModal] = useState(false); // Initially set to false  
 const [cartItems, setCartItems] = useState([]);
 const { incrementCartCount } = useAuth();
+
+
+const [mainImage, setMainImage] = useState("");
+
 // Toggle modal visibility
 const handleModalToggle = () => {
   handleDropdownClick()
@@ -211,46 +200,97 @@ const closeModal = () => {
 };
 const { currentUser } = useAuth(); // Access current user from AuthProvider
   const [isWishlist, setIsWishlist] = useState(false); // Local state for wishlist toggle
-  const [wishlist, setWishlist] = useState([]); // Default to array
+ // const [wishlist, setWishlist] = useState([]); // Default to array
 
-  const handleWishlistToggle = async () => {
-    if (!currentUser) {
-      alert('Please login to add products to your wishlist.');
-      return;
+ const fetchProduct = async (id) => {
+  try {
+    const docRef = doc(db, "products", id); // Reference to a specific product document
+    const docSnap = await getDoc(docRef); // Fetch the document snapshot
+
+    if (docSnap.exists()) {
+      const productData = docSnap.data(); // Get the product data
+      setProduct(productData); // Set product data to state
+      setMainImage(productData?.image); // Set the main image to state
+      setLoading(false); // Set loading state to false after fetching
+    } else {
+      setError("Product not found.");
+      setLoading(false);
     }
-  
-    try {
-      // Ensure the ID is converted to a string
-      const wishlistRef = doc(db, 'users', currentUser.email, 'Wishlist', String(product.id));
-  
-      // Check if the product is already in the wishlist
+  } catch (error) {
+    setError("Failed to fetch product details.");
+    setLoading(false); // Set loading to false in case of an error
+  }
+};
+
+// Handle wishlist toggle
+const handleWishlistToggle = async () => {
+  if (!currentUser) {
+    alert('Please login to add products to your wishlist.');
+    return;
+  }
+
+  try {
+    const wishlistRef = doc(db, 'users', currentUser.email, 'Wishlist', String(product.id));
+
+    // Check if the product is already in the wishlist
+    const docSnap = await getDoc(wishlistRef);
+
+    if (docSnap.exists()) {
+      // If the product is already in the wishlist, remove it
+      await deleteDoc(wishlistRef);
+      setIsWishlist(false);
+    } else {
+      await setDoc(wishlistRef, product);
+      setIsWishlist(true);
+    }
+  } catch (error) {
+    console.error('Error updating wishlist:', error);
+  }
+};
+
+// Check if the product is in the wishlist when the component mounts or when product or currentUser changes
+useEffect(() => {
+  const checkWishlist = async () => {
+    if (currentUser && product) {
+      const wishlistRef = doc(db, 'users', currentUser.email, 'Wishlist', product.id);
       const docSnap = await getDoc(wishlistRef);
-  
-      if (docSnap.exists()) {
-        // If the product is already in the wishlist, remove it
-        await deleteDoc(wishlistRef);
-        setIsWishlist(false);
-      } else {
-        console.log('Product being added to wishlist:', product); // Debug log
-        await setDoc(wishlistRef, product);
-        setIsWishlist(true);
-      }
-    } catch (error) {
-      console.error('Error updating wishlist:', error);
+      setIsWishlist(docSnap.exists());
     }
   };
 
-  useEffect(() => {
-    const checkWishlist = async () => {
-      if (currentUser) {
-        const wishlistRef = doc(db, 'users', currentUser.email, 'Wishlist', product.id);
-        const docSnap = await getDoc(wishlistRef);
-        setIsWishlist(docSnap.exists());
-      }
-    };
-    checkWishlist();
-  }, [currentUser, product.id]);
-  
+  if (currentUser && product) {
+    checkWishlist(); // Call checkWishlist only when currentUser and product are available
+  }
+}, [currentUser, product]); // Ensure this effect only runs when currentUser or product changes
+
+// Fetch product details when id changes
+useEffect(() => {
+  if (id) {
+    setLoading(true); // Set loading to true when fetching starts
+    fetchProduct(id); // Call fetchProduct with the correct 'id'
+  }
+}, [id]); 
+if (loading) {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex flex-col items-center justify-center space-y-4">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-16 h-16 bg-white rounded-full shadow-xl flex items-center justify-center">
+              <span className="text-3xl text-yellow-500">🛒</span>
+            </div>
+          </div>    
+          <div className="w-24 h-24 border-8 border-t-8 border-yellow-500 border-solid rounded-full animate-spin"></div>
+        </div>
+        <p className="text-xl font-semibold text-gray-700">Your Shop is loading...</p>
+      </div>
+    </div>
+  );
+}
+if (error) {
+  return <div>{error}</div>; // Show error message if an error occurred
+}
+
   return (
     <div className="min-h-screen flex items-center justify-center sm:mt-0 mt-10 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto  p-4 max-w-4xl">
@@ -264,25 +304,26 @@ const { currentUser } = useAuth(); // Access current user from AuthProvider
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Product Image */}
-          <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0">
-            <img
-              src={mainImage}
-              alt={product.name}
-              className="w-full max-w-sm lg:max-w-md h-96 object-cover rounded-xl shadow-lg"
-            />
+          <div className="flex flex-col items-center lg:items-start">
+          <img
+            src={mainImage}
+            alt={product.name}
+            className="w-full max-w-md h-96 object-cover rounded-xl shadow-lg"
+          />
+
+            {/* Thumbnail Gallery */}
             <div className="flex gap-4 mt-4">
-              {product.images.map((image, index) => (
+              {product?.images?.map((image, index) => (
                 <img
                   key={index}
-                  src={image}
+                  src={`data:image/jpeg;base64,${image}`} // Handling other images stored as base64
                   alt={`Thumbnail ${index + 1}`}
                   className="h-20 w-20 object-cover rounded-md cursor-pointer"
-                  onClick={() => setMainImage(image)}
+                  onClick={() => setMainImage(image)} // Update main image on thumbnail click
                 />
               ))}
-            </div>
-          </div>
-
+        </div>
+      </div>
           {/* Product Details */}
           <div className="space-y-6 flex-1">
             <div className="flex items-center justify-between">

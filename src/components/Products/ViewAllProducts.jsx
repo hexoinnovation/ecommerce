@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaHeart, FaShoppingCart, FaStar } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaStar,FaShoppingBag } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -62,7 +62,7 @@ export const ViewAllProducts = () => {
     <div className="flex flex-col lg:flex-row">
       <Sidebar onSubcategorySelect={handleSubcategorySelect} />
 
-      <div className="flex-1 p-6 lg:p-8 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-md">
+      <div className="flex-2 w-[1600px] p-2 lg:p-1 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-6">All Products</h2>
         {selectedSubcategory && (
           <h4 className="text-lg font-medium mb-6">
@@ -72,7 +72,7 @@ export const ViewAllProducts = () => {
         )}
 
         {currentProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
             {currentProducts.map((product) => (
               <div
                 key={product.id}
@@ -104,32 +104,22 @@ export const ViewAllProducts = () => {
 </div>
 
                 <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center space-x-1 text-yellow-400">
-                    {[...Array(5)].map((_, index) => (
-                      <FaStar
-                        key={index}
-                        className={
-                          index < product.rating
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }
-                      />
-                    ))}
-                  </div>
                   <p className="text-lg font-bold text-gray-900 dark:text-white">
                     ₹{product.price}
                   </p>
                 </div>
 
-                <div className="mt-4 flex space-x-4">
-                  <button className="flex-1 bg-primary text-white py-2 rounded-lg shadow-md hover:bg-primary-dark transition">
-                    <FaShoppingCart className="inline-block mr-2" />
-                    Add to Cart
-                  </button>
-                  <button className="flex-1 bg-green-600 text-white py-2 rounded-lg shadow-md hover:bg-green-700 transition">
-                    Buy Now
-                  </button>
-                </div>
+                <div className="mt-4 flex space-x-4 h-12">
+  <button className="flex-1 bg-primary text-sm text-white py-2 rounded-lg shadow-md hover:bg-primary-dark transition">
+    <FaShoppingCart className="inline-block mr-1" />
+    Add to Cart
+  </button>
+  <button className="flex-1 bg-green-600 text-sm text-white py-2 rounded-lg shadow-md hover:bg-green-700 transition">
+    <FaShoppingBag className="inline-block mr-1" />
+    Buy Now
+  </button>
+</div>
+
               </div>
             ))}
           </div>
