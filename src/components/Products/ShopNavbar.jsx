@@ -336,22 +336,6 @@ const { cartCount } = useAuth(); // Access cartCount from context
                 closeDrawer={toggleCartDrawer} // Function to close the drawer when clicked outside or when user clicks the close button
               />
 
-            {/* Admin Icon (replaced with User Icon for now) */}
-            <button className="text-black dark:text-white">
-              <UserIcon className="w-6 h-6" />
-            </button>
-
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className="text-black dark:text-white"
-            >
-              {isDarkMode ? (
-                <SunIcon className="w-6 h-6" />
-              ) : (
-                <MoonIcon className="w-6 h-6" />
-              )}
-            </button>
           </div>
         </div>
       </nav>
