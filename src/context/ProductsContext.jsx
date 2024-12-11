@@ -50,7 +50,7 @@ export const ProductsProvider = ({ children }) => {
       name: "Product 1",
       color: "Red",
       price: 999,
-      description: "This is a sample product.",
+     
       rating: 4,
       img: Img1, // main image
       images: [Img1, Img2, Img3],
