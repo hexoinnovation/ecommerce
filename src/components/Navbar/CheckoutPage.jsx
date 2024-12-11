@@ -11,6 +11,7 @@ import {
   faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { getAuth } from "firebase/auth"; // Firebase Auth
+import Swal from 'sweetalert2';
 
 const CartPage = () => {
   const [step, setStep] = useState(0);
@@ -297,7 +298,6 @@ const CartPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('');
   
   const [orderSummaryMessage, setOrderSummaryMessage] = useState(""); // State to hold the order summary message
-
   const handleShareOrderSummary = async () => {
     try {
         if (!user || !user.email) {
@@ -350,6 +350,9 @@ ${billingAddressString}
             const phoneNumber = "+7358937529"; // Replace with target phone number
             const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(orderSummaryMessage)}`;
             window.open(url, "_blank");
+
+            // Update state to notify on returning
+            localStorage.setItem("orderShared", "true");
         } else {
             console.error("No such document found!");
         }
@@ -707,11 +710,22 @@ const handleFieldChange = (setter) => (e) => {
             {/* Confirmation Button */}
             <div className="mt-6">
             <button
-      onClick={handleShareOrderSummary}
-      className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
-    >
-      Confirm and Pay
-    </button>
+  onClick={async () => {
+    // Show SweetAlert confirmation
+    await Swal.fire({
+      title: 'Order Confirmed!',
+      text: 'Your order has been successfully placed.',
+      icon: 'success',
+      confirmButtonText: 'Continue to Payment',
+    });
+
+    // Execute the WhatsApp sharing logic
+    await handleShareOrderSummary();
+  }}
+  className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
+>
+  Confirm and Pay
+</button>
             </div>
                   </div>
                 </div>
