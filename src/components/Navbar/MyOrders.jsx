@@ -16,6 +16,7 @@ const orders = [
     status: 'Cancelled',
     image: cam1,
   },
+  
   {
     id: 2,
     date: 'Delivered on Nov 18, 2023',
