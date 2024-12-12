@@ -431,7 +431,7 @@ const handleFieldChange = (setter) => (e) => {
                         className="p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg"
                       >
                         <img
-                          src={item.img}
+                          src={item.image}
                           alt={item.title}
                           className="h-60 object-cover rounded"
                         />
