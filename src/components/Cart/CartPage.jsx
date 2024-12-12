@@ -51,9 +51,6 @@ const CartPage = () => {
   const handleBack = () => {
     if (step > 0) setStep(step - 1);
   };
-
-
-
   const user = auth.currentUser;
   const saveShippingBillingData = async () => {
     try {
@@ -87,9 +84,9 @@ const CartPage = () => {
       console.error("Error saving data to Firestore:", error.message);
     }
   };
-  
 
   const [orderSummary, setOrderSummary] = useState({});
+
   const fetchShippingBillingData = async () => {
     try {
       if (!user || !user.email) {
@@ -134,26 +131,40 @@ const CartPage = () => {
     }
   }, [user]);
 
-  const fetchCartItems = async () => {
-    if (!currentUser) return;
-    const cartRef = collection(db, "users", currentUser.email, "AddToCart");
-    const querySnapshot = await getDocs(cartRef);
-    const items = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setCartItems(items);
-    setTotalAmount(
-      items.reduce((acc, item) => acc + item.price * item.quantity, 0)
-    );
-  };
-
   useEffect(() => {
-    if (currentUser) fetchCartItems();
-  }, [currentUser]);
+    const fetchCartFromFirestore = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          const userDocRef = doc(db, "users", user.email);
+          const cartRef = collection(userDocRef, "AddToCart");
+          const cartSnapshot = await getDocs(cartRef);
+  
+          if (!cartSnapshot.empty) {
+            const cartData = cartSnapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            setUserCartItems(cartData);  // Update state with fetched cart items
+            setIsEmpty(false);  // Cart has items, so not empty
+          } else {
+            setUserCartItems([]);  // No items in the cart
+            setIsEmpty(true);
+          }
+        } catch (error) {
+          console.error("Error fetching cart from Firestore:", error);
+        }
+      }
+    };
+  
+    if (auth.currentUser) {
+      fetchCartFromFirestore();  // Trigger fetch when the user is logged in
+    }
+  }, [auth.currentUser]);
 
   const [showModal, setShowModal] = useState(false);
   const [isWishlist, setIsWishlist] = useState(false); // Track wishlist state
+
   const handleWishlistToggle = async (product) => {
     if (!currentUser) {
       alert("Please login to add products to your wishlist.");
@@ -352,8 +363,6 @@ ${billingAddressString}
         console.error("Error fetching data from Firestore:", error.message);
     }
 };
-  
-
 const [baseAmount, setBaseAmount] = useState(113493); // Initial base amount
 const [calculatedTotalAmount, setCalculatedTotalAmount] = useState(baseAmount);
 
@@ -367,9 +376,6 @@ const handleFieldChange = (setter) => (e) => {
   const value = parseFloat(e.target.value) || 0;
   setter(value);
 };
-
-
-
   useEffect(() => {
       // Check if the order was shared via WhatsApp
       const orderShared = localStorage.getItem("orderShared");
@@ -524,9 +530,6 @@ const handleFieldChange = (setter) => (e) => {
                   </div>
                 ) : (
                   <div className="flex justify-center items-center flex-col text-center space-y-4">
-                    {/* Empty Wishlist Image or Icon with animation */}
-
-                    {/* Add any additional animation or image */}
                     <img
                       src="cart.webp" // Replace with your own empty state image or icon
                       alt="Empty Wishlist"
