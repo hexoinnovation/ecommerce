@@ -107,15 +107,12 @@ export const Sidebar = ({ onSubcategorySelect }) => {
             onClick={goToHomePage}
             className="dark:bg-gray-900 bg-white dark:text-white text-black flex items-center space-x-2 hover:bg-primary/40 dark:hover:bg-gray-800 p-3 rounded-lg transition-all duration-200 ease-in-out"
           >
-            <h1 className="text-2xl font-semibold tracking-wider flex items-center space-x-2">
-              <FaHome className="text-2xl" />
-              <span>Home</span>
-            </h1>
+          
           </button>
         </div>
 
         {/* Search Bar */}
-        <div className="mb-6 relative">
+        <div className="mb-16 relative ">
           <input
             type="text"
             value={searchQuery}
@@ -123,7 +120,7 @@ export const Sidebar = ({ onSubcategorySelect }) => {
             placeholder="Search categories..."
             className="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-black dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300"
           />
-          <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300" />
+          <FaSearch className="absolute right-1  top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300" />
         </div>
 
         {/* Category Slide */}

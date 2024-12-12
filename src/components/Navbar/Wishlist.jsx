@@ -70,7 +70,7 @@ const Wishlist = () => {
           className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md"
         >
           <img
-            src={item.img}
+            src={item.image}
             alt={item.name}
             className="w-full h-auto object-cover rounded-md mb-4" // This ensures the image scales appropriately
           />
