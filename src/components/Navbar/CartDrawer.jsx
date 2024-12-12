@@ -122,7 +122,7 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
               >
                 <div className="flex items-center">
                   <img
-                    src={item.img}
+                    src={item.image}
                     alt={item.title}
                     className="w-16 h-16 object-cover rounded-md"
                   />

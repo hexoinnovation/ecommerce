@@ -39,35 +39,46 @@ const ProductDetail = () => {
   };
   const db = getFirestore(app);
   const auth = getAuth(app);
+
   const handleAddToCart = async (product) => {
     if (!isLoggedIn) {
-      setLoginPrompt(true); // Show login prompt if not logged in
+      setLoginPrompt(true);
     } else {
       const auth = getAuth();
       const db = getFirestore();
       const user = auth.currentUser;
   
       if (user) {
-        const productToAdd = {
-          ...product,
-          quantity,
-        };
-        setCartItems((prevItems) => [...prevItems, productToAdd]); // Update local cart state
+        // Check if the product is already in the cart
+        const productInCart = cartItems.find((item) => item.id === product.id);
+        if (productInCart) {
+          // Optionally, update the quantity if the product is already in the cart
+          setCartItems((prevItems) =>
+            prevItems.map((item) =>
+              item.id === product.id
+                ? { ...item, quantity: item.quantity + quantity } // Increment quantity by the selected quantity
+                : item
+            )
+          );
+        } else {
+          const productToAdd = { ...product, quantity };  // Ensure you are using the quantity state correctly
+          setCartItems((prevItems) => [...prevItems, productToAdd]); // Update local cart state
+        }
   
         try {
-          const userCartRef = collection(db, 'users', user.email, 'AddToCart');
-          await setDoc(doc(userCartRef, product.id.toString()), productToAdd);
-          setSuccessMessage('Your product has been added to the cart successfully!');
-          incrementCartCount(); // Increment only after successful addition to Firestore
-          navigate('/cart');
+          const userCartRef = collection(db, "users", user.email, "AddToCart");
+          await setDoc(doc(userCartRef, product.id.toString()), { ...product, quantity });  // Save with the quantity
+          setSuccessMessage("Your product has been added to the cart successfully!");
+          incrementCartCount();
+          navigate("/cart");
         } catch (error) {
-          console.error('Error adding product to Firestore:', error);
-          setErrorMessage('Failed to add product to the cart.');
+          console.error("Error adding product to Firestore:", error);
+          setErrorMessage("Failed to add product to the cart.");
         }
       }
     }
   };
-
+  
   const handleBuyNow = () => {
     if (!isLoggedIn) {
       setLoginPrompt(true); // Show login prompt if not logged in
@@ -181,8 +192,6 @@ const [username, setUsername] = useState('');
 const [showModal, setShowModal] = useState(false); // Initially set to false  
 const [cartItems, setCartItems] = useState([]);
 const { incrementCartCount } = useAuth();
-
-
 const [mainImage, setMainImage] = useState("");
 
 // Toggle modal visibility
@@ -348,10 +357,36 @@ if (error) {
               <span className="text-gray-600 dark:text-gray-300">({product.rating})</span>
             </div>
 
+            <div className="flex items-center space-x-2">
+  <span className="font-medium text-gray-700 dark:text-gray-400">Color:</span>
+  {/* <span className="text-sm text-gray-600 dark:text-gray-300">{product.color}</span> */}
+  <div
+    className="w-6 h-6 rounded-full"
+    style={{ backgroundColor: product.color.toLowerCase() }}
+  ></div>
+</div>
+<div className="mt-4">
+  <span className="font-medium text-gray-700 dark:text-gray-400">Available Sizes:</span>
+  <div className="flex space-x-2 mt-2">
+    {/* Static sizes displayed as tags */}
+    <span className="inline-block px-3 py-1 text-sm font-medium text-gray-800 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-full">
+      S
+    </span>
+    <span className="inline-block px-3 py-1 text-sm font-medium text-gray-800 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-full">
+      M
+    </span>
+    <span className="inline-block px-3 py-1 text-sm font-medium text-gray-800 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-full">
+      L
+    </span>
+    <span className="inline-block px-3 py-1 text-sm font-medium text-gray-800 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-full">
+      XL
+    </span>
+  </div>
+  </div>
             <div className="text-2xl font-semibold text-gray-800 dark:text-white mt-4">
               ₹{product.price}
             </div>
-
+            
             {/* Quantity Section */}
             <div className="flex items-center space-x-2 mt-4">
               <button
@@ -361,11 +396,12 @@ if (error) {
                 -
               </button>
               <input
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, e.target.value))}
-                className="w-16 text-center border border-gray-300 rounded-md"
-              />
+  type="number"
+  value={quantity}
+  onChange={(e) => setQuantity(Math.max(1, e.target.value))}
+  className="w-16 text-center border border-gray-300 rounded-md"
+/>
+
               <button
                 onClick={handleIncrement}
                 className="px-4 py-2 bg-gray-200 rounded-md"

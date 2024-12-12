@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FaThList, FaBars, FaTimes, FaChevronRight, FaChevronLeft } from "react-icons/fa"; // Import icons
+import {  FaTimes, FaChevronRight, FaChevronLeft ,FaHome } from "react-icons/fa"; // Import icons
 
 import {
   MoonIcon,
@@ -220,17 +220,20 @@ const { cartCount } = useAuth(); // Access cartCount from context
       setDropdownOpen(false); // Close the dropdown after logout
     }
   };
- 
+  const goToHomePage = () => {
+    navigate("/");
+  };
+
   return (
     <div>
       {/* Upper Navbar */}
-      <nav className="bg-primary/55 text-black dark:bg-gray-900 dark:text-white shadow-md fixed top-0 left-0 w-full z-50">
+      <nav className="bg-black text-black dark:bg-gray-900 dark:text-white shadow-md fixed top-0 left-0 w-full z-50">
         <div className="max-w-screen-xl mx-auto flex items-center justify-between px-4 py-2">
           {/* Left Side (Toggle Menu and Logo) */}
           <div className="flex items-center space-x-4">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <span className="text-2xl font-bold ml-10 sm:ml-0">Hexo</span>
+              <span className="text-2xl font-bold ml-10 sm:ml-0 text-white">Hexo</span>
             </div>
           </div>
 
@@ -239,19 +242,29 @@ const { cartCount } = useAuth(); // Access cartCount from context
             <div className="flex items-center space-x-2 flex-grow max-w-3xl">
               <input
                 type="text"
-                className="w-full py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
+                className="w-1/2 py-2 px-4 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-800 dark:text-white"
                 placeholder="Search for products, brands, and more"
               />
-              <button className="bg-primary/40 text-black px-4 py-2 rounded-r-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/40 dark:hover:text-white">
+              <button className="bg-primary text-black px-4 py-2 rounded-r-md hover:bg-primary hover:text-white dark:text-black dark:bg-white dark:hover:bg-primary/40 dark:hover:text-white">
                 Search
               </button>
+              <button
+            onClick={goToHomePage}
+            className="  h-12 dark:text-white text-black flex items-center space-x-2 hover:text-black-200 p-3 rounded-lg transition-all duration-200 ease-in-out"
+          >
+           <h1 className="text-2xl ml-20 font-semibold tracking-wider flex items-center space-x-2 text-white">
+              <FaHome className="text-2xl" />
+              <span>Home</span>
+            </h1>
+          </button>
+             
             </div>
           </div>
   {/* Right Side (Login, Cart, Theme Toggle, Admin Icon) */}
   <div className="flex items-center space-x-4">
               <div className="relative">
                 <button
-                  className="text-black dark:text-white font-semibold flex items-center space-x-2"
+                  className="text-white dark:text-white font-semibold flex items-center space-x-2"
                   onClick={() => setDropdownOpen(!dropdownOpen)} // Toggle dropdown on click
                 >
                   {isAuthenticated ? (
@@ -320,15 +333,18 @@ const { cartCount } = useAuth(); // Access cartCount from context
                   </div>
                 )}
               </div>
-              <button className="text-black dark:text-white" onClick={toggleCartDrawer}>
-                <ShoppingCartIcon className="w-6 h-6" />
-                {cartCount > 0 && (
-                  <span className="absolute top-1 right-28 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
+              <button
+  className="relative text-white dark:text-white"
+  onClick={toggleCartDrawer}
+>
+  <ShoppingCartIcon className="w-6 h-6" />
+  {cartCount > 0 && (
+    <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+      {cartCount}
+    </span>
+  )}
+</button>
 
-              </button>
               {/* Drawer for Cart */}
               {/* Cart Drawer */}
               <CartDrawer
