@@ -254,7 +254,7 @@ const closeModal = () => {
             {/* Product Image and Thumbnails */}
             <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0">
               <img
-                src={product.img}
+                src={product.image}
                 alt={product.title}
                 className="w-full max-w-sm lg:max-w-md h-auto object-cover rounded-lg shadow-lg"
               />
@@ -262,7 +262,7 @@ const closeModal = () => {
                 {[...Array(3)].map((_, index) => (
                   <img
                     key={index}
-                    src={product.img}
+                    src={product.image}
                     alt={`thumbnail-${index}`}
                     className="h-20 w-20 object-cover rounded-md cursor-pointer transition-transform transform hover:scale-110"
                   />
@@ -274,7 +274,7 @@ const closeModal = () => {
             <div className="space-y-6 flex-1 overflow-y-auto">
               {/* Title and Favorite Icon */}
               <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">{product.title}</h2>
+                <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">{product.name}</h2>
                 <button
       onClick={handleWishlistToggle}
       className={`text-2xl ${isWishlist ? 'text-red-500' : 'text-gray-500'}`}
@@ -283,11 +283,15 @@ const closeModal = () => {
     </button>
               </div>
 
-              {/* Color and Rating */}
-              <p className="text-lg text-gray-700 dark:text-gray-300">
-                Color: <span className="font-semibold">{product.color}</span>
-              </p>
-              <div className="flex items-center space-x-2 text-yellow-500">
+              <div className="flex items-center space-x-2">
+  <span className="font-medium text-gray-700 dark:text-gray-400">Color:</span>
+  {/* <span className="text-sm text-gray-600 dark:text-gray-300">{product.color}</span> */}
+  <div
+    className="w-6 h-6 rounded-full"
+    style={{ backgroundColor: product.color.toLowerCase() }}
+  ></div>
+</div>
+              {/* <div className="flex items-center space-x-2 text-yellow-500">
                 {[...Array(5)].map((_, index) => (
                   <FaStar
                     key={index}
@@ -295,7 +299,7 @@ const closeModal = () => {
                   />
                 ))}
                 <span className="text-gray-600 dark:text-gray-300">({product.rating})</span>
-              </div>
+              </div> */}
 
               {/* Price */}
               <div className="text-2xl font-semibold text-gray-800 dark:text-white mt-4">

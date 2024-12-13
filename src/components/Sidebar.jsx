@@ -34,7 +34,7 @@ export const Sidebar = ({ onSubcategorySelect }) => {
     Books: ["Fiction", "Non-fiction", "Reference"],
   };
 
-  const brands = ["Apple", "Samsung", "Sony", "Nike", "Adidas"];
+  const brands = ["Kurtis", "Footwear", "Mens wear", "Nike", "Adidas"];
 
   const toggleCategory = (category) => {
     setActiveCategory(category);

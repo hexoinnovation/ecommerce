@@ -1,56 +1,36 @@
-import { ShoppingCartIcon } from "@heroicons/react/outline";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
-import { default as Img7 } from "../../assets/women/women.png";
-import {
-  default as Img10,
-  default as Img8,
-} from "../../assets/women/women2.jpg";
-import Img6 from "../../assets/women/women4.jpg";
+import { ShoppingCartIcon } from "@heroicons/react/outline";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../firebase"; // Update with your Firebase config path
 import Popup from "../Popup/Popup";
 
-const ProductsData = [
-  {
-    id: 8,
-    img: Img6,
-    title: "Product 8",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-    color: "Blue",
-    rating: 4,
-    price: 999,
-  },
-  {
-    id: 9,
-    img: Img7,
-    title: "Product 9",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-    color: "White",
-    rating: 5,
-    price: 1299,
-  },
-  {
-    id: 10,
-    img: Img8,
-    title: "Product 10",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-    color: "Pink",
-    rating: 3,
-    price: 799,
-  },
-  {
-    id: 12,
-    img: Img10,
-    title: "Product 12",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-    color: "Purple",
-    rating: 4,
-    price: 1199,
-  },
-];
-
 const TopProducts = () => {
+  const [bestProducts, setBestProducts] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // Function to fetch products from Firestore
+  const fetchBestProducts = async () => {
+    try {
+      const productsCollection = collection(db, "products"); // Replace with your Firestore collection name
+      const q = query(productsCollection, where("Category", "==", "best_product"));
+      const querySnapshot = await getDocs(q);
+
+      const products = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setBestProducts(products);
+    } catch (error) {
+      console.error("Error fetching best products: ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBestProducts();
+  }, []);
 
   const openPopup = (product) => {
     setSelectedProduct(product);
@@ -63,7 +43,7 @@ const TopProducts = () => {
   };
 
   return (
-    <div className="py-16 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen">
+    <div className="py-16 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-200">
       <div className="container mx-auto px-6">
         {/* Header Section */}
         <div className="text-center mb-12">
@@ -76,40 +56,50 @@ const TopProducts = () => {
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-          {ProductsData.map((product) => (
+          {bestProducts.map((product) => (
             <div
               key={product.id}
               className="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-600 rounded-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
             >
+              
               {/* Product Image */}
               <div className="relative h-56">
                 <img
-                  src={product.img}
+                  src={product.image} // Ensure your Firestore data contains an 'img' field with the image URL
                   alt={product.title}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
               </div>
+              <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold uppercase px-2 py-1 rounded">
+    Hot Deal
+  </div>
 
               {/* Product Info */}
               <div className="p-6">
                 {/* Rating */}
-                <div className="flex justify-center gap-1 mb-3">
+                {/* <div className="flex justify-center gap-1 mb-3">
                   {[...Array(product.rating)].map((_, index) => (
                     <FaStar key={index} className="text-yellow-400" />
                   ))}
-                </div>
+                </div> */}
                 {/* Title */}
                 <h2 className="text-lg font-semibold text-white mb-2">
-                  {product.title}
+                  {product.name}
                 </h2>
                 {/* Description */}
                 <p className="text-sm text-gray-300 line-clamp-3 mb-4">
                   {product.description}
                 </p>
                 {/* Price */}
-                <p className="text-lg font-semibold text-white">₹{product.price}</p>
+                <div className="flex items-center gap-2">
+  <p className="text-lg font-semibold text-white">₹{product.price}</p>
+  {product.discount && (
+    <p className="text-sm font-semibold text-green-500 line-through">
+      ₹{product.discount}
+    </p>
+  )}
+</div>
               </div>
-
               {/* Actions */}
               <div className="p-4 bg-gray-700 flex justify-between items-center">
                 <button
@@ -118,7 +108,7 @@ const TopProducts = () => {
                 >
                   View Details
                 </button>
-                <button className="text-sm bg-gray-600 text-white py-2 px-4 rounded-full hover:bg-gray-700 transition flex items-center">
+                <button   onClick={() => openPopup(product)} className="text-sm bg-gray-600 text-white py-2 px-4 rounded-full hover:bg-gray-700 transition flex items-center">
                   <ShoppingCartIcon className="h-5 w-5 mr-2" />
                   Add to Cart
                 </button>
@@ -126,9 +116,8 @@ const TopProducts = () => {
             </div>
           ))}
         </div>
-
         {/* Popup */}
-        {isPopupOpen && (
+        {isPopupOpen && selectedProduct && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full relative shadow-xl">
               <button
@@ -145,5 +134,4 @@ const TopProducts = () => {
     </div>
   );
 };
-
 export default TopProducts;

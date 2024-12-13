@@ -228,29 +228,29 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     const isConfirmed = window.confirm("Are you sure you want to log out?");
-
+  
     if (isConfirmed) {
-      await logout(); // Log out user from Firebase
-      resetUserData(); // Reset form data
+      await logout(); 
+      resetUserData(); 
       alert("Logout successful! Please login to access your details.");
-      // Clear localStorage on logout to reset the session
       localStorage.removeItem("isAuthenticated");
       localStorage.removeItem("username");
       localStorage.removeItem("userEmail");
-      // Update the state to reflect that the user is logged out
-      setIsAuthenticated(false); // Set isAuthenticated to false
-      setDropdownOpen(false); // Close the dropdown after logout
+      setIsAuthenticated(false); 
+      setDropdownOpen(false); 
+      window.location.reload(); 
     }
   };
+  
   const handleHomeClick = () => {
     navigate("/");
   };
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State to manage drawer visibility
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); 
 
   const toggleDrawer = () => {
-    setIsDrawerOpen(!isDrawerOpen); // Toggle the drawer open/close
+    setIsDrawerOpen(!isDrawerOpen); 
   };
-  const [isCartDrawerOpen, setCartDrawerOpen] = useState(false); // State to manage the drawer visibility
+  const [isCartDrawerOpen, setCartDrawerOpen] = useState(false);  
 
   // Function to open the cart drawer
   const toggleCartDrawer = () => {
@@ -273,13 +273,13 @@ const Navbar = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-  const [openDropdown, setOpenDropdown] = useState(null); // Track which dropdown is open
+  const [openDropdown, setOpenDropdown] = useState(null); 
 
   const handleDropdownToggle = (index) => {
     if (openDropdown === index) {
-      setOpenDropdown(null); // Close the dropdown if clicked again
+      setOpenDropdown(null); 
     } else {
-      setOpenDropdown(index); // Open the clicked dropdown
+      setOpenDropdown(index); 
     }
   };
   const [wishlistItems, setWishlistItems] = useState([]);

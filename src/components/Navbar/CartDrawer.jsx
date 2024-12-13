@@ -6,7 +6,7 @@ import {
   doc,
   collection,
   getDocs,
-  deleteDoc,
+  deleteDoc, onSnapshot ,
 } from "firebase/firestore"; // Firestore functions
 import { getAuth } from "firebase/auth"; // Firebase Auth
 
@@ -17,15 +17,15 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
   const db = getFirestore(); // Firestore instance
 
   useEffect(() => {
-    // Function to fetch cart items from Firestore
-    const fetchCartFromFirestore = async () => {
+    // Function to listen to real-time updates of the cart from Firestore
+    const fetchCartFromFirestore = () => {
       const user = auth.currentUser;
       if (user) {
-        try {
-          const userDocRef = doc(db, "users", user.email);
-          const cartRef = collection(userDocRef, "AddToCart");
-          const cartSnapshot = await getDocs(cartRef);
+        const userDocRef = doc(db, "users", user.email);
+        const cartRef = collection(userDocRef, "AddToCart");
 
+        // Listen for changes to the cart collection in real-time
+        const unsubscribe = onSnapshot(cartRef, (cartSnapshot) => {
           if (!cartSnapshot.empty) {
             const cartData = cartSnapshot.docs.map((doc) => doc.data());
             setUserCartItems(cartData);
@@ -34,9 +34,10 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
             setUserCartItems([]);
             setIsEmpty(true);
           }
-        } catch (error) {
-          console.error("Error fetching cart from Firestore:", error);
-        }
+        });
+
+        // Cleanup the subscription when the component unmounts
+        return () => unsubscribe();
       }
     };
 
@@ -44,6 +45,7 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
       fetchCartFromFirestore();
     }
   }, [auth.currentUser]);
+
 
   // Calculate the total price of the cart
   const calculateTotal = () => {
@@ -129,7 +131,7 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
                   <div className="ml-4 text-black">
                     <h3 className="text-lg font-semibold ">{item.title}</h3>
                     <h3 className="text-lg font-semibold">{item.name}</h3>
-                    <h3 className="text-lg font-semibold">{item.category}</h3>
+                    <h3 className="text-sm font-semibold">{item.category}</h3>
                     <p className="text-sm text-gray-500">₹{item.price}</p>
                     <p className="text-sm text-gray-500">
                       Quantity: {item.quantity}

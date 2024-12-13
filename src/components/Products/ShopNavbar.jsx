@@ -12,7 +12,7 @@ import {
   LogoutIcon,
 } from "@heroicons/react/solid"; // Importing icons from Heroicons
 import { FaUser, FaLock, FaSignInAlt } from "react-icons/fa"; // Importing icons
-import {doc, setDoc, getDoc,getFirestore } from "firebase/firestore";
+import {doc, setDoc, getDoc,getFirestore,collection ,getDocs} from "firebase/firestore";
 // //import {
   
 //   createUserWithEmailAndPassword,
@@ -24,10 +24,12 @@ import CartPage from '../Cart/CartPage';
 import CartDrawer from '../Navbar/CartDrawer';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
+
 const ShopNavbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false); // For login dropdown
   const [isDarkMode, setIsDarkMode] = useState(false); // For dark mode toggle
-
+  const { currentUser } = useAuth();
+  const [wishlistItems, setWishlistItems] = useState([]);
   // Toggle theme between dark and light mode
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -223,6 +225,27 @@ const { cartCount } = useAuth(); // Access cartCount from context
   const goToHomePage = () => {
     navigate("/");
   };
+  const fetchWishlist = async () => {
+    try {
+      const wishlistRef = collection(
+        db,
+        "users",
+        currentUser.email,
+        "Wishlist"
+      );
+      const querySnapshot = await getDocs(wishlistRef);
+
+      const items = querySnapshot.docs.map((doc) => ({
+        id: doc.id, // Firestore document ID
+        ...doc.data(), // Other item data
+      }));
+
+      setWishlistItems(items); // Update state with the fetched items
+      navigate("/wishlist", { state: { items } });
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+    }
+  };
 
   return (
     <div>
@@ -288,7 +311,7 @@ const { cartCount } = useAuth(); // Access cartCount from context
                       <ShoppingBagIcon className="w-5 h-5 mr-2" />
                       My Orders
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button   onClick={fetchWishlist} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
@@ -318,7 +341,7 @@ const { cartCount } = useAuth(); // Access cartCount from context
                       <ShoppingBagIcon className="w-5 h-5 mr-2" />
                       My Orders
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button   onClick={fetchWishlist} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>

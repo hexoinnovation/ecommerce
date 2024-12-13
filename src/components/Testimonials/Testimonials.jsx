@@ -1,33 +1,32 @@
-import React from "react";
-import womenwear1 from "../../assets/women/women2.jpg";
-import womenwear2 from "../../assets/women/women3.jpg";
-import womenwear3 from "../../assets/women/women4.jpg";
-
-const TestimonialData = [
-  {
-    id: 1,
-    img: womenwear1,
-    discount: "20% Off",
-    description:
-      "Limited time offer! Get 20% off on your first purchase of this amazing product. Don't miss out!",
-  },
-  {
-    id: 2,
-    img: womenwear2,
-    discount: "50% Off",
-    description:
-      "Huge sale! Save 50% on this best-selling item. Perfect for gifting or personal use!",
-  },
-  {
-    id: 3,
-    img: womenwear3,
-    discount: "50% Off",
-    description:
-      "Huge sale! Save 50% on this best-selling item. Perfect for gifting or personal use!",
-  },
-];
+import React, { useEffect, useState } from "react";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../firebase"; // Update with your Firebase config path
 
 const Testimonials = () => {
+  const [bestProducts, setBestProducts] = useState([]);
+
+  // Function to fetch products from Firestore
+  const fetchBestProducts = async () => {
+    try {
+      const productsCollection = collection(db, "products"); // Replace with your Firestore collection name
+      const q = query(productsCollection, where("Category", "==", "offer_product"));
+      const querySnapshot = await getDocs(q);
+
+      const products = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setBestProducts(products);
+    } catch (error) {
+      console.error("Error fetching best products: ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBestProducts();
+  }, []);
+
   return (
     <div className="relative bg-gradient-to-br from-white via-gray-100 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-16">
       <div className="container mx-auto px-6">
@@ -43,37 +42,49 @@ const Testimonials = () => {
         </div>
 
         {/* Testimonial Content */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {TestimonialData.map((testimonial) => (
-            <div
-              key={testimonial.id}
-              className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden group"
-            >
-              {/* Image Section */}
-              <div className="relative h-56 sm:h-64">
-                <img
-                  src={testimonial.img}
-                  alt="Discount Offer"
-                  className="w-full h-full object-cover rounded-t-lg group-hover:opacity-90 transition-opacity duration-300"
-                />
-                {/* Discount Badge */}
-                <div className="absolute top-4 left-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm sm:text-lg font-semibold px-4 py-2 rounded-full shadow-md z-10">
-                  {testimonial.discount}
+        {bestProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {bestProducts.map((product) => (
+              <div
+                key={product.id}
+                className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden group"
+              >
+                {/* Image Section */}
+                <div className="relative h-56 sm:h-64">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover rounded-t-lg group-hover:opacity-90 transition-opacity duration-300"
+                  />
+                  {/* Discount Badge */}
+                  <div className="absolute top-4 left-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm sm:text-lg font-semibold px-4 py-2 rounded-full shadow-md z-10">
+                    {product.discount}% Off
+                  </div>
                 </div>
-              </div>
 
-              {/* Description Section */}
-              <div className="p-6 text-center">
-                <p className="text-gray-900 dark:text-gray-200 text-sm sm:text-base">
-                  {testimonial.description}
-                </p>
-              </div>
+                {/* Description Section */}
+                <div className="p-6 text-center">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {product.name}
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
+                    {product.description}
+                  </p>
+                  <p className="text-lg font-semibold text-green-600 dark:text-green-400 mt-4">
+                    ₹{product.price}
+                  </p>
+                </div>
 
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-50 transition-all duration-300 rounded-lg"></div>
-            </div>
-          ))}
-        </div>
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-50 transition-all duration-300 rounded-lg"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-700 dark:text-gray-300">
+            No discounted products available.
+          </p>
+        )}
       </div>
     </div>
   );

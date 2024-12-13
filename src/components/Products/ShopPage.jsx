@@ -1,27 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { FaStar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase'; // Make sure your Firestore configuration is correct
+import Slider from 'react-slick';
+import { db } from '../firebase'; // Firestore configuration
 import { collection, getDocs } from 'firebase/firestore'; // Firestore functions for getting data
-
+import {
+  ShoppingCartIcon,
+} from "@heroicons/react/solid";
+import { Link } from "react-router-dom";
 export const ShopPage = () => {
-  const [products, setProducts] = useState([]); // State to store products
-  const [loading, setLoading] = useState(true); // Loading state
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productsCollection = collection(db, 'products'); // Reference to the products collection
-        const productSnapshot = await getDocs(productsCollection); // Get all documents in the collection
+        const productsCollection = collection(db, 'products');
+        const productSnapshot = await getDocs(productsCollection);
         const productList = productSnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data(), // Get data from Firestore document
+          ...doc.data(),
         }));
-        setProducts(productList); // Set the products to state
-        setLoading(false); // Set loading to false once data is fetched
+        setProducts(productList);
+        setLoading(false);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error('Error fetching products:', error);
         setLoading(false);
       }
     };
@@ -29,13 +33,34 @@ export const ShopPage = () => {
     fetchProducts();
   }, []);
 
-  // Handle image click to navigate to product detail page
   const handleImageClick = (id) => {
     navigate(`/product/${id}`);
   };
 
-  // Slice the first 10 products to display
-  const displayedProducts = products.slice(0, 10);
+  const settings = {
+    dots: false, // Enable dots for navigation
+    infinite: true, // Loop the carousel
+    speed: 500, // Transition speed
+    slidesToShow: 5, // Number of slides visible
+    slidesToScroll: 1, // Number of slides to scroll
+    focusOnSelect: true, // Allow dot click to navigate
+  
+    responsive: [
+      {
+        breakpoint: 1024, // Tablet view
+        settings: {
+          slidesToShow: 3,
+        },
+      },
+      {
+        breakpoint: 768, // Mobile view
+        settings: {
+          slidesToShow: 1,
+        },
+      },
+    ],
+  };
+  
 
   return (
     <div className="mt-14 mb-12">
@@ -48,7 +73,6 @@ export const ShopPage = () => {
           </p>
         </div>
 
-        {/* Conditional Rendering if No Products */}
         {loading ? (
           <div className="text-center text-gray-500 dark:text-gray-300">
             <p>Loading products...</p>
@@ -58,69 +82,59 @@ export const ShopPage = () => {
             <p>No products available at the moment.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {displayedProducts.map((product) => (
-              <div
-                key={product.id}
-                className="relative group bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
-              >
-                {/* Product Image */}
-                <div className="relative overflow-hidden rounded-t-lg">
+          <Slider {...settings}>
+            {products.map((product) => (
+              <div key={product.id} className="p-4">
+                <div
+                  className="relative  group bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
+                  onClick={() => handleImageClick(product.id)}
+                >
                   <img
-                    src={product.image || '/fallback-image.jpg'} // Use the image URL stored in Firestore
-                    alt={product.name} // Use product name for alt text
-                    className="h-[220px] w-full object-cover cursor-pointer transition-transform transform group-hover:scale-110"
-                    onClick={() => handleImageClick(product.id)}
+                    src={product.image || '/fallback-image.jpg'}
+                    alt={product.name}
+                    className="h-[260px] w-full object-cover rounded-t-lg"
                   />
-                </div>
-
-                {/* Product Details */}
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{product.name}</h3>
-                  <h2 className="font-semibold text-s text-gray-900 dark:text-white">{product.description}</h2>
-                  <div className="flex items-center space-x-2">
-  <span className="font-medium text-gray-700 dark:text-gray-400">Color:</span>
-  {/* <span className="text-sm text-gray-600 dark:text-gray-300">{product.color}</span> */}
-  <div
-    className="w-6 h-6 rounded-full"
-    style={{ backgroundColor: product.color.toLowerCase() }}
-  ></div>
-</div>
-
-
-                  {/* Rating */}
-                  <div className="flex items-center gap-1 mt-2">
-                    {[...Array(5)].map((_, index) => (
-                      <FaStar
-                        key={index}
-                        className={`text-yellow-400 ${
-                          index < Math.round(product.rating) ? "text-yellow-400" : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                    <span className="text-gray-600 dark:text-gray-400">({product.rating.toFixed(1)})</span>
-                  </div>
-
-                  {/* Price */}
-                  <div className="mt-2 text-lg font-semibold text-gray-800 dark:text-white">
-                    ₹{product.price.toLocaleString()}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                      {product.name}
+                    </h3>
+                    <h2 className="font-semibold text-s text-gray-900 dark:text-white">
+                      {product.description}
+                    </h2>
+                    <div className="flex items-center gap-1 mt-2">
+                      {[...Array(5)].map((_, index) => (
+                        <FaStar
+                          key={index}
+                          className={`${
+                            index < Math.round(product.rating) ? 'text-yellow-400' : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                      <span className="text-gray-600 dark:text-gray-400">
+                        ({product.rating.toFixed(1)})
+                      </span>
+                    </div>
+                    <div className="mt-2 text-lg font-semibold text-gray-800 dark:text-white">
+                      ₹{product.price.toLocaleString()}
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
-          </div>
+          </Slider>
         )}
-
-        {/* View All Products Button */}
-        <div className="text-center mt-8">
-          <button
-            onClick={() => navigate('/view-all')}
-            className="bg-primary text-white py-2 px-6 rounded-md font-semibold transition-colors duration-300 hover:bg-primary-dark"
-          >
-            View All Products
-          </button>
-        </div>
+      
       </div>
+      
+      <div className="flex justify-center items-center h-full">
+  <Link to={"/view-all"}>
+    <button className="w-full bg-primary sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2">
+      <ShoppingCartIcon className="h-5 w-5 text-black dark:text-white" />
+      <span>View All Products</span>
+    </button>
+  </Link>
+</div>
+
     </div>
   );
 };

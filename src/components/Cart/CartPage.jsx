@@ -13,7 +13,12 @@ import {
   deleteDoc,
   getDocs,
   getDoc,
+
 } from "../firebase";
+import {
+  getFirestore,
+  onSnapshot ,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth"; // Firebase Auth
 import {
   faTrash,
@@ -28,7 +33,7 @@ import Swal from 'sweetalert2';
 const CartPage = () => {
   const [step, setStep] = useState(0);
   const [cartItems, setCartItems] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
+  //const [totalAmount, setTotalAmount] = useState(0);
   const [billTo, setBillTo] = useState("");
   const [userCartItems, setUserCartItems] = useState([]);
   const [item, setItem] = useState([]);
@@ -36,6 +41,9 @@ const CartPage = () => {
   const [sameAsBilling, setSameAsBilling] = useState(false);
   const { removeFromCart } = useCart();
   const { currentUser } = useAuth();
+  const [currentItem,setCurrentItem]=useState("");
+  
+  
   const navigate = useNavigate();
   const auth = getAuth(); // Firebase Auth instance
   const steps = [
@@ -132,40 +140,39 @@ const CartPage = () => {
   }, [user]);
 
   useEffect(() => {
-    const fetchCartFromFirestore = async () => {
+    // Function to listen to real-time updates of the cart from Firestore
+    const fetchCartFromFirestore = () => {
       const user = auth.currentUser;
       if (user) {
-        try {
-          const userDocRef = doc(db, "users", user.email);
-          const cartRef = collection(userDocRef, "AddToCart");
-          const cartSnapshot = await getDocs(cartRef);
-  
+        const userDocRef = doc(db, "users", user.email);
+        const cartRef = collection(userDocRef, "AddToCart");
+
+        // Listen for changes to the cart collection in real-time
+        const unsubscribe = onSnapshot(cartRef, (cartSnapshot) => {
           if (!cartSnapshot.empty) {
-            const cartData = cartSnapshot.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-            setUserCartItems(cartData);  // Update state with fetched cart items
-            setIsEmpty(false);  // Cart has items, so not empty
+            const cartData = cartSnapshot.docs.map((doc) => doc.data());
+            setUserCartItems(cartData);
+            setIsEmpty(false);
           } else {
-            setUserCartItems([]);  // No items in the cart
+            setUserCartItems([]);
             setIsEmpty(true);
           }
-        } catch (error) {
-          console.error("Error fetching cart from Firestore:", error);
-        }
+        });
+
+        // Cleanup the subscription when the component unmounts
+        return () => unsubscribe();
       }
     };
-  
+
     if (auth.currentUser) {
-      fetchCartFromFirestore();  // Trigger fetch when the user is logged in
+      fetchCartFromFirestore();
     }
   }, [auth.currentUser]);
-
   const [showModal, setShowModal] = useState(false);
   const [isWishlist, setIsWishlist] = useState(false); // Track wishlist state
 
   const handleWishlistToggle = async (product) => {
+    const currentUser = auth.currentUser;
     if (!currentUser) {
       alert("Please login to add products to your wishlist.");
       return;
@@ -190,18 +197,17 @@ const CartPage = () => {
         await setDoc(wishlistRef, product);
         alert("Your product has been added to your wishlist.");
 
-        // Remove from "Add to Cart"
-        await handleRemoveFromCart(product.id, false);
+        // Remove from cart after adding to wishlist
+        handleRemoveFromCart(product.id);
       }
 
-      // Reload the page to reflect the changes
-      window.location.reload();
+      // Update wishlist state
+      setIsWishlist(!isWishlist);
     } catch (error) {
       console.error("Error updating wishlist:", error);
     }
   };
-
-  const handleRemoveFromCart = async (itemId, updateUI = true) => {
+  const handleRemoveFromCart = async (itemId) => {
     const user = auth.currentUser;
 
     if (!user) {
@@ -216,23 +222,24 @@ const CartPage = () => {
 
       await deleteDoc(itemDocRef);
 
-      if (updateUI) {
-        alert("Your product has been removed from your cart.");
-
-        // Reload the page to reflect the changes
-        window.location.reload();
-      }
+      // Update UI by removing the item from the state
+      setCartItems(cartItems.filter((item) => item.id !== itemId));
+      alert("Your product has been removed from your cart.");
     } catch (error) {
       console.error("Error removing item from Firestore:", error);
     }
+
+    closeModal();
+  };
+  const openModal = (item) => {
+    setCurrentItem(item);
+    setShowModal(true);
   };
 
-  // Open modal
-  const openModal = () => setShowModal(true);
-
-  // Close modal
-  const closeModal = () => setShowModal(false);
-
+  const closeModal = () => {
+    setShowModal(false);
+    setCurrentItem(null);
+  };
   const handleCheckboxChange = () => {
     setSameAsShipping(!sameAsShipping);
     if (!sameAsShipping) {
@@ -278,6 +285,10 @@ const CartPage = () => {
   // Calculate the total price and final total
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
+    0
+  );
+  const totalAmount = userCartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
     0
   );
   const shippingCharge = 50;
@@ -426,140 +437,113 @@ const handleFieldChange = (setter) => (e) => {
 
         {/* Step Content */}
         <div className="mt-7">
-          {step === 0 && (
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              <div className="lg:col-span-3">
-                {cartItems.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {cartItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className="p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg"
-                      >
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="h-60 object-cover rounded"
-                        />
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                          {item.title}
-                        </h3>
-                        <h3 className="text-lg font-semibold">{item.name}</h3>
-                        <h3 className="text-lg font-semibold">
-                          {item.category}
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          ₹{item.price}
-                        </p>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          Qty: {item.quantity}
-                        </p>
-                        <button
-                          onClick={openModal}
-                          className="mt-4 py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center"
-                          aria-label="Remove from Cart"
-                        >
-                          <FontAwesomeIcon
-                            icon={faTrash}
-                            className="h-5 w-5 mr-2"
-                          />
-                          Remove
-                        </button>
-                        {/* Modal */}
-                        {showModal && (
-                          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="relative bg-white p-6 rounded-lg shadow-lg w-96">
-                              {/* Close Button */}
-                              <button
-                                onClick={closeModal}
-                                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                                aria-label="Close Modal"
-                              >
-                                <FontAwesomeIcon
-                                  icon={faTimes}
-                                  className="h-5 w-5"
-                                />
-                              </button>
-
-                              <h2 className="text-xl font-semibold mb-4">
-                                Are you sure?
-                              </h2>
-                              <p className="mb-4">
-                                Do you want to remove this item or add it to
-                                your wishlist?
-                              </p>
-
-                              <div className="flex justify-between">
-                                <button
-                                  onClick={() => handleRemoveFromCart(item.id)}
-                                  className="py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
-                                  aria-label="Remove from Cart"
-                                >
-                                  <FontAwesomeIcon
-                                    icon={faTrash}
-                                    className="h-5 w-5"
-                                  />
-                                </button>
-
-                                <button
-                                  onClick={() => handleWishlistToggle(item)}
-                                  className={`py-2 px-4 text-white rounded flex items-center ${
-                                    isWishlist
-                                      ? "bg-red-500 hover:bg-red-600"
-                                      : "bg-gray-600 hover:bg-gray-700"
-                                  }`}
-                                >
-                                  <FontAwesomeIcon
-                                    icon={faHeart}
-                                    className={`mr-2 ${
-                                      isWishlist ? "text-red-500" : "text-white"
-                                    }`}
-                                  />
-                                  {isWishlist
-                                    ? "Remove from Wishlist"
-                                    : "Add to Wishlist"}
-                                </button>
-                              </div>
-
-                              <div className="mt-4 flex justify-end"></div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex justify-center items-center flex-col text-center space-y-4">
-                    <img
-                      src="cart.webp" // Replace with your own empty state image or icon
-                      alt="Empty Wishlist"
-                      className="w-32 h-32 animate-bounce"
-                    />
-                    <p className="text-gray-700 dark:text-gray-300 text-xl animate-pulse">
-                      Your Cart is Empty.
-                    </p>
-                  </div>
-                )}
-              </div>
-              <div className="p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg h-60">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-                  Order Summary
-                </h2>
-                <p>Total Items: {cartItems.length}</p>
-                <p>Total Amount: ₹{totalAmount}</p>
+        <div className="mt-7">
+  {step === 0 && (
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="lg:col-span-3">
+        {userCartItems.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {userCartItems.map((item) => (
+              <div
+                key={item.id}
+                className="p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg"
+              >
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="h-60 object-cover rounded"
+                />
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  {item.title}
+                </h3>
+                <h3 className="text-lg font-semibold">{item.name}</h3>
+                <h3 className="text-lg font-semibold">{item.category}</h3>
+                <p className="text-gray-600 dark:text-gray-400">₹{item.price}</p>
+                <p className="text-gray-600 dark:text-gray-400">Qty: {item.quantity}</p>
                 <button
-    onClick={handleNext}
-    className="w-full sm:w-3/4 lg:w-1/2 py-2 bg-blue-500 text-white rounded-lg transition-transform duration-200 ease-in-out hover:bg-blue-600 hover:shadow-lg active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-    aria-label="Proceed to Checkout"
-    disabled={cartItems.length === 0}
-  >
-    <span>Proceed to Checkout</span>
-    <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
-  </button>
-              </div>
-            </div>
-          )}
+                      onClick={() => openModal(item)}
+                      className="mt-4 py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center"
+                      aria-label="Remove from Cart"
+                    >
+                      <FontAwesomeIcon icon={faTrash} className="h-5 w-5 mr-2" />
+                      Remove
+                    </button>
 
+                    {/* Modal */}
+                    {showModal && currentItem.id === item.id && (
+                      <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="relative bg-white p-6 rounded-lg shadow-lg w-96">
+                          {/* Close Button */}
+                          <button
+                            onClick={closeModal}
+                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                            aria-label="Close Modal"
+                          >
+                            <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
+                          </button>
+
+                          <h2 className="text-xl font-semibold mb-4">Are you sure?</h2>
+                          <p className="mb-4">
+                            Do you want to remove this item or add it to your wishlist?
+                          </p>
+
+                          <div className="flex justify-between">
+                            <button
+                              onClick={() => handleRemoveFromCart(item.id)}
+                              className="py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
+                              aria-label="Remove from Cart"
+                            >
+                              <FontAwesomeIcon icon={faTrash} className="h-5 w-5" />
+                            </button>
+
+                            <button
+                              onClick={() => handleWishlistToggle(item)}
+                              className={`py-2 px-4 text-white rounded flex items-center ${isWishlist ? "bg-red-500 hover:bg-red-600" : "bg-gray-600 hover:bg-gray-700"}`}
+                            >
+                              <FontAwesomeIcon icon={faHeart} className={`mr-2 ${isWishlist ? "text-red-500" : "text-white"}`} />
+                              {isWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+                            </button>
+                          </div>
+
+                          <div className="mt-4 flex justify-end"></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex justify-center items-center flex-col text-center space-y-4">
+                <img
+                  src="cart.webp" // Replace with your own empty state image or icon
+                  alt="Empty Cart"
+                  className="w-32 h-32 animate-bounce"
+                />
+                <p className="text-gray-700 dark:text-gray-300 text-xl animate-pulse">
+                  Your Cart is Empty.
+                </p>
+              </div>
+            )}
+      </div>
+      <div className="p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg h-60">
+    <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Order Summary</h2>
+    <p className="text-gray-700 dark:text-gray-300">Total Items: {userCartItems.length}</p>
+    <p className="text-sm font-semibold text-gray-800 dark:text-white mb-4">Total Amount: ₹{totalAmount.toFixed(2)}</p>
+    <button
+  onClick={handleNext}
+  className="inline-flex items-center justify-center py-3 px-6 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg transition-transform duration-200 ease-in-out hover:from-blue-600 hover:to-indigo-600 hover:shadow-lg active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed"
+  aria-label="Proceed to Checkout"
+  disabled={userCartItems.length === 0}
+>
+  <span>Proceed to Checkout</span>
+  <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5 ml-2" />
+</button>
+
+  </div>
+    </div>
+  )}
+</div>
+        
           {step === 1 && (
             <div className="p-6 bg-gray-100 dark:bg-gray-900 rounded-lg max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
