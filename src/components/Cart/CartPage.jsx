@@ -628,7 +628,7 @@ const handleFieldChange = (setter) => (e) => {
       </p>
       <p className="mb-4 text-gray-700 dark:text-gray-300">
         Base Amount:{" "}
-        <span className="font-semibold">₹{baseAmount.toFixed(2)}</span>
+        <span className="font-semibold">₹{totalAmount.toFixed(2)}</span>
       </p>
 
       {/* Total Amount */}
@@ -637,7 +637,7 @@ const handleFieldChange = (setter) => (e) => {
           Total Amount:
         </label>
         <span className="text-lg font-semibold text-gray-800 dark:text-white">
-          ₹{calculatedTotalAmount.toFixed(2)}
+          ₹{totalAmount.toFixed(2)}
         </span>
       </div>
 
@@ -686,7 +686,7 @@ const handleFieldChange = (setter) => (e) => {
           Final Total:
         </label>
         <span className="text-xl font-semibold text-gray-800 dark:text-white">
-          ₹{calculatedTotalAmount.toFixed(2)}
+          ₹{totalAmount.toFixed(2)}
         </span>
       </div>
 

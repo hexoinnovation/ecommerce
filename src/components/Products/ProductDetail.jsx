@@ -39,57 +39,67 @@ const ProductDetail = () => {
   };
   const db = getFirestore(app);
   const auth = getAuth(app);
-
   const handleAddToCart = async (product) => {
     if (!isLoggedIn) {
-      setLoginPrompt(true);
+        setLoginPrompt(true);
     } else {
-      const auth = getAuth();
-      const db = getFirestore();
-      const user = auth.currentUser;
-  
-      if (user) {
-        // Check if the product is already in the cart
-        const productInCart = cartItems.find((item) => item.id === product.id);
-        if (productInCart) {
-          // Optionally, update the quantity if the product is already in the cart
-          setCartItems((prevItems) =>
-            prevItems.map((item) =>
-              item.id === product.id
-                ? { ...item, quantity: item.quantity + quantity } // Increment quantity by the selected quantity
-                : item
-            )
-          );
-        } else {
-          const productToAdd = { ...product, quantity };  // Ensure you are using the quantity state correctly
-          setCartItems((prevItems) => [...prevItems, productToAdd]); // Update local cart state
+        const auth = getAuth();
+        const db = getFirestore();
+        const user = auth.currentUser;
+
+        if (user) {
+            console.log("Product:", product);
+            if (!product || !product.id) {
+                console.error("Product or Product ID is undefined!");
+                return;
+            }
+
+            const productId = product.id.toString();
+            if (!quantity || quantity <= 0) {
+                console.error("Invalid quantity:", quantity);
+                setErrorMessage("Please select a valid quantity.");
+                return;
+            }
+
+            const productInCart = cartItems.find((item) => item.id === product.id);
+            if (productInCart) {
+                setCartItems((prevItems) =>
+                    prevItems.map((item) =>
+                        item.id === product.id
+                            ? { ...item, quantity: item.quantity + quantity }
+                            : item
+                    )
+                );
+            } else {
+                const productToAdd = { ...product, quantity };
+                setCartItems((prevItems) => [...prevItems, productToAdd]);
+            }
+
+            try {
+                const userCartRef = collection(db, "users", user.email, "AddToCart");
+                await setDoc(doc(userCartRef, productId), { ...product, quantity });
+                setSuccessMessage("Your product has been added to the cart successfully!");
+                incrementCartCount();
+                navigate("/cart");
+            } catch (error) {
+                console.error("Error adding product to Firestore:", error);
+                setErrorMessage("Failed to add product to the cart.");
+            }
         }
-  
-        try {
-          const userCartRef = collection(db, "users", user.email, "AddToCart");
-          await setDoc(doc(userCartRef, product.id.toString()), { ...product, quantity });  // Save with the quantity
-          setSuccessMessage("Your product has been added to the cart successfully!");
-          incrementCartCount();
-          navigate("/cart");
-        } catch (error) {
-          console.error("Error adding product to Firestore:", error);
-          setErrorMessage("Failed to add product to the cart.");
-        }
-      }
     }
-  };
-  
+};
+
   const handleBuyNow = () => {
     if (!isLoggedIn) {
-      setLoginPrompt(true); // Show login prompt if not logged in
+      setLoginPrompt(true); 
     } else {
       const productToAdd = { 
         ...product, 
         quantity 
       };
-      addToCart(productToAdd); // Add the product to the cart context
+      addToCart(productToAdd); 
       
-      navigate('/checkout'); // Redirect to Checkout page directly
+      navigate('/checkout'); 
     }
   };
   const handleSignup = async () => {
@@ -213,23 +223,24 @@ const { currentUser } = useAuth(); // Access current user from AuthProvider
 
  const fetchProduct = async (id) => {
   try {
-    const docRef = doc(db, "products", id); // Reference to a specific product document
-    const docSnap = await getDoc(docRef); // Fetch the document snapshot
+      const docRef = doc(db, "products", id);
+      const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-      const productData = docSnap.data(); // Get the product data
-      setProduct(productData); // Set product data to state
-      setMainImage(productData?.image); // Set the main image to state
-      setLoading(false); // Set loading state to false after fetching
-    } else {
-      setError("Product not found.");
-      setLoading(false);
-    }
+      if (docSnap.exists()) {
+          const productData = { id: docSnap.id, ...docSnap.data() }; // Include the document ID
+          setProduct(productData); // Set product with ID
+          setMainImage(productData?.image);
+          setLoading(false);
+      } else {
+          setError("Product not found.");
+          setLoading(false);
+      }
   } catch (error) {
-    setError("Failed to fetch product details.");
-    setLoading(false); // Set loading to false in case of an error
+      setError("Failed to fetch product details.");
+      setLoading(false);
   }
 };
+
 
 // Handle wishlist toggle
 const handleWishlistToggle = async () => {

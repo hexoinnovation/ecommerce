@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaBars,
   FaChevronLeft,
   FaChevronRight,
   FaFilter,
-  FaHeart,
   FaHome,
   FaSearch,
   FaThLarge,
   FaTimes,
+  FaShoppingCart,FaShoppingBag,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "./firebase"; // Ensure you've set up Firebase correctly
 
 export const Sidebar = ({ onSubcategorySelect }) => {
   const [activeCategory, setActiveCategory] = useState(null);
@@ -19,7 +21,10 @@ export const Sidebar = ({ onSubcategorySelect }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRating, setSelectedRating] = useState(0);
   const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [products, setProducts] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [isFilterPopupOpen, setIsFilterPopupOpen] = useState(false); // State for popup visibility
   const navigate = useNavigate();
 
   const categories = {
@@ -58,31 +63,63 @@ export const Sidebar = ({ onSubcategorySelect }) => {
     setSearchQuery(e.target.value);
   };
 
-  const handlePriceChange = (e) => {
-    setPriceRange([e.target.value[0], priceRange[1]]);
+  const fetchProducts = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      const productList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setProducts(productList); // Store fetched products in state
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
   };
 
-  const handleRatingChange = (rating) => {
-    setSelectedRating(rating);
+  const handlePriceChange = (range) => {
+    setPriceRange(range);
+    applyFilters(range, selectedBrands);
   };
 
   const handleBrandChange = (brand) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brand)
-        ? prev.filter((item) => item !== brand)
-        : [...prev, brand]
-    );
+    const updatedBrands = selectedBrands.includes(brand)
+      ? selectedBrands.filter((b) => b !== brand)
+      : [...selectedBrands, brand];
+    setSelectedBrands(updatedBrands);
+    applyFilters(priceRange, updatedBrands);
   };
 
-  const applyFilters = () => {
-    // Apply filter logic (e.g., fetching products based on filters)
-    alert("Filters applied!");
+  const applyFilters = (range, brands) => {
+    const filtered = products.filter((product) => {
+      const inPriceRange = product.price >= range[0] && product.price <= range[1];
+      const inSelectedBrands = brands.length
+        ? brands.includes(product.category)
+        : true;
+      return inPriceRange && inSelectedBrands;
+    });
+    setFilteredProducts(filtered); // Store filtered products in state
   };
 
   const resetFilters = () => {
     setPriceRange([0, 5000]);
-    setSelectedRating(0);
     setSelectedBrands([]);
+    applyFilters([0, 5000], []);
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    applyFilters(priceRange, selectedBrands);
+  }, [products]); // Reapply filters when products change
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`); // Navigate to product details page
+  };
+
+  const toggleFilterPopup = () => {
+    setIsFilterPopupOpen(!isFilterPopupOpen);
   };
 
   return (
@@ -107,12 +144,13 @@ export const Sidebar = ({ onSubcategorySelect }) => {
             onClick={goToHomePage}
             className="dark:bg-gray-900 bg-white dark:text-white text-black flex items-center space-x-2 hover:bg-primary/40 dark:hover:bg-gray-800 p-3 rounded-lg transition-all duration-200 ease-in-out"
           >
-          
+            <FaHome className="text-xl" />
+            <span>Home</span>
           </button>
         </div>
 
         {/* Search Bar */}
-        <div className="mb-16 relative ">
+        <div className="mb-16 relative">
           <input
             type="text"
             value={searchQuery}
@@ -120,7 +158,7 @@ export const Sidebar = ({ onSubcategorySelect }) => {
             placeholder="Search categories..."
             className="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-black dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300"
           />
-          <FaSearch className="absolute right-1  top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300" />
+          <FaSearch className="absolute right-1 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300" />
         </div>
 
         {/* Category Slide */}
@@ -153,8 +191,6 @@ export const Sidebar = ({ onSubcategorySelect }) => {
             </ul>
           </div>
         )}
-
-        {/* Subcategory Slide */}
         {!isCategoryVisible && activeCategory && (
           <div className="flex flex-col space-y-6">
             <div className="flex flex-col mb-3">
@@ -182,120 +218,132 @@ export const Sidebar = ({ onSubcategorySelect }) => {
             </ul>
           </div>
         )}
-
-        {/* Filter Controls */}
         <div className="mt-6">
           <h2 className="text-xl font-semibold mb-3 flex items-center space-x-2">
             <FaFilter />
             <span>Filters</span>
           </h2>
 
-          {/* Price Range Filter */}
-          <div className="mb-4">
-            <label className="text-sm font-semibold">Price Range</label>
-            <div className="flex justify-between">
-              <span className="text-sm">{`₹${priceRange[0]} - ₹${priceRange[1]}`}</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="5000"
-              step="100"
-              value={priceRange[0]}
-              onChange={(e) =>
-                handlePriceChange([e.target.value, priceRange[1]])
-              }
-              className="w-full mb-2 mt-2"
-            />
-            <input
-              type="range"
-              min="0"
-              max="5000"
-              step="100"
-              value={priceRange[1]}
-              onChange={(e) =>
-                handlePriceChange([priceRange[0], e.target.value])
-              }
-              className="w-full"
-            />
-          </div>
-
-          {/* Rating Filter */}
-          <div className="mb-4">
-            <label className="text-sm font-semibold">Ratings</label>
-            <div className="flex space-x-2">
-              {[1, 2, 3, 4, 5].map((rating) => (
-                <button
-                  key={rating}
-                  onClick={() => handleRatingChange(rating)}
-                  className={`${
-                    selectedRating === rating
-                      ? "bg-primary text-white"
-                      : "bg-gray-200 dark:bg-gray-600 text-black dark:text-white"
-                  } p-2 rounded-full text-sm transition-all duration-200 ease-in-out`}
-                >
-                  {rating} ★
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Brand Filter */}
-          <div className="mb-6">
-            <label className="text-sm font-semibold">Brands</label>
-            <div className="space-y-2">
-              {brands.map((brand) => (
-                <div key={brand} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedBrands.includes(brand)}
-                    onChange={() => handleBrandChange(brand)}
-                    id={brand}
-                    className="h-4 w-4"
-                  />
-                  <label
-                    htmlFor={brand}
-                    className={`text-sm ${
-                      selectedBrands.includes(brand)
-                        ? "text-primary"
-                        : "text-black"
-                    }`}
-                  >
-                    {brand}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Apply and Reset Buttons */}
-          <div className="flex justify-between mt-6">
-            <button
-              onClick={resetFilters}
-              className="bg-gray-300 p-2 rounded-md hover:bg-gray-400 transition-all duration-200 ease-in-out"
-            >
-              Reset
-            </button>
-            <button
-              onClick={applyFilters}
-              className="bg-primary p-2 rounded-md text-white hover:bg-primary/80 transition-all duration-200 ease-in-out"
-            >
-              Apply Filters
-            </button>
-          </div>
-        </div>
-
-        {/* Favorites Button */}
-        <div className="mt-auto">
           <button
-            onClick={() => alert("Favorites clicked")}
-            className="dark:bg-gray-900 bg-white dark:text-white text-black flex items-center space-x-2 hover:bg-primary/40 dark:hover:bg-gray-800 p-3 rounded-lg transition-all duration-200 ease-in-out"
+            onClick={toggleFilterPopup}
+            className="w-full mt-4 bg-primary text-white py-2 rounded-lg"
           >
-            <FaHeart className="text-xl" />
-            <span>Favorites</span>
+            Open Filters
           </button>
         </div>
       </div>
+      {isFilterPopupOpen && (
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-6 w-full max-w-4xl mx-4 md:w-96 rounded-lg shadow-lg overflow-auto max-h-[90vh]">
+            <span
+              className="absolute top-2 right-2 text-2xl cursor-pointer text-gray-500 hover:text-gray-700"
+              onClick={toggleFilterPopup}
+            >
+              &times;
+            </span>
+            <h2 className="text-2xl font-semibold mb-4">Filter Products</h2>
+
+            {/* Price Range Filter */}
+            <div className="mb-6">
+              <label className="text-sm font-semibold">Price Range</label>
+              <div className="flex justify-between">
+                <span className="text-sm">{`₹${priceRange[0]} - ₹${priceRange[1]}`}</span>
+              </div>
+              <div className="flex space-x-2 mb-6">
+                <input
+                  type="range"
+                  min="0"
+                  max="5000"
+                  step="100"
+                  value={priceRange[0]}
+                  onChange={(e) => handlePriceChange([Number(e.target.value), priceRange[1]])}
+                  className="w-full"
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="5000"
+                  step="100"
+                  value={priceRange[1]}
+                  onChange={(e) => handlePriceChange([priceRange[0], Number(e.target.value)])}
+                  className="w-full"
+                />
+              </div>
+              <p>
+                ₹{priceRange[0]} - ₹{priceRange[1]}
+              </p>
+            </div>
+            <div className="mb-6">
+              <label className="text-sm font-semibold">Brands</label>
+              <div className="flex flex-wrap space-x-4">
+                {brands.map((brand) => (
+                  <div key={brand} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedBrands.includes(brand)}
+                      onChange={() => handleBrandChange(brand)}
+                      id={`brand-${brand}`}
+                      className="h-5 w-5"
+                    />
+                    <label htmlFor={`brand-${brand}`} className="text-sm">
+                      {brand}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mb-6">
+              <button
+                onClick={resetFilters}
+                className="bg-gray-200 text-black py-2 px-4 rounded-md hover:bg-gray-300"
+              >
+                Reset
+              </button>
+              <button
+                onClick={toggleFilterPopup}
+                className="bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark"
+              >
+                Apply Filters
+              </button>
+            </div>
+            <div className="mt-6">
+              <h3 className="text-xl font-semibold">Filtered Products</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+                {filteredProducts.length ? (
+                  filteredProducts.map((product) => (
+                    <div
+                      key={product.id}
+                      className="p-4 border rounded-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl"
+                      onClick={() => handleProductClick(product.id)}
+                    >
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-64 object-cover mb-4 rounded-lg"
+                      />
+                      <h4 className="font-semibold">{product.name}</h4>
+                      <p className="text-gray-600">₹{product.price}</p>
+                       <div className="mt-4 flex justify-between items-center space-x-2">
+                        <button    className="flex items-center justify-center bg-primary text-xs text-white px-2 py-1 rounded shadow-md hover:bg-primary-dark transition">
+                          <FaShoppingCart className="ml-1 " />
+                          Add to Cart
+                        </button>
+                        <button className="flex items-center justify-center bg-green-600 text-xs text-white px-2 py-1 rounded shadow-md hover:bg-green-700 transition">
+                          <FaShoppingBag className="mr-1" />
+                          Buy Now
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500">No products match the filter.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
