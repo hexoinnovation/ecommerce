@@ -311,7 +311,9 @@ const CartPage = () => {
   }, [subtotal, shipping, tax, discount]); // Recalculate when these values change
 
   const [paymentMethod, setPaymentMethod] = useState('');
+
   const [orderSummaryMessage, setOrderSummaryMessage] = useState(""); // State to hold the order summary message
+
   const handleShareOrderSummary = async () => {
     try {
         if (!user || !user.email) {
@@ -327,18 +329,20 @@ const CartPage = () => {
         const cartSnapshot = await getDoc(cartRef);
         if (cartSnapshot.exists()) {
             const data = cartSnapshot.data();
+
+            // Update state values
             setShipping(data.orderSummary?.shipping || 0);
             setTax(data.orderSummary?.tax || 0);
             setDiscount(data.orderSummary?.discount || 0);
-            setTotalAmount(data.orderSummary?.total || 0);
+            finalTotal(data.orderSummary?.totalPrice || 0);
 
-            const shippingAddressString = Object.entries(shippingAddress)
+            const shippingAddressString = Object.entries(shippingAddress || {})
                 .map(([key, value]) => `${key}: ${value}`)
                 .join('\n');
             
             const billingAddressString = sameAsShipping
                 ? "Same as shipping address"
-                : Object.entries(billingAddress)
+                : Object.entries(billingAddress || {})
                     .map(([key, value]) => `${key}: ${value}`)
                     .join('\n');
             
@@ -346,18 +350,19 @@ const CartPage = () => {
             const orderSummaryMessage = `
 *Order Summary*
 - Total Items: ${cartItems.length}
-- Shipping: $${(data.orderSummary?.shipping || 0).toFixed(2)}
-- Tax: $${(data.orderSummary?.tax || 0).toFixed(2)}
-- Discount: $${(data.orderSummary?.discount || 0).toFixed(2)}
-- Total: $${(data.orderSummary?.total || 0).toFixed(2)}
+- Shipping: ₹${(data.orderSummary?.shipping || 0).toFixed(2)}
+- Tax: ₹${(data.orderSummary?.tax || 0).toFixed(2)}
+- Discount: ₹${(data.orderSummary?.discount || 0).toFixed(2)}
+- Total: ₹${(data.orderSummary?.totalPrice || 0).toFixed(2)}
 
 *Shipping Address*
 ${shippingAddressString}
 
 *Billing Address*
 ${billingAddressString}
-*"Thank you for your purchase! We’re thrilled to have your support."*
-*Confirming your order details..😊 *
+
+"Thank you for your purchase! We’re thrilled to have your support."
+*Confirming your order details... 😊*
 `;
 
             // WhatsApp sharing logic
@@ -365,7 +370,7 @@ ${billingAddressString}
             const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(orderSummaryMessage)}`;
             window.open(url, "_blank");
 
-            // Update state to notify on returning
+            // Store order status (optional)
             localStorage.setItem("orderShared", "true");
         } else {
             console.error("No such document found!");
@@ -374,6 +379,7 @@ ${billingAddressString}
         console.error("Error fetching data from Firestore:", error.message);
     }
 };
+
 const [baseAmount, setBaseAmount] = useState(113493); // Initial base amount
 const [calculatedTotalAmount, setCalculatedTotalAmount] = useState(baseAmount);
 
@@ -826,16 +832,20 @@ const handleFieldChange = (setter) => (e) => {
             <div className="mt-6">
             <button
   onClick={async () => {
-    // Show SweetAlert confirmation
-    await Swal.fire({
-      title: 'Order Confirmed!',
-      text: 'Your order has been successfully placed.',
-      icon: 'success',
-      confirmButtonText: 'Continue to Payment',
-    });
+    try {
+      // Display SweetAlert confirmation
+      await Swal.fire({
+        title: 'Order Confirmed!',
+        text: 'Your order has been successfully placed.',
+        icon: 'success',
+        confirmButtonText: 'Continue to Payment',
+      });
 
-    // Execute the WhatsApp sharing logic
-    await handleShareOrderSummary();
+      // Share order summary via WhatsApp
+      await handleShareOrderSummary();
+    } catch (error) {
+      console.error("Error during confirmation:", error.message);
+    }
   }}
   className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
 >
