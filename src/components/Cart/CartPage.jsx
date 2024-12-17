@@ -287,24 +287,57 @@ const CartPage = () => {
   //    (total, item) => total + item.price * item.quantity,
   //    0
   //  );
-  const totalAmount = userCartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+   const totalAmount = userCartItems.reduce(
+     (sum, item) => sum + item.price * item.quantity,
+     0
+   );
   const shippingCharge = 50;
-   const finalTotal = totalAmount + shippingCharge;
+  
   const [subtotal, setSubtotal] = useState(670); // Initialize with $670.00
-  const [shipping, setShipping] = useState(0); // Default to 0
+ 
   const [tax, setTax] = useState(0); // Default to 0
-  const [discount, setDiscount] = useState(0); // Default to 0
-  const [total, setTotal] = useState(subtotal); // Initialize total
-  //const [finalTotal, setFinalTotal] = useState(0);
-  // Update total whenever any value changes
+ const[Shipping,setShipping]=useState("");
+  const [TotalAmount, setTotal] = useState(subtotal); // Initialize total
+  
+  // // Update total whenever any value changes
+  // const calculateTotal = () => {
+  //   const calculatedTotal = subtotal + shipping + tax - discount;
+  //   setTotal(calculatedTotal);
+  // };
+  const [baseAmount, setBaseAmount] = useState(0);
+  const [gst, setGst] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [finalTotal, setFinalTotal] = useState(0);
+
+  const shipping = 100; // Fixed shipping cost
+
+  // Function to calculate totals
   const calculateTotal = () => {
-    const calculatedTotal = subtotal + shipping + tax - discount;
-    setTotal(calculatedTotal);
+    // Calculate Base Amount
+    const baseAmountCalc = userCartItems.reduce((acc, item) => {
+      return acc + (Number(item.price) || 0);
+    }, 0);
+
+    // Calculate GST
+    const gstAmount = userCartItems.length > 5 ? 50 : 30;
+
+    // Calculate Discount
+    const discountAmount = userCartItems.length < 3 ? 10 : 50;
+
+    // Calculate Final Total
+    const finalTotalCalc = totalAmount + shipping + gstAmount - discountAmount;
+
+    // Update States
+    setBaseAmount(baseAmountCalc.toFixed(2));
+    setGst(gstAmount.toFixed(2));
+    setDiscount(discountAmount.toFixed(2));
+    setFinalTotal(finalTotalCalc.toFixed(2));
   };
 
+  // Recalculate when cart items change
+  useEffect(() => {
+    calculateTotal();
+  }, [userCartItems]);
 
   React.useEffect(() => {
     calculateTotal();
@@ -330,11 +363,16 @@ const CartPage = () => {
         if (cartSnapshot.exists()) {
             const data = cartSnapshot.data();
 
+            // Calculate finalTotal
+            const shippingCharge = data.orderSummary?.shipping || 0;
+            const totalAmount = data.orderSummary?.totalPrice || 0;
+            const calculatedFinalTotal = totalAmount + shippingCharge;
+
             // Update state values
-            setShipping(data.orderSummary?.shipping || 0);
+            setShipping(shippingCharge);
             setTax(data.orderSummary?.tax || 0);
             setDiscount(data.orderSummary?.discount || 0);
-            finalTotal(data.orderSummary?.totalPrice || 0);
+            setFinalTotal(calculatedFinalTotal); // Correct usage of setFinalTotal
 
             const shippingAddressString = Object.entries(shippingAddress || {})
                 .map(([key, value]) => `${key}: ${value}`)
@@ -346,15 +384,15 @@ const CartPage = () => {
                     .map(([key, value]) => `${key}: ${value}`)
                     .join('\n');
             
-            // Build the order summary message
+                    console.log("Total Amount:", totalAmount); // Build the order summary message
             const orderSummaryMessage = `
 *Order Summary*
-- Total Items: ${cartItems.length}
-- Shipping: ₹${(data.orderSummary?.shipping || 0).toFixed(2)}
-- Tax: ₹${(data.orderSummary?.tax || 0).toFixed(2)}
-- Discount: ₹${(data.orderSummary?.discount || 0).toFixed(2)}
-- Total: ₹${(data.orderSummary?.totalPrice || 0).toFixed(2)}
-
+  Total Items: ${userCartItems.length}
+  Amount:₹ ${baseAmount}
+  Shipping: ₹${shipping}
+  Discount: ₹${(Number(discount) || 0).toFixed(2)}
+  Tax: ₹${gst}
+  Final Total: ₹${(Number(finalTotal) || 0).toFixed(2)}
 *Shipping Address*
 ${shippingAddressString}
 
@@ -380,19 +418,14 @@ ${billingAddressString}
     }
 };
 
-const [baseAmount, setBaseAmount] = useState(113493); // Initial base amount
+
 const [calculatedTotalAmount, setCalculatedTotalAmount] = useState(baseAmount);
 
 useEffect(() => {
-  // Calculate the total amount dynamically
   const total = baseAmount + shipping + tax - discount;
-  setCalculatedTotalAmount(total > 0 ? total : 0); // Ensure the total is not negative
-}, [baseAmount, shipping, tax, discount]); // Recalculate on changes
+  setCalculatedTotalAmount(total > 0 ? total : 0); 
+}, [baseAmount, shipping, tax, discount]); 
 
-const handleFieldChange = (setter) => (e) => {
-  const value = parseFloat(e.target.value) || 0;
-  setter(value);
-};
   useEffect(() => {
       // Check if the order was shared via WhatsApp
       const orderShared = localStorage.getItem("orderShared");
@@ -633,68 +666,34 @@ const handleFieldChange = (setter) => (e) => {
         <span className="font-semibold">{userCartItems.length}</span>
       </p>
       <p className="mb-4 text-gray-700 dark:text-gray-300">
-        Base Amount:{" "}
-        <span className="font-semibold">₹{totalAmount.toFixed(2)}</span>
+        Base Amount: <span className="font-semibold">₹{totalAmount}</span>
       </p>
 
-      {/* Total Amount */}
-      <div className="flex justify-between items-center mb-4">
-        <label className="font-semibold text-gray-800 dark:text-gray-300">
-          Total Amount:
-        </label>
-        <span className="text-lg font-semibold text-gray-800 dark:text-white">
-          ₹{totalAmount.toFixed(2)}
-        </span>
-      </div>
-
       {/* Shipping */}
-      <div className="flex justify-between items-center mb-4">
-        <label className="font-semibold text-gray-800 dark:text-gray-300">
-          Shipping:
-        </label>
-        <input
-          type="number"
-          value={shipping}
-          onChange={handleFieldChange(setShipping)}
-          className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-        />
-      </div>
-
-      {/* Tax */}
-      <div className="flex justify-between items-center mb-4">
-        <label className="font-semibold text-gray-800 dark:text-gray-300">
-          Tax:
-        </label>
-        <input
-          type="number"
-          value={tax}
-          onChange={handleFieldChange(setTax)}
-          className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-        />
-      </div>
+      <p className="mb-4 text-gray-700 dark:text-gray-300">
+        Shipping: <span className="font-semibold">₹{shipping.toFixed(2)}</span>
+      </p>
 
       {/* Discount */}
-      <div className="flex justify-between items-center mb-4">
-        <label className="font-semibold text-gray-800 dark:text-gray-300">
-          Discount:
-        </label>
-        <input
-          type="number"
-          value={discount}
-          onChange={handleFieldChange(setDiscount)}
-          className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-        />
-      </div>
+      <p className="mb-4 text-red-500">
+        Discount: <span className="font-semibold">-₹{discount}</span>
+      </p>
 
-      {/* Total */}
+      {/* GST */}
+      <p className="mb-4 text-gray-700 dark:text-gray-300">
+        GST (5%): <span className="font-semibold">₹{gst}</span>
+      </p>
+
+      {/* Final Total */}
       <div className="flex justify-between items-center mt-4 border-t pt-4">
         <label className="font-bold text-lg text-gray-800 dark:text-white">
           Final Total:
         </label>
         <span className="text-xl font-semibold text-gray-800 dark:text-white">
-          ₹{totalAmount.toFixed(2)}
+          ₹{finalTotal}
         </span>
       </div>
+
 
       {/* Proceed Button */}
       <button
@@ -797,7 +796,7 @@ const handleFieldChange = (setter) => (e) => {
   </label>
   <input
     type="number"
-    value={tax}
+    value={gst}
     readOnly
     className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
   />
@@ -805,24 +804,24 @@ const handleFieldChange = (setter) => (e) => {
 
 {/* Discount */}
 <div className="flex justify-between items-center mb-4">
-  <label className="font-semibold text-gray-800 dark:text-gray-300">
+  <label className="font-semibold text-red-500 dark:text-gray-300">
     Discount:
   </label>
   <input
     type="number"
-    value={discount}
+    value={-discount}
     readOnly
-    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-red-500 dark:text-gray-200"
   />
 </div>
 
                {/* Total */}
   <div className="flex justify-between items-center mt-4 border-t pt-4">
     <label className="font-bold text-lg text-gray-800 dark:text-white">
-      Total:
+      Final Total:
     </label>
     <span className="text-xl font-semibold text-gray-800 dark:text-white">
-      ₹{totalAmount.toFixed(2)}
+      ₹{finalTotal}
     </span>
   </div>
               </div>
