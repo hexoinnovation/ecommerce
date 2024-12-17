@@ -76,7 +76,7 @@ const CartPage = () => {
         shippingAddress,
         billingAddress: sameAsShipping ? shippingAddress : billingAddress,
         orderSummary: {
-          totalAmount, // Correctly saving total amount
+          TotalAmount, // Correctly saving total amount
           shipping,
           tax,
           discount,
@@ -282,23 +282,23 @@ const CartPage = () => {
       setBillingAddress({ ...billingAddress, [name]: value });
     }
   };
-  // Calculate the total price and final total
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+
+  //  const totalPrice = cartItems.reduce(
+  //    (total, item) => total + item.price * item.quantity,
+  //    0
+  //  );
   const totalAmount = userCartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
   const shippingCharge = 50;
-  const finalTotal = totalPrice + shippingCharge;
+   const finalTotal = totalAmount + shippingCharge;
   const [subtotal, setSubtotal] = useState(670); // Initialize with $670.00
   const [shipping, setShipping] = useState(0); // Default to 0
   const [tax, setTax] = useState(0); // Default to 0
   const [discount, setDiscount] = useState(0); // Default to 0
   const [total, setTotal] = useState(subtotal); // Initialize total
-
+  //const [finalTotal, setFinalTotal] = useState(0);
   // Update total whenever any value changes
   const calculateTotal = () => {
     const calculatedTotal = subtotal + shipping + tax - discount;

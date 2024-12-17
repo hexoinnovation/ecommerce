@@ -5,7 +5,7 @@ import { useProducts } from '../../context/ProductsContext';
 import { useCart } from '../../context/CartContext'; // Import the useCart hook
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
-import { getFirestore, doc, setDoc,getDoc,deleteDoc ,getDocs} from "firebase/firestore";
+import { getFirestore, doc, setDoc,getDoc,deleteDoc ,getDocs,query, limit} from "firebase/firestore";
 import {collection } from 'firebase/firestore';
 import { useAuth } from "../Authcontext"; // Import the Auth context
 import { UserCircleIcon } from '@heroicons/react/outline';  // or @heroicons/react/solid
@@ -203,7 +203,7 @@ const [showModal, setShowModal] = useState(false); // Initially set to false
 const [cartItems, setCartItems] = useState([]);
 const { incrementCartCount } = useAuth();
 const [mainImage, setMainImage] = useState("");
-
+const [recommendedProducts, setRecommendedProducts] = useState([]);
 // Toggle modal visibility
 const handleModalToggle = () => {
   handleDropdownClick()
@@ -303,6 +303,29 @@ useEffect(() => {
     fetchProduct(id); // Call fetchProduct with the correct 'id'
   }
 }, [id]); 
+const fetchRecommendedProducts = async () => {
+  try {
+    const q = query(collection(db, "products"), limit(4)); // Get only 4 products
+    const querySnapshot = await getDocs(q);
+
+    let products = [];
+    querySnapshot.forEach((doc) => {
+      products.push({ id: doc.id, ...doc.data() });
+    });
+
+    setRecommendedProducts(products);
+    setLoading(false);
+  } catch (error) {
+    setError("Failed to fetch recommended products.");
+    setLoading(false);
+  }
+};
+
+// Call fetch on component mount
+useEffect(() => {
+  fetchRecommendedProducts();
+}, []);
+
 if (loading) {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -486,6 +509,59 @@ if (error) {
   <FontAwesomeIcon icon={faHandPointLeft} className="text-2xl" />
   Back to Shop
 </button>
+
+<div className="recommended-products w-full min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4">
+  <h1 className="text-3xl font-bold text-left text-gray-800 dark:text-gray-100 mb-8">
+    People also want these
+  </h1>
+  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-6">
+    {recommendedProducts.map((product) => (
+      <div
+        key={product.id}
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300"
+      >
+        <div className="relative mb-4 group">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-[250px] object-cover rounded-md cursor-pointer group-hover:scale-105 transform transition-all duration-300"
+          />
+          <FaHeart className="absolute top-4 right-4 text-gray-400 group-hover:text-red-500 cursor-pointer transition-colors" />
+        </div>
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+          {product.name}
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{product.description}</p>
+        <div className="flex items-center space-x-2 mb-4">
+          <span className="font-medium text-gray-700 dark:text-gray-400">Color:</span>
+          <div
+            className="w-6 h-6 rounded-full"
+            style={{ backgroundColor: product.color.toLowerCase() }}
+          ></div>
+        </div>
+        <div className="flex justify-between items-center">
+          <p className="text-lg font-bold text-gray-900 dark:text-white">₹{product.price}</p>
+        </div>
+        <div className="mt-4 flex justify-between items-center space-x-2">
+          <button
+            onClick={() => console.log(`Added ${product.name} to cart`)} // Handle add to cart
+            className="flex items-center justify-center bg-primary text-xs text-white px-4 py-2 rounded-md shadow-md hover:bg-primary-dark transition"
+          >
+            <FaShoppingCart className="mr-2" />
+            Add to Cart
+          </button>
+          <button
+            onClick={() => console.log(`Buying ${product.name}`)} // Handle buy now
+            className="flex items-center justify-center bg-green-600 text-xs text-white px-4 py-2 rounded-md shadow-md hover:bg-green-700 transition"
+          >
+            <FaShoppingBag className="mr-2" />
+            Buy Now
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
 
             {/* Success or Error Message */}
  {successMessage && (
