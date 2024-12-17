@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../Authcontext"; // Access currentUser
 import { useNavigate } from "react-router-dom";
-import { db, doc, collection, setDoc, deleteDoc, getDoc, getDocs } from "../firebase"; // Firestore methods
+import { db, doc, collection, setDoc, deleteDoc, getDoc,  } from "../firebase"; // Firestore methods
 import Navbar from "./Navbar";
 import Footer from "../Footer/Footer";
 import { FaCreditCard } from "react-icons/fa"; // Import a payment-related icon
