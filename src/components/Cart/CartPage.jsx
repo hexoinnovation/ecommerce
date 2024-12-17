@@ -624,7 +624,7 @@ const handleFieldChange = (setter) => (e) => {
       </h3>
       <p className="mb-4 text-gray-700 dark:text-gray-300">
         Total Items:{" "}
-        <span className="font-semibold">{cartItems.length}</span>
+        <span className="font-semibold">{userCartItems.length}</span>
       </p>
       <p className="mb-4 text-gray-700 dark:text-gray-300">
         Base Amount:{" "}
@@ -764,7 +764,7 @@ const handleFieldChange = (setter) => (e) => {
                 </h3>
                 <p className="mb-4 text-gray-700 dark:text-gray-300">
     Total Items:{" "}
-    <span className="font-semibold">{cartItems.length}</span>
+    <span className="font-semibold">{userCartItems.length}</span>
   </p>
   <p className="mb-4 text-gray-700 dark:text-gray-300">
     Total Amount:{" "}
