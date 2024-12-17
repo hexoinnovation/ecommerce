@@ -240,9 +240,6 @@ const { currentUser } = useAuth(); // Access current user from AuthProvider
       setLoading(false);
   }
 };
-
-
-// Handle wishlist toggle
 const handleWishlistToggle = async () => {
   if (!currentUser) {
     alert('Please login to add products to your wishlist.');
@@ -282,8 +279,24 @@ useEffect(() => {
     checkWishlist(); // Call checkWishlist only when currentUser and product are available
   }
 }, [currentUser, product]); // Ensure this effect only runs when currentUser or product changes
+const [zoomStyle, setZoomStyle] = useState({});
+  const [isZoomVisible, setIsZoomVisible] = useState(false);
 
-// Fetch product details when id changes
+  // Mock angles with same image (replace with actual images if available)
+  const angles = [
+    { label: "", image: mainImage },
+    { label: "", image: mainImage },
+    { label: "", image: mainImage },
+    { label: "", image: mainImage },
+  ];
+
+  // Magnifying Glass Logic
+  const handleMouseMove = (e) => {
+    const rect = e.target.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomStyle({ backgroundPosition: `${x}% ${y}%` });
+  };
 useEffect(() => {
   if (id) {
     setLoading(true); // Set loading to true when fetching starts
@@ -314,37 +327,68 @@ if (error) {
   return (
     <div className="min-h-screen flex items-center justify-center sm:mt-0 mt-10 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto  p-4 max-w-4xl">
-        {/* <button
-          onClick={handleGoBack}
-          className="text-xl text-primary dark:text-white flex items-center gap-2 mb-4"
-        >
-          <FaArrowLeft className="text-lg" />
-          Back to Shop
-        </button> */}
-
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Product Image */}
-          <div className="flex flex-col items-center lg:items-start">
-          <img
-            src={mainImage}
-            alt={product.name}
-            className="w-full max-w-md h-96 object-cover rounded-xl shadow-lg"
-          />
-
-            {/* Thumbnail Gallery */}
-            <div className="flex gap-4 mt-4">
-              {product?.images?.map((image, index) => (
-                <img
-                  key={index}
-                  src={`data:image/jpeg;base64,${image}`} // Handling other images stored as base64
-                  alt={`Thumbnail ${index + 1}`}
-                  className="h-20 w-20 object-cover rounded-md cursor-pointer"
-                  onClick={() => setMainImage(image)} // Update main image on thumbnail click
-                />
-              ))}
-        </div>
+        <div className="flex flex-row lg:flex-row items-start gap-4">
+      {/* Thumbnail Gallery */}
+      <div className="flex lg:flex-col flex-row gap-4">
+        {angles.map((angle, index) => (
+          <div key={index} className="flex flex-col items-center">
+            <img
+              src={angle.image}
+              alt={angle.label}
+              className="h-20 w-20 object-cover rounded-md cursor-pointer transition-transform transform hover:scale-110"
+              onClick={() => setMainImage(angle.image)}
+            />
+            <p className="text-sm text-gray-500">{angle.label}</p>
+          </div>
+        ))}
       </div>
-          {/* Product Details */}
+
+      {/* Main Image with Magnifying Glass */}
+      <div
+        className="relative group"
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsZoomVisible(true)}
+        onMouseLeave={() => setIsZoomVisible(false)}
+      >
+        <img
+          src={mainImage}
+          alt={product?.name || "Product"}
+          className="w-full max-w-md h-96 object-cover rounded-xl shadow-lg"
+        />
+
+        {/* Magnifying Glass Overlay */}
+        {isZoomVisible && (
+          <div
+            className="absolute top-0 left-0 w-full h-full bg-no-repeat bg-cover rounded-xl border-2 border-gray-300"
+            style={{
+              backgroundImage: `url(${mainImage})`,
+              ...zoomStyle,
+              backgroundSize: "200%",
+            }}
+          />
+        )}
+     <div className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-opacity-40">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className="w-16 h-16"
+  >
+    <defs>
+      <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: 'yellow', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: 'orange', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <circle cx="10.5" cy="10.5" r="7.5" stroke="url(#gradient1)" />
+    <path d="M15.5 15.5L20 20" stroke="url(#gradient1)" />
+  </svg>
+</div>
+      </div>
+    </div>
           <div className="space-y-6 flex-1">
             <div className="flex items-center justify-between">
               <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">{product.name}</h2>
@@ -355,10 +399,8 @@ if (error) {
       <FaHeart />
     </button>
             </div>
-
             <p className="text-lg text-gray-700 dark:text-gray-300">{product.description}</p>
-
-            <div className="flex items-center space-x-2 text-yellow-500">
+            {/* <div className="flex items-center space-x-2 text-yellow-500">
               {[...Array(5)].map((_, index) => (
                 <FaStar
                   key={index}
@@ -366,7 +408,7 @@ if (error) {
                 />
               ))}
               <span className="text-gray-600 dark:text-gray-300">({product.rating})</span>
-            </div>
+            </div> */}
 
             <div className="flex items-center space-x-2">
   <span className="font-medium text-gray-700 dark:text-gray-400">Color:</span>
@@ -429,10 +471,12 @@ if (error) {
                   <FaShoppingCart /> Add to Cart
                 </button>
 
-              {/* Buy Now Button */}
-              <button className="w-1/2 sm:w-36 py-3 bg-green-500 text-white font-semibold rounded-md shadow-md hover:bg-green-600 transition-colors flex items-center justify-center gap-2">
-                <FaMoneyBillAlt /> Buy Now
-              </button>
+          <button
+      onClick={handleBuyNow}  // Attach the handleBuyNow function to the button's click event
+      className="w-1/2 sm:w-36 py-3 bg-green-500 text-white font-semibold rounded-md shadow-md hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+    >
+      <FaMoneyBillAlt /> Buy Now
+    </button>
            
             </div>
             <button
@@ -442,6 +486,7 @@ if (error) {
   <FontAwesomeIcon icon={faHandPointLeft} className="text-2xl" />
   Back to Shop
 </button>
+
             {/* Success or Error Message */}
  {successMessage && (
   <div className="flex items-center bg-white-500 text-yellow-800 p-3 rounded-lg shadow-lg mb-4 animate-slideIn">

@@ -8,7 +8,7 @@ import {
   FaSearch,
   FaThLarge,
   FaTimes,
-  FaShoppingCart,FaShoppingBag,
+  FaShoppingCart,FaShoppingBag,FaRegFrownOpen,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { getDocs, collection } from "firebase/firestore";
@@ -233,117 +233,131 @@ export const Sidebar = ({ onSubcategorySelect }) => {
         </div>
       </div>
       {isFilterPopupOpen && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-6 w-full max-w-4xl mx-4 md:w-96 rounded-lg shadow-lg overflow-auto max-h-[90vh]">
-            <span
-              className="absolute top-2 right-2 text-2xl cursor-pointer text-gray-500 hover:text-gray-700"
-              onClick={toggleFilterPopup}
-            >
-              &times;
-            </span>
-            <h2 className="text-2xl font-semibold mb-4">Filter Products</h2>
+  <div className="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-8 w-full max-w-6xl mx-4 md:w-[80%] lg:w-[60%] rounded-lg shadow-xl overflow-auto max-h-[90vh] relative">
+      <span
+        className="absolute top-2 right-2 text-3xl cursor-pointer text-gray-500 hover:text-gray-700"
+        onClick={toggleFilterPopup}
+      >
+        &times;
+      </span>
+      <h2 className="text-3xl font-semibold mb-6 text-center">Filter Products</h2>
 
-            {/* Price Range Filter */}
-            <div className="mb-6">
-              <label className="text-sm font-semibold">Price Range</label>
-              <div className="flex justify-between">
-                <span className="text-sm">{`₹${priceRange[0]} - ₹${priceRange[1]}`}</span>
-              </div>
-              <div className="flex space-x-2 mb-6">
-                <input
-                  type="range"
-                  min="0"
-                  max="5000"
-                  step="100"
-                  value={priceRange[0]}
-                  onChange={(e) => handlePriceChange([Number(e.target.value), priceRange[1]])}
-                  className="w-full"
-                />
-                <input
-                  type="range"
-                  min="0"
-                  max="5000"
-                  step="100"
-                  value={priceRange[1]}
-                  onChange={(e) => handlePriceChange([priceRange[0], Number(e.target.value)])}
-                  className="w-full"
-                />
-              </div>
-              <p>
-                ₹{priceRange[0]} - ₹{priceRange[1]}
-              </p>
-            </div>
-            <div className="mb-6">
-              <label className="text-sm font-semibold">Brands</label>
-              <div className="flex flex-wrap space-x-4">
-                {brands.map((brand) => (
-                  <div key={brand} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedBrands.includes(brand)}
-                      onChange={() => handleBrandChange(brand)}
-                      id={`brand-${brand}`}
-                      className="h-5 w-5"
-                    />
-                    <label htmlFor={`brand-${brand}`} className="text-sm">
-                      {brand}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center mb-6">
-              <button
-                onClick={resetFilters}
-                className="bg-gray-200 text-black py-2 px-4 rounded-md hover:bg-gray-300"
-              >
-                Reset
-              </button>
-              <button
-                onClick={toggleFilterPopup}
-                className="bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark"
-              >
-                Apply Filters
-              </button>
-            </div>
-            <div className="mt-6">
-              <h3 className="text-xl font-semibold">Filtered Products</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-                {filteredProducts.length ? (
-                  filteredProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="p-4 border rounded-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl"
-                      onClick={() => handleProductClick(product.id)}
-                    >
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-64 object-cover mb-4 rounded-lg"
-                      />
-                      <h4 className="font-semibold">{product.name}</h4>
-                      <p className="text-gray-600">₹{product.price}</p>
-                       <div className="mt-4 flex justify-between items-center space-x-2">
-                        <button    className="flex items-center justify-center bg-primary text-xs text-white px-2 py-1 rounded shadow-md hover:bg-primary-dark transition">
-                          <FaShoppingCart className="ml-1 " />
-                          Add to Cart
-                        </button>
-                        <button className="flex items-center justify-center bg-green-600 text-xs text-white px-2 py-1 rounded shadow-md hover:bg-green-700 transition">
-                          <FaShoppingBag className="mr-1" />
-                          Buy Now
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500">No products match the filter.</p>
-                )}
-              </div>
-            </div>
-          </div>
+      {/* Price Range Filter */}
+      <div className="mb-6">
+        <label className="text-sm font-semibold">Price Range</label>
+        <div className="flex justify-between">
+          <span className="text-sm">{`₹${priceRange[0]} - ₹${priceRange[1]}`}</span>
         </div>
-      )}
+        <div className="flex space-x-2 mb-6">
+          <input
+            type="range"
+            min="0"
+            max="5000"
+            step="100"
+            value={priceRange[0]}
+            onChange={(e) => handlePriceChange([Number(e.target.value), priceRange[1]])}
+            className="w-full"
+          />
+          <input
+            type="range"
+            min="0"
+            max="5000"
+            step="100"
+            value={priceRange[1]}
+            onChange={(e) => handlePriceChange([priceRange[0], Number(e.target.value)])}
+            className="w-full"
+          />
+        </div>
+        <p>
+          ₹{priceRange[0]} - ₹{priceRange[1]}
+        </p>
+      </div>
+
+      {/* Brands Filter */}
+      <div className="mb-6">
+        <label className="text-sm font-semibold">Brands</label>
+        <div className="flex flex-wrap space-x-4">
+          {brands.map((brand) => (
+            <div key={brand} className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={selectedBrands.includes(brand)}
+                onChange={() => handleBrandChange(brand)}
+                id={`brand-${brand}`}
+                className="h-5 w-5"
+              />
+              <label htmlFor={`brand-${brand}`} className="text-sm">
+                {brand}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Filter Actions */}
+      <div className="flex justify-between items-center mb-6">
+        <button
+          onClick={resetFilters}
+          className="bg-gray-200 text-black py-2 px-4 rounded-md hover:bg-gray-300"
+        >
+          Reset
+        </button>
+       
+      </div>
+
+      {/* Filtered Products */}
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold text-center">Filtered Products</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-4">
+          {filteredProducts.length ? (
+            filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="p-4 border rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105 cursor-pointer"
+                onClick={() => handleProductClick(product.id)}
+              >
+                <div className="h-64 bg-gray-200 rounded-lg overflow-hidden mb-4">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+                <h4 className="font-semibold text-lg mb-2">{product.name}</h4>
+                <h4 className="font-semibold text-sm mb-2">{product.description}</h4>
+                <h4 className="font-semibold text-sm mb-2">{product.category}</h4>
+                <p className="text-gray-600 text-sm mb-4">₹{product.price}</p>
+                <div className="mt-4 flex justify-between items-center space-x-2">
+                  <button className="flex items-center justify-center bg-primary text-xs text-white px-4 py-2 rounded-md shadow-md hover:bg-primary-dark transition">
+                    <FaShoppingCart className="ml-1" />
+                    Add to Cart
+                  </button>
+                  <button className="flex items-center justify-center bg-green-600 text-xs text-white px-4 py-2 rounded-md shadow-md hover:bg-green-700 transition">
+                    <FaShoppingBag className="mr-1" />
+                    Buy Now
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="flex flex-col justify-center items-center text-center space-y-6 py-10">
+            <div className="text-6xl text-gray-400 animate-bounce">
+              <FaRegFrownOpen /> {/* Icon for no products */}
+            </div>
+            <p className="text-xl font-semibold text-gray-500 animate-fadeIn">
+              No products match the filter.
+            </p>
+            <p className="text-sm text-gray-400 animate-fadeIn">
+              Try adjusting your filters or search criteria.
+            </p>
+          </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+)}       
     </>
   );
 };
