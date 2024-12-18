@@ -9,13 +9,16 @@ import {
   deleteDoc, onSnapshot ,
 } from "firebase/firestore"; // Firestore functions
 import { getAuth } from "firebase/auth"; // Firebase Auth
-
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 const CartDrawer = ({ isOpen, closeDrawer }) => {
-  const [userCartItems, setUserCartItems] = useState([]); // State for storing cart items from Firestore
-  const [isEmpty, setIsEmpty] = useState(false); // State to check if cart is empty
+  const [userCartItems, setUserCartItems] = useState([]); 
+  const [isEmpty, setIsEmpty] = useState(false); 
+  const[product,setproduct]=useState("");
   const auth = getAuth(); // Firebase Auth instance
   const db = getFirestore(); // Firestore instance
-
+  const navigate = useNavigate();
+  const { id } = useParams();
   useEffect(() => {
     // Function to listen to real-time updates of the cart from Firestore
     const fetchCartFromFirestore = () => {
@@ -80,7 +83,9 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
       console.error("Error removing item from Firestore:", error);
     }
   };
-
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
   return (
     <div
       className={`fixed inset-0 bg-gray-800 bg-opacity-50 z-90 transition-all duration-300 ${
@@ -123,11 +128,16 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
                 className="flex justify-between items-center bg-gray-100 p-4 mb-4 rounded-lg shadow-md"
               >
                 <div className="flex items-center">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-16 h-16 object-cover rounded-md"
-                  />
+                <img
+  src={item.image}
+  alt={item.title}
+  className="w-16 h-16 object-cover rounded-md"
+  onClick={() => {
+    console.log("Product ID:", item.id);
+    handleProductClick(item.id);
+  }}
+/>
+
                   <div className="ml-4 text-black">
                     <h3 className="text-lg font-semibold ">{item.title}</h3>
                     <h3 className="text-lg font-semibold">{item.name}</h3>

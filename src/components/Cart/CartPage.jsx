@@ -29,6 +29,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FaCreditCard } from "react-icons/fa"; // Import a payment-related icon
 import Swal from 'sweetalert2';
+import { useParams } from "react-router-dom";
 
 const CartPage = () => {
   const [step, setStep] = useState(0);
@@ -42,9 +43,8 @@ const CartPage = () => {
   const { removeFromCart } = useCart();
   const { currentUser } = useAuth();
   const [currentItem,setCurrentItem]=useState("");
-  
-  
-  const navigate = useNavigate();
+  const { id } = useParams();
+   const navigate = useNavigate();
   const auth = getAuth(); // Firebase Auth instance
   const steps = [
     { label: "Cart", description: "Review your items" },
@@ -377,7 +377,12 @@ const CartPage = () => {
             const shippingAddressString = Object.entries(shippingAddress || {})
                 .map(([key, value]) => `${key}: ${value}`)
                 .join('\n');
-            
+                const productDetails = userCartItems
+                .map(
+                    (item, index) => 
+                    `\n*Product ${index + 1}:*\n  Name: ${item.title || item.name}\n  Category: ${item.category || "N/A"}\n  Price: ₹${item.price}\n  Quantity: ${item.quantity}`
+                )
+                .join("\n");   
             const billingAddressString = sameAsShipping
                 ? "Same as shipping address"
                 : Object.entries(billingAddress || {})
@@ -386,6 +391,7 @@ const CartPage = () => {
             
                     console.log("Total Amount:", totalAmount); // Build the order summary message
             const orderSummaryMessage = `
+            
 *Order Summary*
   Total Items: ${userCartItems.length}
   Amount:₹ ${baseAmount}
@@ -393,6 +399,7 @@ const CartPage = () => {
   Discount: ₹${(Number(discount) || 0).toFixed(2)}
   Tax: ₹${gst}
   Final Total: ₹${(Number(finalTotal) || 0).toFixed(2)}
+  *Products in Cart:*${productDetails}
 *Shipping Address*
 ${shippingAddressString}
 
@@ -435,7 +442,9 @@ useEffect(() => {
           localStorage.removeItem("orderShared");
       }
   }, []);
-
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="container mx-auto p-4 max-w-6xl">
@@ -490,7 +499,10 @@ useEffect(() => {
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="h-60 object-cover rounded"
+                  className="h-60 object-cover rounded" onClick={() => {
+                    console.log("Product ID:", item.id);
+                    handleProductClick(item.id);
+                  }}
                 />
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
                   {item.title}
