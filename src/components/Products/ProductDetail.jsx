@@ -514,11 +514,11 @@ if (error) {
   <h1 className="text-3xl font-bold text-left text-gray-800 dark:text-gray-100 mb-8">
     People also want these
   </h1>
-  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-6">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 place-items-center">
     {recommendedProducts.map((product) => (
       <div
         key={product.id}
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col justify-between h-full hover:shadow-xl transition-shadow duration-300"
       >
         <div className="relative mb-4 group">
           <img
@@ -528,21 +528,23 @@ if (error) {
           />
           <FaHeart className="absolute top-4 right-4 text-gray-400 group-hover:text-red-500 cursor-pointer transition-colors" />
         </div>
-        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2 text-center">
           {product.name}
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{product.description}</p>
-        <div className="flex items-center space-x-2 mb-4">
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 text-center">
+          {product.description}
+        </p>
+        <div className="flex items-center justify-center space-x-2 mb-4">
           <span className="font-medium text-gray-700 dark:text-gray-400">Color:</span>
           <div
             className="w-6 h-6 rounded-full"
             style={{ backgroundColor: product.color.toLowerCase() }}
           ></div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <p className="text-lg font-bold text-gray-900 dark:text-white">₹{product.price}</p>
         </div>
-        <div className="mt-4 flex justify-between items-center space-x-2">
+        <div className="flex justify-between items-center space-x-2 mt-auto">
           <button
             onClick={() => console.log(`Added ${product.name} to cart`)} // Handle add to cart
             className="flex items-center justify-center bg-primary text-xs text-white px-4 py-2 rounded-md shadow-md hover:bg-primary-dark transition"
