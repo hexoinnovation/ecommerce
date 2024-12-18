@@ -39,7 +39,7 @@ export const Sidebar = ({ onSubcategorySelect }) => {
     Books: ["Fiction", "Non-fiction", "Reference"],
   };
 
-  const brands = ["Kurtis", "Footwear", "Mens wear", "Nike", "Adidas"];
+  const brands = ["Kurtis", "Footwear", "Mens wear", "Phone", "Adidas"];
 
   const toggleCategory = (category) => {
     setActiveCategory(category);
@@ -309,7 +309,7 @@ export const Sidebar = ({ onSubcategorySelect }) => {
       {/* Filtered Products */}
       <div className="mt-6">
         <h3 className="text-xl font-semibold text-center">Filtered Products</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols- gap-8 mt-4">
           {filteredProducts.length ? (
             filteredProducts.map((product) => (
               <div

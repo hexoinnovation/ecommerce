@@ -175,9 +175,6 @@ const CartPage = () => {
     const calculatedTotal = subtotal + shipping + tax - discount;
     setTotal(calculatedTotal);
   };
-
-
-
   React.useEffect(() => {
     calculateTotal();
   }, [subtotal, shipping, tax, discount]); // Recalculate when these values change
@@ -489,9 +486,7 @@ const handleFieldChange = (setter) => (e) => {
                       </form>
                     </div>
                   )}
-                </div>
-
-              
+                </div>              
               {/* Order Summary Section */}
               <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 h-3/4">
       <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
