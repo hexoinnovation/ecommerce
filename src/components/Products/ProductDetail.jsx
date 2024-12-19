@@ -99,7 +99,7 @@ const ProductDetail = () => {
       };
       addToCart(productToAdd); 
       
-      navigate('/checkout'); 
+      navigate("/checkout", { state: { product: productToAdd } });
     }
   };
   const handleSignup = async () => {

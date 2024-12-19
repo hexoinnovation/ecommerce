@@ -276,7 +276,7 @@ const handleModalToggle = () => {
     <FaShoppingCart className="ml-1 " />
     Add to Cart
   </button>
-  <button className="flex items-center justify-center bg-green-600 text-xs text-white px-2 py-1 rounded shadow-md hover:bg-green-700 transition">
+  <button   onClick={() => handleProductClick(product.id)} className="flex items-center justify-center bg-green-600 text-xs text-white px-2 py-1 rounded shadow-md hover:bg-green-700 transition">
     <FaShoppingBag className="mr-1" />
     Buy Now
   </button>
