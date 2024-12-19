@@ -14,7 +14,9 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const Popup = ({ product, onClose }) => {
   const navigate = useNavigate();
+  
   const { addToCart } = useCart(); 
+
   const { isLoggedIn } = useAuth(); 
   const [quantity, setQuantity] = useState(1); 
   const [loginPrompt, setLoginPrompt] = useState(false); 
