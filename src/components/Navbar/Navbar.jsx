@@ -341,7 +341,13 @@ const Navbar = () => {
 
               {/* Logo */}
               <div className="flex items-center space-x-2">
-                <span className="text-xl font-bold">Hexo</span>
+              <span className="flex items-center text-2xl font-bold text-black dark:text-white">
+  <img
+    src="logo.png" 
+    alt="Hexo Logo"
+    className="h-14 w-18 mr-2 mt-1" // Increased height and width
+  />
+</span>
               </div>
             </div>
 
@@ -548,9 +554,14 @@ const Navbar = () => {
           <div className="w-64 bg-white dark:bg-gray-800 p-4 h-full">
             {/* Close Button */}
             <div className="flex justify-between items-center mb-4">
-              <span className="text-2xl font-bold text-black dark:text-white">
-                Hexo
-              </span>
+            <span className="flex items-center text-2xl font-bold text-black dark:text-white">
+  <img
+    src="logo.png" 
+    alt="Hexo Logo"
+    className="h-8 w-8 mr-2" // Adjust height, width, and spacing
+  />
+ 
+</span>
               <button
                 onClick={toggleSidebar}
                 className="text-black dark:text-white"
