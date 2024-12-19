@@ -401,6 +401,7 @@ const CartPage = () => {
   Tax: ₹${gst}
   Final Total: ₹${(Number(finalTotal) || 0).toFixed(2)}
   *Products in Cart:*${productDetails}
+  
 *Shipping Address*
 ${shippingAddressString}
 
@@ -864,8 +865,9 @@ useEffect(() => {
         shipping: userCartItems.length === 0 ? 0 : shippingCharge,
         discount: userCartItems.length === 0 ? 0 : discount,
         gstAmount: Math.round(gst?.gst ?? 0),
-        finalTotal:Math.round(finalTotal?.finalTotal ?? 0),
+        finalTotal: Math.round(finalTotal?.finalTotal ?? 0),
         orderDate: new Date().toISOString(), // Timestamp for the order
+        paymentMethod: paymentMethod, // Add payment method here
       };
 
       // Get the user's document reference in Firestore

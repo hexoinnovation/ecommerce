@@ -1,125 +1,93 @@
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useState, useEffect } from 'react';
-import { db, doc, collection, getDocs } from "../firebase";
-import { FaShoppingCart } from 'react-icons/fa';  // Import shopping cart icon
+import React, { useState, useEffect } from "react";
+import { FaShoppingCart } from "react-icons/fa";
+import { collection, getDocs, doc } from "firebase/firestore";
+import Navbar from "./Navbar";
+import Footer from "../Footer/Footer";
+import { db } from "../firebase";
+import { getAuth } from "firebase/auth";
 
 const MyOrders = () => {
-  const [user, setUser] = useState(null); // State to store the authenticated user
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Listen for authentication state changes
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser); // Set the authenticated user
-      } else {
-        setUser(null); // User is not authenticated
-      }
-    });
-
-    return () => unsubscribe(); // Cleanup the listener
-  }, []);
-
+  const auth = getAuth();
+  const userEmail = auth.currentUser?.email;
+  // Fetch orders from Firestore
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!user) {
-        console.error('User not authenticated');
-        setLoading(false);
-        return;
-      }
       try {
-        // Fetch the user's orders from Firestore
-        const userDocRef = doc(db, 'users', user.email);
-        const cartOrderRef = collection(userDocRef, 'buynow order');
-        const querySnapshot = await getDocs(cartOrderRef);
+        if (!userEmail) {
+          console.error("User email not available");
+          return;
+        }
 
+        // Reference to the user's "Cart order" collection
+        const userDocRef = doc(db, "users", userEmail);
+        const cartCollectionRef = collection(userDocRef, "Cart order");
+
+        // Get all orders in the "Cart order" collection
+        const querySnapshot = await getDocs(cartCollectionRef);
         const fetchedOrders = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
+          id: doc.id, // Include document ID
+          ...doc.data(), // Spread document data
         }));
 
-        setOrders(fetchedOrders);
-        setLoading(false);
+        setOrders(fetchedOrders); // Update state with fetched orders
       } catch (error) {
-        console.error('Error fetching orders:', error.message);
-        setLoading(false);
+        console.error("Error fetching orders:", error.message);
       }
     };
 
     fetchOrders();
-  }, [user]);
-
-  if (loading) {
-    return <div className="text-center p-4">Loading orders...</div>;
-  }
-
-  if (!orders.length) {
-    return <div className="text-center p-4">No orders found.</div>;
-  }
+  }, [userEmail]);
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold text-center mb-8">
-        My Orders
-        <FaShoppingCart className="inline-block ml-2 text-xl animate-pulse" />
-      </h1>
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <Navbar />
+      <div className="container mx-auto p-6">
+        <h1 className="text-4xl font-extrabold text-center mb-8 text-gray-800 dark:text-white">
+          My Orders
+          <FaShoppingCart className="inline-block ml-2 text-3xl text-green-500 animate-pulse" />
+        </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {orders.map((order) => (
-          <div
-            key={order.id}
-            className="bg-white p-4 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
-          >
-            <h2 className="text-xl font-semibold mb-2">Order ID: {order.id}</h2>
-            <div className="text-sm mb-2">
-              <strong>Total Items:</strong> {order.totalItems}
+        {/* Orders List */}
+        <div className="space-y-6">
+          {orders.length === 0 ? (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-xl text-gray-500 dark:text-gray-400">
+                No orders found.
+              </p>
             </div>
-            <div className="text-sm mb-2">
-              <strong>Order Date:</strong> {new Date(order.orderDate).toLocaleDateString()}
-            </div>
-            <div className="text-sm mb-2">
-              <strong>Final Total:</strong> {order.finalTotal} USD
-            </div>
-            <div className="text-sm mb-2">
-              <strong>Shipping Address:</strong> {order.shippingAddress?.city || 'N/A'}
-            </div>
-            <div className="text-sm mb-2">
-              <strong>Billing Address:</strong> {order.billingAddress?.city || 'N/A'}
-            </div>
-            <h3 className="text-lg font-semibold">{order.name}</h3>
-                <h3 className="text-lg font-semibold">{order.category}</h3>
-                <p className="text-gray-600 dark:text-gray-400">₹{order.price}</p>
-                <p className="text-gray-600 dark:text-gray-400">Qty: {order.quantity}</p>
-            <div className="mt-4">
-              <strong>Cart Items:</strong>
-              <ul className="space-y-2">
-                {Array.isArray(order.cartItems) && order.cartItems.length > 0 ? (
-                  order.cartItems.map((item, index) => (
-                    <li
-                      key={index}
-                      className="flex items-center space-x-2 hover:bg-gray-100 p-2 rounded-lg transition-all"
-                    >
-                      <img
-                        src={item.image || 'default-image-url'} // Assuming the item object has an image
-                        alt={item.name}
-                        className="w-12 h-12 object-cover rounded"
-                      />
-                      <div>
-                        <span className="font-semibold">{item.name}</span> - 
-                        {item.quantity} x {item.price} USD
-                      </div>
-                    </li>
-                  ))
-                ) : (
-                  <li>No items in the cart</li>
-                )}
-              </ul>
-            </div>
-          </div>
-        ))}
+          ) : (
+            orders.map((order) => (
+              <div
+                key={order.id}
+                className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 border-l-4 border-green-500"
+              >
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                  Order ID:{" "}
+                  <span className="text-green-500">{order.id}</span>
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">
+                  <strong>Order Date:</strong>{" "}
+                  {new Date(order.orderDate).toLocaleDateString()}
+                </p>
+                <p className="text-gray-600 dark:text-gray-300 mt-1">
+                  <strong>Items:</strong> {order.totalItems}
+                </p>
+                <p className="text-gray-600 dark:text-gray-300 mt-1">
+                  <strong>Payment Method:</strong> {order.paymentMethod}
+                </p>
+                <p className="text-gray-600 dark:text-gray-300 mt-1">
+                  <strong>Final Total:</strong>{" "}
+                  <span className="font-bold text-green-600 dark:text-green-400">
+                    ₹{order.finalTotal}
+                  </span>
+                </p>
+              </div>
+            ))
+          )}
+        </div>
       </div>
+      <Footer />
     </div>
   );
 };
