@@ -341,7 +341,13 @@ const Navbar = () => {
 
               {/* Logo */}
               <div className="flex items-center space-x-2">
-                <span className="text-xl font-bold">Hexo</span>
+              <span className="flex items-center text-2xl font-bold text-black dark:text-white">
+  <img
+    src="logo.png" 
+    alt="Hexo Logo"
+    className="h-14 w-18 mr-2 mt-1" // Increased height and width
+  />
+</span>
               </div>
             </div>
 
@@ -375,12 +381,12 @@ const Navbar = () => {
                   </button>
                 </Link>
 
-                <button
+                {/* <button
   className="w-full sm:w-auto hover:bg-yellow-500 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 transition duration-300 ease-in-out whitespace-nowrap"
 >
-  <PhoneIcon className="h-5 w-5 text-white" /> {/* White Phone Icon */}
+  <PhoneIcon className="h-5 w-5 text-white" /> 
   <span>Contact Us</span>
-</button>
+</button> */}
 
               </div>
             </div>
@@ -439,10 +445,10 @@ const Navbar = () => {
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    {/* <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <CogIcon className="w-5 h-5 mr-2" />
                       Settings
-                    </button>
+                    </button> */}
                     <button
                       onClick={handleLogout}
                       className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -487,10 +493,10 @@ const Navbar = () => {
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    {/* <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <CogIcon className="w-5 h-5 mr-2" />
                       Settings
-                    </button>
+                    </button> */}
                     <button
                       onClick={handleLogout}
                       className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -548,9 +554,14 @@ const Navbar = () => {
           <div className="w-64 bg-white dark:bg-gray-800 p-4 h-full">
             {/* Close Button */}
             <div className="flex justify-between items-center mb-4">
-              <span className="text-2xl font-bold text-black dark:text-white">
-                Hexo
-              </span>
+            <span className="flex items-center text-2xl font-bold text-black dark:text-white">
+  <img
+    src="logo.png" 
+    alt="Hexo Logo"
+    className="h-8 w-8 mr-2" // Adjust height, width, and spacing
+  />
+ 
+</span>
               <button
                 onClick={toggleSidebar}
                 className="text-black dark:text-white"

@@ -6,22 +6,25 @@ import {
   faUser,
   faClipboardList,
 } from "@fortawesome/free-solid-svg-icons";
-import { FaLock ,FaMapMarked, FaUser,FaCreditCard,FaCalendarAlt,FaHeart} from 'react-icons/fa';
+import { FaLock ,FaMapMarked, FaUser,FaCreditCard,FaCalendarAlt,FaHeart,FaHeartBroken,} from 'react-icons/fa';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState, useEffect } from "react";
 import Footer from "../Footer/Footer";
 import Navbar from "./Navbar";
 import { auth, db } from '../firebase'; // Make sure to initialize Firebase in your project
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc,  updateDoc,setDoc, } from 'firebase/firestore';
+import { doc, getDoc,  updateDoc,setDoc,collection,getDocs } from 'firebase/firestore';
 import { PencilIcon } from "@heroicons/react/solid";
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom'; 
 import { useNavigate } from "react-router-dom";
 import Notiflix from 'notiflix';
+import { useAuth } from '../Authcontext';
 const AccountPage = () => {
   const [activeTab, setActiveTab] = useState("overview");
+    const [product, setProduct] = useState("");
   const navigate = useNavigate(); 
+    const { currentUser } = useAuth();
   const tabs = [
     { id: "overview", label: "Overview", icon: faUser },
     { id: "personal", label: "Personal Information", icon: faCogs },
@@ -66,7 +69,7 @@ const AccountPage = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [cvc, setCvc] = useState('');
-  const [paymentData, setPaymentData] = useState(null); 
+  const [paymentData, setPaymentData] = useState(null); const [wishlistItems, setWishlistItems] = useState(location.state?.items || []);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true); // Set loading to true while fetching data
@@ -165,6 +168,28 @@ const AccountPage = () => {
 
     reader.readAsDataURL(file);
   };
+  const fetchWishlist = async () => {
+    try {
+      const wishlistRef = collection(db, 'users', currentUser.email, 'Wishlist');
+      const querySnapshot = await getDocs(wishlistRef);
+      const items = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setWishlistItems(items);
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchWishlist();
+    }
+  }, [currentUser]);
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
@@ -185,7 +210,8 @@ const AccountPage = () => {
   const handleTabClick = (tab) => {
     setActiveTab(tab); // Set the active tab when clicked
     if (tab === "wishlist") {
-      navigate("/wishlist"); // Redirect to /wishlist route when wishlist tab is clicked
+    
+       // Redirect to /wishlist route when wishlist tab is clicked
     }
   };
   const handleSave = async (e) => {
@@ -311,6 +337,22 @@ const AccountPage = () => {
       console.error(error);
     }
   };
+
+   
+    const handleRemoveFromWishlist = async (id) => {
+      const stringId = String(id); // Convert id to string if it’s a number
+      console.log('Attempting to delete item with id:', stringId); // Debugging
+    
+      const userWishlistRef = doc(db, 'users', currentUser.email, 'Wishlist', stringId);
+    
+      try {
+        await deleteDoc(userWishlistRef);
+        alert('Item removed from your wishlist!');
+        fetchWishlist(); // Refresh the wishlist after deletion
+      } catch (error) {
+        console.error('Error removing item from Firestore:', error);
+      }
+    };
   
   // useEffect(() => {
   //   const fetchCurrentPassword = async () => {
@@ -750,12 +792,65 @@ const AccountPage = () => {
             )}
            
         {activeTab === "wishlist" && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Wishlist</h2>
-          <p className="text-gray-700 dark:text-gray-300">
-            Manage your favorite products here.
-          </p>
-        </div>
+         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-10">
+             <div className="ml-30 max-w-8xl mx-auto px-4">
+         <h3 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white mb-6">
+           {/* Star Icon with different animation */}
+           <FaHeart className="mr-3 text-red-500 text-3xl animate-pulse" />
+           {/* Text */}
+           My Wishlist ({wishlistItems.length})
+         </h3>
+         {wishlistItems.length > 0 ? (
+           <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-4 gap-7 ml-5">
+          
+         
+             {wishlistItems.map((item) => (
+               <div
+                 key={item.id}
+                 className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md"
+               >
+               <img
+  src={item.image}
+  alt={item.name}
+  className="w-full h-auto object-cover rounded-md mb-4"
+  onClick={() => {
+    console.log(item.id); // Add this line to check if id is available
+    handleProductClick(item.id); 
+  }}
+/>
+                 <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                   {item.name}
+                 </h2>
+                 <p className="text-gray-600 dark:text-gray-400">{item.description}</p>
+                 <p className="text-gray-800 dark:text-gray-200 font-bold">
+                   ${item.price}
+                 </p>
+                 <button
+                   onClick={() => handleRemoveFromWishlist(item.id)}
+                   className="text-red-500 hover:text-white border border-red-500 hover:bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm px-3 py-2 text-center mt-4 dark:border-red-500 dark:hover:text-gray-200 dark:hover:bg-red-600 dark:focus:ring-red-900"
+                 >
+                   Remove ❤️
+                 </button>
+               </div>
+            
+       
+                     ))}
+                   </div>
+                 ) : (
+                   <div className="flex justify-center items-center flex-col text-center space-y-4">
+                   {/* Empty Wishlist Image or Icon with animation */}
+                   <FaHeartBroken className="text-6xl text-red-500 animate-pulse" />
+                   <p className="text-gray-700 dark:text-gray-300 text-xl">Your wishlist is empty.</p>
+                   {/* Add any additional animation or image */}
+                   <img
+                     src="wishlist.png" // Replace with your own empty state image or icon
+                     alt="Empty Wishlist"
+                     className="w-32 h-32 animate-bounce"
+                   />
+                 </div>
+                 )}
+               </div>
+             </div>
       )}
           </main>
         </div>

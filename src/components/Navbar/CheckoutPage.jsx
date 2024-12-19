@@ -605,7 +605,7 @@ const handleFieldChange = (setter) => (e) => {
     console.log("Proceed to Checkout button clicked");
     saveShippingBillingData();
   }}
-  className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
+  className="mt-4 w-full py-2 bg-black border-2 border-primary text-white rounded-lg hover:bg-primary hover:text-black hover:border-2 border-black flex items-center justify-center space-x-2"
   disabled={cartItems.length === 0}
 >
   <span>Proceed to Checkout</span>
@@ -616,90 +616,92 @@ const handleFieldChange = (setter) => (e) => {
             </div>
           )}
 
-            {step === 1 && (
-          <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg max-w-4xl mx-auto my-10 shadow-lg">
-          {/* Payment Header */}
-          <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8 flex items-center justify-center space-x-3">
-            <span>Payment</span>
-            <FaCreditCard className="text-[#ff0080] animate-bounce" />
-          </h1>
-        
-          {/* Payment Methods */}
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
-              Choose a Payment Method
+{step === 1 && (
+  <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg max-w-4xl mx-auto my-10 shadow-lg">
+    {/* Payment Header */}
+    <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8 flex items-center justify-center space-x-3">
+      <span>Payment</span>
+      <FaCreditCard className="text-[#ff0080] animate-bounce" />
+    </h1>
+
+    {/* Payment Methods Grid */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Left Column: Payment Methods */}
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
+          Choose a Payment Method
+        </h3>
+
+        {/* Cash on Delivery */}
+        <div className="flex items-center justify-center space-x-4 mb-4">
+          <input
+            type="radio"
+            id="cash-on-delivery"
+            name="paymentMethod"
+            value="cash on delivery"
+            checked={paymentMethod === "cash on delivery"}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            className="h-5 w-5 border-gray-400 hover:border-[#ff0080] focus:ring-[#ff0080] transition"
+          />
+          <label htmlFor="cash-on-delivery" className="text-gray-700 dark:text-gray-300 text-lg">
+            Cash on Delivery
+          </label>
+        </div>
+
+        {/* Credit Card */}
+        <div className="flex items-center justify-center space-x-4 mb-4 mr-12">
+          <input
+            type="radio"
+            id="creditCard"
+            name="paymentMethod"
+            value="creditCard"
+            checked={paymentMethod === "creditCard"}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            className="h-5 w-5 border-gray-400 hover:border-[#ff0080] focus:ring-[#ff0080] transition "
+          />
+          <label htmlFor="creditCard" className="text-gray-700 dark:text-gray-300 text-lg ">
+            Credit Card
+          </label>
+        </div>
+      </div>
+
+      {/* Right Column: Order Summary */}
+    
+        {paymentMethod === "cash on delivery" && (
+           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <div className="mb-8 bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-inner">
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
+              Order Summary
             </h3>
-        
-            {/* Cash on Delivery */}
-            <div className="flex items-center justify-center space-x-4 mb-4">
-              <input
-                type="radio"
-                id="cash-on-delivery"
-                name="paymentMethod"
-                value="cash on delivery"
-                checked={paymentMethod === "cash on delivery"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="h-5 w-5"
-              />
-              <label htmlFor="cash-on-delivery" className="text-gray-700 dark:text-gray-300">
-                Cash on Delivery
-              </label>
-            </div>
-        
-            {/* Credit Card */}
-            <div className="flex items-center justify-center space-x-4 mb-4">
-              <input
-                type="radio"
-                id="creditCard"
-                name="paymentMethod"
-                value="creditCard"
-                checked={paymentMethod === "creditCard"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="h-5 w-5"
-              />
-              <label htmlFor="creditCard" className="text-gray-700 dark:text-gray-300">
-                Credit Card
-              </label>
-            </div>
-        
-            {/* Order Summary */}
-            {paymentMethod === "cash on delivery" && (
-              <div className="mt-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-inner">
-                <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
-                  Order Summary
-                </h3>
-                <div className="space-y-4 text-gray-700 dark:text-gray-300">
-              
-                  <p>Sub Total: <span className="font-semibold">₹{totals.subtotal}</span></p>
-                  <div className="flex justify-between items-center">
-                  <span className="font-medium">Shipping Charge:</span>
-                  <span>₹{checkoutDetails.shippingCharge}</span>
-                   
-                  </div>
-                  <div className="flex justify-between items-center">
-                  <span className="font-medium">GST (5%):</span>
-                  <span>₹{totals.gstAmount.toFixed()}</span>
-                   
-                  </div>
-                  <div className="flex justify-between items-center text-red-500 font-bold">
-                  <span className="font-medium text-red-600">Discount:</span>
-                  <span className="text-red-600">- ₹{totals.discount}</span>
-                  </div>
-                </div>
-        
-                {/* Total */}
-                <div className="flex justify-between items-center mt-6 border-t pt-4">
-                  <span className="font-bold text-lg text-gray-800 dark:text-white">
-                    Total:
-                  </span>
-                  <span className="text-2xl font-semibold text-green-600 dark:text-green-400">
-                  ₹{totals.total.toFixed()}
-                  </span>
-                </div>
+            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+              <p className="text-lg">Sub Total: <span className="font-semibold">₹{totals.subtotal}</span></p>
+
+              <div className="flex justify-between items-center text-lg">
+                <span className="font-medium">Shipping Charge:</span>
+                <span className="text-gray-700 dark:text-gray-300">₹{checkoutDetails.shippingCharge}</span>
               </div>
-            )}
-        
-        <button
+
+              <div className="flex justify-between items-center text-lg">
+                <span className="font-medium">GST (5%):</span>
+                <span className="text-gray-700 dark:text-gray-300">₹{totals.gstAmount.toFixed()}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-lg text-red-600 font-semibold">
+                <span className="font-medium">Discount:</span>
+                <span>- ₹{totals.discount}</span>
+              </div>
+            </div>
+
+            {/* Total */}
+            <div className="flex justify-between items-center mt-6 border-t pt-4">
+              <span className="font-bold text-lg text-gray-800 dark:text-white">
+                Total:
+              </span>
+              <span className="text-2xl font-semibold text-green-600 dark:text-green-400">
+                ₹{totals.total.toFixed()}
+              </span>
+            </div>
+            <button
   onClick={async () => {
     try {
       // Save shipping, billing, and checkout details in Firestore
@@ -743,13 +745,16 @@ const handleFieldChange = (setter) => (e) => {
       console.error("Error saving order details:", error.message);
     }
   }}
-  className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
+  className="bg-gradient-to-r from-black to-green-800 mt-8 ml-16 hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
 >
   Confirm and Pay
 </button>
-
+          </div>
+          </div>
+        )}
           </div>
         </div>
+        
           )}
 
           {/* Navigation Buttons */}
@@ -761,13 +766,16 @@ const handleFieldChange = (setter) => (e) => {
             >
               Back
             </button>
-            <button
-              onClick={handleNext}
-              className="bg-primary/100 text-white px-4 py-2 rounded-md"
-              disabled={step === steps.length - 1}
-            >
-              {step === steps.length - 1 ? "Complete" : "Next"}
-            </button>
+            {step !== steps.length - 1 && (
+  <button
+    onClick={handleNext}
+    className="bg-primary border-2 border-black text-black px-4 py-2 rounded-md"
+    disabled={step === steps.length - 1}
+  >
+    Next
+  </button>
+)}
+
             </div>
           </div>
         </div>
