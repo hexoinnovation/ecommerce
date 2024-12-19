@@ -381,12 +381,12 @@ const Navbar = () => {
                   </button>
                 </Link>
 
-                <button
+                {/* <button
   className="w-full sm:w-auto hover:bg-yellow-500 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 transition duration-300 ease-in-out whitespace-nowrap"
 >
-  <PhoneIcon className="h-5 w-5 text-white" /> {/* White Phone Icon */}
+  <PhoneIcon className="h-5 w-5 text-white" /> 
   <span>Contact Us</span>
-</button>
+</button> */}
 
               </div>
             </div>
