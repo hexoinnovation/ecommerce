@@ -256,7 +256,13 @@ const { cartCount } = useAuth(); // Access cartCount from context
           <div className="flex items-center space-x-4">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <span className="text-2xl font-bold ml-10 sm:ml-0 text-white">Hexo</span>
+            <span className="flex items-center text-2xl font-bold text-black dark:text-white">
+  <img
+    src="logo.png" 
+    alt="Hexo Logo"
+    className="h-14 w-18 mr-2 mt-1" // Increased height and width
+  />
+</span>
             </div>
           </div>
 
@@ -315,10 +321,10 @@ const { cartCount } = useAuth(); // Access cartCount from context
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    {/* <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <CogIcon className="w-5 h-5 mr-2" />
                       Settings
-                    </button>
+                    </button> */}
                     <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <LogoutIcon className="w-5 h-5 mr-2" />
                       Logout
@@ -345,10 +351,10 @@ const { cartCount } = useAuth(); // Access cartCount from context
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    {/* <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <CogIcon className="w-5 h-5 mr-2" />
                       Settings
-                    </button>
+                    </button> */}
                     <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <LogoutIcon className="w-5 h-5 mr-2" />
                       Logout

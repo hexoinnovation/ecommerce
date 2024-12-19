@@ -445,10 +445,10 @@ const Navbar = () => {
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    {/* <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <CogIcon className="w-5 h-5 mr-2" />
                       Settings
-                    </button>
+                    </button> */}
                     <button
                       onClick={handleLogout}
                       className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -493,10 +493,10 @@ const Navbar = () => {
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />
                       My Wishlist
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    {/* <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <CogIcon className="w-5 h-5 mr-2" />
                       Settings
-                    </button>
+                    </button> */}
                     <button
                       onClick={handleLogout}
                       className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
