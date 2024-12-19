@@ -305,17 +305,24 @@ useEffect(() => {
 }, [id]); 
 const fetchRecommendedProducts = async () => {
   try {
-    const q = query(collection(db, "products"), limit(4)); // Get only 4 products
-    const querySnapshot = await getDocs(q);
+    // Fetch all products from Firestore
+    const querySnapshot = await getDocs(collection(db, "products"));
 
     let products = [];
     querySnapshot.forEach((doc) => {
       products.push({ id: doc.id, ...doc.data() });
     });
 
-    setRecommendedProducts(products);
+    // Shuffle the products to randomize them
+    const shuffledProducts = products.sort(() => Math.random() - 0.5);
+
+    // Select a limited number of products to display
+    const limitedProducts = shuffledProducts.slice(0, 4);
+
+    setRecommendedProducts(limitedProducts);
     setLoading(false);
   } catch (error) {
+    console.error("Error fetching recommended products:", error);
     setError("Failed to fetch recommended products.");
     setLoading(false);
   }
@@ -349,91 +356,55 @@ if (error) {
 
   return (
     <div className="min-h-screen flex items-center justify-center sm:mt-0 mt-10 bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto  p-4 max-w-4xl">
-        <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex flex-row lg:flex-row items-start gap-4">
-      {/* Thumbnail Gallery */}
-      <div className="flex lg:flex-col flex-row gap-4">
-        {angles.map((angle, index) => (
-          <div key={index} className="flex flex-col items-center">
-            <img
-              src={angle.image}
-              alt={angle.label}
-              className="h-20 w-20 object-cover rounded-md cursor-pointer transition-transform transform hover:scale-110"
-              onClick={() => setMainImage(angle.image)}
-            />
-            <p className="text-sm text-gray-500">{angle.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Main Image with Magnifying Glass */}
-      <div
-        className="relative group"
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsZoomVisible(true)}
-        onMouseLeave={() => setIsZoomVisible(false)}
-      >
-        <img
-          src={mainImage}
-          alt={product?.name || "Product"}
-          className="w-full max-w-md h-96 object-cover rounded-xl shadow-lg"
-        />
-
-        {/* Magnifying Glass Overlay */}
-        {isZoomVisible && (
-          <div
-            className="absolute top-0 left-0 w-full h-full bg-no-repeat bg-cover rounded-xl border-2 border-gray-300"
-            style={{
-              backgroundImage: `url(${mainImage})`,
-              ...zoomStyle,
-              backgroundSize: "200%",
-            }}
+      <div className="container mx-auto  p-1 max-w-7xl">
+      <div className="container mx-auto p-6">
+  {/* Main Product Section */}
+  <div className="flex flex-col lg:flex-row gap-8">
+    {/* Thumbnail Gallery */}
+    <div className="flex flex-row lg:flex-col gap-4 items-start">
+      {angles.map((angle, index) => (
+        <div key={index} className="flex flex-col items-center">
+          <img
+            src={angle.image}
+            alt={angle.label}
+            className="h-20 w-20 object-cover rounded-md cursor-pointer transition-transform transform hover:scale-110"
+            onClick={() => setMainImage(angle.image)}
           />
-        )}
-     <div className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-opacity-40">
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    className="w-16 h-16"
-  >
-    <defs>
-      <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style={{ stopColor: 'yellow', stopOpacity: 1 }} />
-        <stop offset="100%" style={{ stopColor: 'orange', stopOpacity: 1 }} />
-      </linearGradient>
-    </defs>
-    <circle cx="10.5" cy="10.5" r="7.5" stroke="url(#gradient1)" />
-    <path d="M15.5 15.5L20 20" stroke="url(#gradient1)" />
-  </svg>
-</div>
-      </div>
+          <p className="text-sm text-gray-500">{angle.label}</p>
+        </div>
+      ))}
     </div>
-          <div className="space-y-6 flex-1">
-            <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">{product.name}</h2>
-              <button
-      onClick={handleWishlistToggle}
-      className={`text-2xl ${isWishlist ? 'text-red-500' : 'text-gray-500'}`}
-    >
-      <FaHeart />
-    </button>
-            </div>
-            <p className="text-lg text-gray-700 dark:text-gray-300">{product.description}</p>
-            {/* <div className="flex items-center space-x-2 text-yellow-500">
-              {[...Array(5)].map((_, index) => (
-                <FaStar
-                  key={index}
-                  className={index < product.rating ? 'text-yellow-400' : 'text-gray-300'}
-                />
-              ))}
-              <span className="text-gray-600 dark:text-gray-300">({product.rating})</span>
-            </div> */}
 
-            <div className="flex items-center space-x-2">
+    {/* Main Image with Zoom */}
+    <div
+      className="relative group flex-1"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsZoomVisible(true)}
+      onMouseLeave={() => setIsZoomVisible(false)}
+    >
+      <img
+        src={mainImage}
+        alt={product?.name || "Product"}
+        className="w-full max-w-md h-96 object-cover rounded-xl shadow-lg"
+      />
+      {isZoomVisible && (
+        <div
+          className="absolute top-0 left-0 w-full h-full bg-no-repeat bg-cover rounded-xl border-2 border-gray-300"
+          style={{
+            backgroundImage: `url(${mainImage})`,
+            ...zoomStyle,
+            backgroundSize: "200%",
+          }}
+        />
+      )}
+    </div>
+
+    {/* Product Details */}
+    <div className="flex-1 space-y-6">
+      <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">{product.name}</h2>
+      <p className="text-lg text-gray-700 dark:text-gray-300">{product.description}</p>
+      <div className="text-2xl font-semibold text-gray-800 dark:text-white">₹{product.price}</div>
+      <div className="flex items-center space-x-2">
   <span className="font-medium text-gray-700 dark:text-gray-400">Color:</span>
   {/* <span className="text-sm text-gray-600 dark:text-gray-300">{product.color}</span> */}
   <div
@@ -459,101 +430,66 @@ if (error) {
     </span>
   </div>
   </div>
-            <div className="text-2xl font-semibold text-gray-800 dark:text-white mt-4">
-              ₹{product.price}
-            </div>
-            
-            {/* Quantity Section */}
-            <div className="flex items-center space-x-2 mt-4">
-              <button
-                onClick={handleDecrement}
-                className="px-4 py-2 bg-gray-200 rounded-md"
-              >
-                -
-              </button>
-              <input
-  type="number"
-  value={quantity}
-  onChange={(e) => setQuantity(Math.max(1, e.target.value))}
-  className="w-16 text-center border border-gray-300 rounded-md"
-/>
+      {/* Quantity Controls */}
+      <div className="flex items-center space-x-2">
+        <button onClick={handleDecrement} className="px-4 py-2 bg-gray-200 rounded-md">-</button>
+        <input
+          type="number"
+          value={quantity}
+          onChange={(e) => setQuantity(Math.max(1, e.target.value))}
+          className="w-16 text-center border border-gray-300 rounded-md"
+        />
+        <button onClick={handleIncrement} className="px-4 py-2 bg-gray-200 rounded-md">+</button>
+      </div>
 
-              <button
-                onClick={handleIncrement}
-                className="px-4 py-2 bg-gray-200 rounded-md"
-              >
-                +
-              </button>
-            </div>
+      {/* Buttons */}
+      <div className="flex space-x-4">
+        <button
+          onClick={() => handleAddToCart(product)}
+          className="w-1/2 py-3 bg-primary text-white font-semibold rounded-md shadow-md hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+        >
+          <FaShoppingCart /> Add to Cart
+        </button>
+        <button
+          onClick={handleBuyNow}
+          className="w-1/4 py-3 bg-green-500 text-white font-semibold rounded-md shadow-md hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+        >
+          <FaMoneyBillAlt /> Buy Now
+        </button>
+      </div>
+    </div>
+  </div>
 
-            <div className="flex space-x-4 mt-6">
-            <button
-                 onClick={() => handleAddToCart(product)}// Trigger the add to cart function
-                  className="w-1/2 sm:w-1/2 py-3 bg-primary text-white font-semibold rounded-md shadow-md hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
-                >
-                  <FaShoppingCart /> Add to Cart
-                </button>
-
-          <button
-      onClick={handleBuyNow}  // Attach the handleBuyNow function to the button's click event
-      className="w-1/2 sm:w-36 py-3 bg-green-500 text-white font-semibold rounded-md shadow-md hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
-    >
-      <FaMoneyBillAlt /> Buy Now
-    </button>
-           
-            </div>
-            <button
-  onClick={handleGoBack}
-  className="text-xl text-primary dark:text-white flex items-center gap-2 mb-4 ml-40"
->
-  <FontAwesomeIcon icon={faHandPointLeft} className="text-2xl" />
-  Back to Shop
-</button>
-
-<div className="recommended-products w-full min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4">
-  <h1 className="text-3xl font-bold text-left text-gray-800 dark:text-gray-100 mb-8">
-    People also want these
-  </h1>
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 place-items-center">
+  {/* Recommended Products Section */}
+  <div className="recommended-products mt-12">
+  <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">People also want these</h1>
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xxxl:grid-cols-5 gap-6 justify-start">
     {recommendedProducts.map((product) => (
       <div
         key={product.id}
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col justify-between h-full hover:shadow-xl transition-shadow duration-300"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col hover:shadow-xl transition-shadow duration-300"
       >
-        <div className="relative mb-4 group">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-[250px] object-cover rounded-md cursor-pointer group-hover:scale-105 transform transition-all duration-300"
-          />
-          <FaHeart className="absolute top-4 right-4 text-gray-400 group-hover:text-red-500 cursor-pointer transition-colors" />
-        </div>
-        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2 text-center">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-[350px] object-cover rounded-md"
+        />
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 text-center mt-4">
           {product.name}
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 text-center">
-          {product.description}
-        </p>
-        <div className="flex items-center justify-center space-x-2 mb-4">
-          <span className="font-medium text-gray-700 dark:text-gray-400">Color:</span>
-          <div
-            className="w-6 h-6 rounded-full"
-            style={{ backgroundColor: product.color.toLowerCase() }}
-          ></div>
-        </div>
-        <div className="flex justify-between items-center mb-4">
-          <p className="text-lg font-bold text-gray-900 dark:text-white">₹{product.price}</p>
-        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-300 text-center">{product.description}</p>
+        <p className="text-lg font-bold text-gray-900 dark:text-white text-center mt-2">₹{product.price}</p>
+
         <div className="flex justify-between items-center space-x-2 mt-auto">
           <button
-            onClick={() => console.log(`Added ${product.name} to cart`)} // Handle add to cart
+            onClick={() => console.log(`Added ${product.name} to cart`)} // Corrected template literal
             className="flex items-center justify-center bg-primary text-xs text-white px-4 py-2 rounded-md shadow-md hover:bg-primary-dark transition"
           >
             <FaShoppingCart className="mr-2" />
             Add to Cart
           </button>
           <button
-            onClick={() => console.log(`Buying ${product.name}`)} // Handle buy now
+            onClick={() => console.log(`Buying ${product.name}`)} // Corrected template literal
             className="flex items-center justify-center bg-green-600 text-xs text-white px-4 py-2 rounded-md shadow-md hover:bg-green-700 transition"
           >
             <FaShoppingBag className="mr-2" />
@@ -562,6 +498,9 @@ if (error) {
         </div>
       </div>
     ))}
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -704,10 +643,6 @@ if (error) {
   </div>
 )}    
           </div>
-        </div>
-      </div>
-      
-    </div>
   );
 };
 
