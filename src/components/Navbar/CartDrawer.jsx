@@ -161,23 +161,23 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
 
         {/* Cart Footer */}
         <div className="mt-4">
-          <div className="flex justify-between text-lg font-semibold">
-            <span>Total</span>
+          <div className="flex justify-between text-lg text-gray-800 font-semibold">
+            <span>Total Amount</span>
             <span>₹{calculateTotal()}</span>
           </div>
-          <div className="mt-4 flex justify-between">
+          <div className="mt-4 flex justify-between ml-48 ">
             <Link
               to="/cart"
-              className="bg-primary text-white px-4 py-2 rounded-lg"
+              className="bg-primary text-white px-4 py-2 rounded-lg w-100 hover:bg-indigo-500"
             >
               View Cart
             </Link>
-            <Link
+            {/* <Link
               to="/checkout"
               className="bg-green-500 text-white px-4 py-2 rounded-lg"
             >
               Proceed to Checkout
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>

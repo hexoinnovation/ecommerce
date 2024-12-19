@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../Authcontext"; // Access currentUser
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { db, doc, collection, setDoc, deleteDoc, getDoc,  } from "../firebase"; // Firestore methods
 import Navbar from "./Navbar";
 import Footer from "../Footer/Footer";
@@ -10,17 +10,60 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
-import { getAuth } from "firebase/auth"; // Firebase Auth
+import { getAuth } from "firebase/auth"; // Firebase Aut
 import Swal from 'sweetalert2';
 
 const CartPage = () => {
   const [step, setStep] = useState(0);
+  const location = useLocation();
+  const product = location.state?.product;
   
+
+  const [checkoutDetails, setCheckoutDetails] = useState({
+    price: product?.price || 0,
+    quantity: product?.quantity || 1,
+    gstRate: 0.18, // 18% GST
+    discount: 100, // Default discount
+    shippingCharge: 50, // Default shipping charge
+  });
   const [cartItems, setCartItems,removeFromCart] = useState([]);
   const navigate = useNavigate();
   const auth = getAuth(); // Firebase Auth instance
+  const[gstAmount,setgst]=useState();
   const [currentUser, setCurrentUser] = useState();
-
+  const calculateTotal = () => {
+    const { price, quantity, shippingCharge,  } = checkoutDetails;
+  
+    // Calculate subtotal
+    const subtotal = price * quantity;
+  
+   
+    const gstRate = 0.05; // 5% GST
+    const gstAmount = subtotal * gstRate;
+  
+    // Calculate Discount
+    let discount = 0;
+    if (subtotal > 1000) {
+      discount = 100; // Rs. 100 discount for subtotal > 1000
+    } else if (subtotal >= 500 && subtotal <= 1000) {
+      discount = 50; // Rs. 50 discount for subtotal in range 500-1000
+    } else if (subtotal < 500) {
+      discount = 10; // Rs. 10 discount for subtotal < 500
+    }
+  
+    // Calculate total amount
+    const total = subtotal + gstAmount - discount + shippingCharge;
+  
+    return {
+      subtotal,
+      gstAmount,
+      discount,
+      total,
+    };
+  };
+  
+  const totals = calculateTotal();
+  
   const steps = [
     { label: "Details", description: "Enter your details" },
     { label: "Payment", description: "Confirm your order" },
@@ -50,9 +93,6 @@ const CartPage = () => {
   const userCartRef = currentUser
     ? collection(doc(db, "users", currentUser.email), "cart")
     : null;
-
-  // Sync cart items to Firestore whenever they change
-
 
   // Fetch the current user's details
   useEffect(() => {
@@ -102,24 +142,24 @@ const CartPage = () => {
     }
   };
 
-  // Save cart items on change
-  useEffect(() => {
-    const saveCartItems = async () => {
-      if (currentUser) {
-        const userCartRef = collection(db, "users", currentUser.email, "Cart");
-        cartItems.forEach(async (item) => {
-          try {
-            await setDoc(doc(userCartRef, item.id), item);
-          } catch (error) {
-            console.error("Error saving cart item:", error.message);
-          }
-        });
-        console.log("Cart items saved successfully");
-      }
-    };
+  // // Save cart items on change
+  // useEffect(() => {
+  //   const saveCartItems = async () => {
+  //     if (currentUser) {
+  //       const userCartRef = collection(db, "users", currentUser.email, "Cart");
+  //       cartItems.forEach(async (item) => {
+  //         try {
+  //           await setDoc(doc(userCartRef, item.id), item);
+  //         } catch (error) {
+  //           console.error("Error saving cart item:", error.message);
+  //         }
+  //       });
+  //       console.log("Cart items saved successfully");
+  //     }
+  //   };
 
-    saveCartItems();
-  }, [cartItems, currentUser]);
+  //   saveCartItems();
+  // }, [cartItems, currentUser]);
 
   const [shippingAddress, setShippingAddress] = useState({
     fullName: "",
@@ -170,78 +210,84 @@ const CartPage = () => {
   const [discount, setDiscount] = useState(0); // Default to 0
   const [total, setTotal] = useState(subtotal); // Initialize total
 
-  // Update total whenever any value changes
-  const calculateTotal = () => {
-    const calculatedTotal = subtotal + shipping + tax - discount;
-    setTotal(calculatedTotal);
-  };
+  // // Update total whenever any value changes
+  // const calculateTotal = () => {
+  //   const calculatedTotal = subtotal + shipping + tax - discount;
+  //   setTotal(calculatedTotal);
+  // };
   React.useEffect(() => {
     calculateTotal();
   }, [subtotal, shipping, tax, discount]); // Recalculate when these values change
 
-  // Remove item from Firestore when it's removed from the cart
-  const handleRemoveFromCart = async (id) => {
-    if (currentUser && userCartRef) {
-      await deleteDoc(doc(userCartRef, id)); // Delete the item from Firestore
-    }
-    removeFromCart(id); // Remove from local state
-  };
-
-  
   const user = auth.currentUser;
 
   const saveShippingBillingData = async () => {
     try {
-      if (!user || !user.email) {
-        console.error("User not authenticated or email not available");
-        return;
-      }
-  
-      // Reference to a specific document within the ShippingBilling subcollection
-      const userDocRef = doc(db, "users", user.email);
-      const cartRef = doc(userDocRef, "ShippingBilling", "latest");
-  
-      // Data to save or update
-      const shippingBillingData = {
-        shippingAddress,
-        billingAddress: sameAsShipping ? shippingAddress : billingAddress,
-        orderSummary: {
-          totalAmount, // Correctly saving total amount
-          shipping,
-          tax,
-          discount,
-        },
-        cartItems,
-        timestamp: new Date(),
-      };
-  
-      // Create or update the "latest" document
-      await setDoc(cartRef, shippingBillingData, { merge: true }); // `merge: true` updates only specified fields
-      console.log("Data successfully updated in Firestore");
+        if (!user || !user.email) {
+            console.error("User not authenticated or email not available");
+            return;
+        }
+
+        // Reference to a specific document within the ShippingBilling subcollection
+        const userDocRef = doc(db, "users", user.email);
+        const cartRef = doc(userDocRef, "ShippingBilling", "latest");
+
+        // Ensure no undefined values in the totals and addresses
+        const validatedTotals = {
+            discount: totals?.discount ?? 0,
+            gstAmount: Math.round(totals?.gstAmount ?? 0),
+            subtotal: totals?.subtotal ?? 0,
+            total:Math.round(totals?.total ?? 0),
+        };
+
+        const validatedShippingAddress = shippingAddress || {};
+        const validatedBillingAddress = sameAsShipping ? validatedShippingAddress : (billingAddress || {});
+
+        const shippingBillingData = {
+            shippingAddress: validatedShippingAddress,
+            billingAddress: validatedBillingAddress,
+           
+            orderSummary: { // Ensure this is added to the Firestore document
+                shippingCharge: checkoutDetails.shippingCharge,
+                gstAmount: Math.round(totals?.gstAmount ?? 0),
+                discount: totals?.discount || 0,
+                totals: validatedTotals, // You can store the whole totals object here
+            },
+            timestamp: new Date(),
+        };
+
+        // Log the data for debugging
+        console.log("Shipping Billing Data:", shippingBillingData);
+
+        // Create or update the "latest" document
+        await setDoc(cartRef, shippingBillingData, { merge: true });
+        console.log("Data successfully updated in Firestore");
     } catch (error) {
-      console.error("Error saving data to Firestore:", error.message);
+        console.error("Error saving data to Firestore:", error.message);
     }
-  };
+};
+
+
 
   const [orderSummary, setOrderSummary] = useState({});
  
-  const fetchCartItems = async () => {
-    if (!currentUser) return;
-    const cartRef = collection(db, "users", currentUser.email, "AddToCart");
-    const querySnapshot = await getDocs(cartRef);
-    const items = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setCartItems(items);
-    setTotalAmount(
-      items.reduce((acc, item) => acc + item.price * item.quantity, 0)
-    );
-  };
+  // const fetchCartItems = async () => {
+  //   if (!currentUser) return;
+  //   const cartRef = collection(db, "users", currentUser.email, "AddToCart");
+  //   const querySnapshot = await getDocs(cartRef);
+  //   const items = querySnapshot.docs.map((doc) => ({
+  //     id: doc.id,
+  //     ...doc.data(),
+  //   }));
+  //   setCartItems(items);
+  //   setTotalAmount(
+  //     items.reduce((acc, item) => acc + item.price * item.quantity, 0)
+  //   );
+  // };
 
-  useEffect(() => {
-    if (currentUser) fetchCartItems();
-  }, [currentUser]);
+  // useEffect(() => {
+  //   if (currentUser) fetchCartItems();
+  // }, [currentUser]);
 
  
 
@@ -295,56 +341,80 @@ const CartPage = () => {
 
         // Fetch the document data
         const cartSnapshot = await getDoc(cartRef);
-        if (cartSnapshot.exists()) {
-            const data = cartSnapshot.data();
-            setShipping(data.orderSummary?.shipping || 0);
-            setTax(data.orderSummary?.tax || 0);
-            setDiscount(data.orderSummary?.discount || 0);
-            setTotalAmount(data.orderSummary?.total || 0);
+        if (!cartSnapshot.exists()) {
+            console.error("No such document found!");
+            return;
+        }
 
-            const shippingAddressString = Object.entries(shippingAddress)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join('\n');
-            
-            const billingAddressString = sameAsShipping
-                ? "Same as shipping address"
-                : Object.entries(billingAddress)
-                    .map(([key, value]) => `${key}: ${value}`)
-                    .join('\n');
-            
-            // Build the order summary message
-            const orderSummaryMessage = `
+        const data = cartSnapshot.data();
+        if (!data || !data.orderSummary) {
+            console.error("Order Summary not found in document!");
+            return;
+        }
+
+        // Safely extract values with default fallbacks
+        const shipping = data.orderSummary.shippingCharge || 0;
+        const tax = data.orderSummary.gstAmount || 0;
+        const discount = data.orderSummary.discount || 0;
+        const total = data.orderSummary.totals || 0;
+
+        // Update state with extracted values
+        setShipping(shipping);
+        setTax(tax);
+        setDiscount(discount);
+        setTotalAmount(total);
+
+        // Generate address strings
+        const shippingAddressString = shippingAddress
+            ? Object.entries(shippingAddress)
+                  .map(([key, value]) => `${key}: ${value}`)
+                  .join("\n")
+            : "No shipping address provided";
+
+        const billingAddressString = sameAsShipping
+            ? "Same as shipping address"
+            : billingAddress
+            ? Object.entries(billingAddress)
+                  .map(([key, value]) => `${key}: ${value}`)
+                  .join("\n")
+            : "No billing address provided";
+
+        // Build the order summary message
+        const orderSummaryMessage = `
+             
+*Product Details*
+Name: ${product.name}
+Quantity: ${checkoutDetails.quantity}
+Price (per unit): ₹${product.price}
+
 *Order Summary*
-- Total Items: ${cartItems.length}
-- Shipping: $${(data.orderSummary?.shipping || 0).toFixed(2)}
-- Tax: $${(data.orderSummary?.tax || 0).toFixed(2)}
-- Discount: $${(data.orderSummary?.discount || 0).toFixed(2)}
-- Total: $${(data.orderSummary?.total || 0).toFixed(2)}
+Base Amount: ₹${ totals.subtotal}
+Shipping: ₹${checkoutDetails.shippingCharge}
+Tax: ₹${totals.gstAmount.toFixed()}
+Discount: -₹${totals.discount}
+Total: ₹${ totals.total.toFixed()}
 
 *Shipping Address*
 ${shippingAddressString}
 
 *Billing Address*
 ${billingAddressString}
+
 *"Thank you for your purchase! We’re thrilled to have your support."*
-*Confirming your order details..😊 *
-`;
+*Confirming your order details.. 😊*
+        `;
 
-            // WhatsApp sharing logic
-            const phoneNumber = "+7358937529"; // Replace with target phone number
-            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(orderSummaryMessage)}`;
-            window.open(url, "_blank");
+        // WhatsApp sharing logic
+        const phoneNumber = "7358937529"; // Replace with the target phone number
+        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(orderSummaryMessage)}`;
+        window.open(url, "_blank");
 
-            // Update state to notify on returning
-            localStorage.setItem("orderShared", "true");
-        } else {
-            console.error("No such document found!");
-        }
+        // Update state to notify on returning
+        localStorage.setItem("orderShared", "true");
     } catch (error) {
         console.error("Error fetching data from Firestore:", error.message);
     }
 };
-  
 
 const [baseAmount, setBaseAmount] = useState(113493); // Initial base amount
 const [calculatedTotalAmount, setCalculatedTotalAmount] = useState(baseAmount);
@@ -363,10 +433,10 @@ const handleFieldChange = (setter) => (e) => {
   return (
     <div>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 mt-0 py-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 mt-0 py-8 ml-48">
         <div className="container mx-auto p-4 max-w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl ml-4 sm:ml-4 md:ml-4 lg:ml-">
           {/* Stepper */}
-          <ol className="flex flex-wrap items-center w-200 sm:w-200 mr-10 sm:ml-80  space-x-2 sm:space-x-8 text-sm font-medium text-center sm:h-10 h-20 text-gray-500 border  border-yellow-200 rounded-lg shadow-sm dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 rtl:space-x-reverse">
+          <ol className="flex flex-wrap items-center w-200 sm:w-200  sm:ml-80  space-x-1 sm:space-x-5 text-sm font-medium text-center sm:h-10 h-20 text-gray-500  dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 rtl:space-x-reverse ">
             {steps.map((stepData, index) => (
               <li
                 key={index}
@@ -445,7 +515,6 @@ const handleFieldChange = (setter) => (e) => {
                       ))}
                     </form>
                   </div>
-
                   {/* Same as Shipping Checkbox */}
                   <div className="mb-6 flex items-center">
                     <input
@@ -489,112 +558,80 @@ const handleFieldChange = (setter) => (e) => {
                 </div>              
               {/* Order Summary Section */}
               <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 h-3/4">
-      <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
-        Order Summary
-      </h3>
-      <p className="mb-4 text-gray-700 dark:text-gray-300">
-        Total Items:{" "}
-        <span className="font-semibold">{cartItems.length}</span>
-      </p>
-      <p className="mb-4 text-gray-700 dark:text-gray-300">
-        Base Amount:{" "}
-        <span className="font-semibold">₹{baseAmount.toFixed(2)}</span>
-      </p>
+              <div className="border-b pb-4">
+  <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b-2 pb-2">
+    Product Details
+  </h2>
+  <div className="text-gray-700 space-y-2">
+    <p className="flex justify-between">
+      <span className="font-medium">Product Name:</span>
+      <span>{product.name}</span>
+    </p>
+    <p className="flex justify-between">
+      <span className="font-medium">Price (per unit):</span>
+      <span>₹{product.price}</span>
+    </p>
+    <p className="flex justify-between">
+      <span className="font-medium">Quantity:</span>
+      <span>{checkoutDetails.quantity}</span>
+    </p>
+    <p className="flex justify-between">
+      <span className="font-medium">Subtotal:</span>
+      <span>₹{totals.subtotal}</span>
+    </p>
+    <p className="flex justify-between">
+      <span className="font-medium">GST (5%):</span>
+      <span>₹{totals.gstAmount.toFixed()}</span>
+    </p>
+    <p className="flex justify-between">
+      <span className="font-medium text-red-600">Discount:</span>
+      <span className="text-red-600">- ₹{totals.discount}</span>
+    </p>
+    <p className="flex justify-between">
+      <span className="font-medium">Shipping Charge:</span>
+      <span>₹{checkoutDetails.shippingCharge}</span>
+    </p>
+  </div>
+  <hr className="my-4 border-gray-300" />
+  <h3 className="text-xl font-bold text-gray-900 flex justify-between">
+    <span>Total Amount:</span>
+    <span className="text-green-600">₹{totals.total.toFixed(2)}</span>
+  </h3>
+</div>
 
-      {/* Total Amount */}
-      <div className="flex justify-between items-center mb-4">
-        <label className="font-semibold text-gray-800 dark:text-gray-300">
-          Total Amount:
-        </label>
-        <span className="text-lg font-semibold text-gray-800 dark:text-white">
-          ₹{calculatedTotalAmount.toFixed(2)}
-        </span>
-      </div>
-
-      {/* Shipping */}
-      <div className="flex justify-between items-center mb-4">
-        <label className="font-semibold text-gray-800 dark:text-gray-300">
-          Shipping:
-        </label>
-        <input
-          type="number"
-          value={shipping}
-          onChange={handleFieldChange(setShipping)}
-          className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-        />
-      </div>
-
-      {/* Tax */}
-      <div className="flex justify-between items-center mb-4">
-        <label className="font-semibold text-gray-800 dark:text-gray-300">
-          Tax:
-        </label>
-        <input
-          type="number"
-          value={tax}
-          onChange={handleFieldChange(setTax)}
-          className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-        />
-      </div>
-
-      {/* Discount */}
-      <div className="flex justify-between items-center mb-4">
-        <label className="font-semibold text-gray-800 dark:text-gray-300">
-          Discount:
-        </label>
-        <input
-          type="number"
-          value={discount}
-          onChange={handleFieldChange(setDiscount)}
-          className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-        />
-      </div>
-
-      {/* Total */}
-      <div className="flex justify-between items-center mt-4 border-t pt-4">
-        <label className="font-bold text-lg text-gray-800 dark:text-white">
-          Final Total:
-        </label>
-        <span className="text-xl font-semibold text-gray-800 dark:text-white">
-          ₹{calculatedTotalAmount.toFixed(2)}
-        </span>
-      </div>
   {/* Proceed Button */}
   <button
-   onClick={() => {
+  onClick={() => {
+    console.log("Proceed to Checkout button clicked");
     saveShippingBillingData();
-    handleNext();
   }}
-    className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
-    disabled={cartItems.length === 0}
-  >
-    <span>Proceed to Checkout</span>
-    <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
-  </button>
+  className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
+  disabled={cartItems.length === 0}
+>
+  <span>Proceed to Checkout</span>
+  <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
+</button>
 </div>
               </div>
             </div>
           )}
 
             {step === 1 && (
-              <div>
-              <div className="p-6 bg-gray-100 rounded-lg max-w-6xl ml-40 mr-40 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <h1 className="text-2xl font-bold ml-20 t-4p-4 text-center rounded-lg flex items-center space-x-4">
+          <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg max-w-4xl mx-auto my-10 shadow-lg">
+          {/* Payment Header */}
+          <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8 flex items-center justify-center space-x-3">
             <span>Payment</span>
-            <div className="relative">
-              <FaCreditCard className="text-[#ff0080] animate-neon" />
-            </div>
+            <FaCreditCard className="text-[#ff0080] animate-bounce" />
           </h1>
-
+        
           {/* Payment Methods */}
-          <div className="mt-6 ml-0">
-            <h3 className="text-xl font-semibold ml-20 mb-4">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
               Choose a Payment Method
             </h3>
-
-            {/* Cash on Delivery Option */}
-            <div className="mb-4 ml-20">
+        
+            {/* Cash on Delivery */}
+            <div className="flex items-center justify-center space-x-4 mb-4">
               <input
                 type="radio"
                 id="cash-on-delivery"
@@ -602,14 +639,15 @@ const handleFieldChange = (setter) => (e) => {
                 value="cash on delivery"
                 checked={paymentMethod === "cash on delivery"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
+                className="h-5 w-5"
               />
-              <label htmlFor="cash-on-delivery" className="ml-2">
+              <label htmlFor="cash-on-delivery" className="text-gray-700 dark:text-gray-300">
                 Cash on Delivery
               </label>
             </div>
-
-            {/* Credit Card Option */}
-            <div className="mb-4 ml-20">
+        
+            {/* Credit Card */}
+            <div className="flex items-center justify-center space-x-4 mb-4">
               <input
                 type="radio"
                 id="creditCard"
@@ -617,102 +655,101 @@ const handleFieldChange = (setter) => (e) => {
                 value="creditCard"
                 checked={paymentMethod === "creditCard"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
+                className="h-5 w-5"
               />
-              <label htmlFor="creditCard" className="ml-2">
+              <label htmlFor="creditCard" className="text-gray-700 dark:text-gray-300">
                 Credit Card
               </label>
             </div>
-
-            {/* Order Summary Section (shown when Cash on Delivery is selected) */}
+        
+            {/* Order Summary */}
             {paymentMethod === "cash on delivery" && (
-              <div className="mt-6 ml-20">
-                <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
+              <div className="mt-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-inner">
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
                   Order Summary
                 </h3>
-                <p className="mb-4 text-gray-700 dark:text-gray-300">
-    Total Items:{" "}
-    <span className="font-semibold">{cartItems.length}</span>
-  </p>
-  <p className="mb-4 text-gray-700 dark:text-gray-300">
-    Total Amount:{" "}
-    <span className="font-semibold">₹{totalAmount}</span>
-  </p>
-
-               {/* Shipping */}
-<div className="flex justify-between items-center mb-4">
-  <label className="font-semibold text-gray-800 dark:text-gray-300">
-    Shipping:
-  </label>
-  <input
-    type="number"
-    value={shipping}
-    readOnly
-    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-  />
-</div>
-
-{/* Tax */}
-<div className="flex justify-between items-center mb-4">
-  <label className="font-semibold text-gray-800 dark:text-gray-300">
-    Tax:
-  </label>
-  <input
-    type="number"
-    value={tax}
-    readOnly
-    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-  />
-</div>
-
-{/* Discount */}
-<div className="flex justify-between items-center mb-4">
-  <label className="font-semibold text-gray-800 dark:text-gray-300">
-    Discount:
-  </label>
-  <input
-    type="number"
-    value={discount}
-    readOnly
-    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-  />
-</div>
-
-               {/* Total */}
-  <div className="flex justify-between items-center mt-4 border-t pt-4">
-    <label className="font-bold text-lg text-gray-800 dark:text-white">
-      Total:
-    </label>
-    <span className="text-xl font-semibold text-gray-800 dark:text-white">
-      ₹{totalAmount.toFixed(2)}
-    </span>
-  </div>
+                <div className="space-y-4 text-gray-700 dark:text-gray-300">
+              
+                  <p>Sub Total: <span className="font-semibold">₹{totals.subtotal}</span></p>
+                  <div className="flex justify-between items-center">
+                  <span className="font-medium">Shipping Charge:</span>
+                  <span>₹{checkoutDetails.shippingCharge}</span>
+                   
+                  </div>
+                  <div className="flex justify-between items-center">
+                  <span className="font-medium">GST (5%):</span>
+                  <span>₹{totals.gstAmount.toFixed()}</span>
+                   
+                  </div>
+                  <div className="flex justify-between items-center text-red-500 font-bold">
+                  <span className="font-medium text-red-600">Discount:</span>
+                  <span className="text-red-600">- ₹{totals.discount}</span>
+                  </div>
+                </div>
+        
+                {/* Total */}
+                <div className="flex justify-between items-center mt-6 border-t pt-4">
+                  <span className="font-bold text-lg text-gray-800 dark:text-white">
+                    Total:
+                  </span>
+                  <span className="text-2xl font-semibold text-green-600 dark:text-green-400">
+                  ₹{totals.total.toFixed()}
+                  </span>
+                </div>
               </div>
             )}
-
-            {/* Confirmation Button */}
-            <div className="mt-6">
-            <button
+        
+        <button
   onClick={async () => {
-    // Show SweetAlert confirmation
-    await Swal.fire({
-      title: 'Order Confirmed!',
-      text: 'Your order has been successfully placed.',
-      icon: 'success',
-      confirmButtonText: 'Continue to Payment',
-    });
+    try {
+      // Save shipping, billing, and checkout details in Firestore
+      await saveShippingBillingData(); // Call the function to save the shipping and billing data
 
-    // Execute the WhatsApp sharing logic
-    await handleShareOrderSummary();
+      // Save the order details in Firestore
+      const userDocRef = doc(db, "users", user.email);
+      const cartRef = collection(userDocRef, "buynow order");
+
+      const orderData = {
+        productId: product.id,
+        productName: product.name,
+        price: product.price,
+        quantity: checkoutDetails.quantity,
+        subtotal: totals.subtotal,
+        gst: totals.gstAmount,
+        discount: totals.discount,
+        shippingCharge: checkoutDetails.shippingCharge,
+        totalAmount: totals.total,
+        shippingAddress,
+        billingAddress: sameAsShipping ? shippingAddress : billingAddress,
+        createdAt: new Date().toISOString(), // Optional timestamp
+      };
+
+      await setDoc(doc(cartRef), orderData); // Save the order details
+
+      // Proceed to the next step
+      handleNext();
+
+      // Show success message using SweetAlert
+      await Swal.fire({
+        title: "Order Confirmed!",
+        text: "Your order has been successfully placed.",
+        icon: "success",
+        confirmButtonText: "Continue to Payment",
+      });
+
+      // Share the order summary (if needed)
+      await handleShareOrderSummary();
+    } catch (error) {
+      console.error("Error saving order details:", error.message);
+    }
   }}
-  className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
+  className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
 >
   Confirm and Pay
 </button>
-            </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+          </div>
+        </div>
           )}
 
           {/* Navigation Buttons */}

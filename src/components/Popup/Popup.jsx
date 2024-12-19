@@ -54,8 +54,6 @@ const Popup = ({ product, onClose }) => {
       }
     }
   };
-  
-
   const handleBuyNow = () => {
     if (!isLoggedIn) {
       setLoginPrompt(true); // Show login prompt if not logged in
@@ -66,7 +64,8 @@ const Popup = ({ product, onClose }) => {
       };
       addToCart(productToAdd); // Add the product to the cart context
       
-      navigate('/checkout'); // Redirect to Checkout page directly
+      navigate("/checkout", { state: { product: productToAdd } });
+ // Redirect to Checkout page directly
     }
   };
 

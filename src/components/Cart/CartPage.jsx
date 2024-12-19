@@ -311,8 +311,9 @@ const CartPage = () => {
 
   const shipping = 100; // Fixed shipping cost
 
-  // Function to calculate totals
+  
   const calculateTotal = () => {
+   
     // Calculate Base Amount
     const baseAmountCalc = userCartItems.reduce((acc, item) => {
       return acc + (Number(item.price) || 0);
@@ -389,7 +390,7 @@ const CartPage = () => {
                     .map(([key, value]) => `${key}: ${value}`)
                     .join('\n');
             
-                    console.log("Total Amount:", totalAmount); // Build the order summary message
+                    console.log("Total Amount:", finalTotal); // Build the order summary message
             const orderSummaryMessage = `
             
 *Order Summary*
@@ -683,28 +684,29 @@ useEffect(() => {
 
       {/* Shipping */}
       <p className="mb-4 text-gray-700 dark:text-gray-300">
-        Shipping: <span className="font-semibold">₹{shipping.toFixed(2)}</span>
+        Shipping: <span className="font-semibold">₹{userCartItems.length === 0 ? 0: shippingCharge}</span>
       </p>
 
       {/* Discount */}
       <p className="mb-4 text-red-500">
-        Discount: <span className="font-semibold">-₹{discount}</span>
+        Discount: <span className="font-semibold">₹  {userCartItems.length === 0 ? 0: -discount}</span>
       </p>
 
       {/* GST */}
       <p className="mb-4 text-gray-700 dark:text-gray-300">
-        GST (5%): <span className="font-semibold">₹{gst}</span>
+        GST (5%): <span className="font-semibold">  ₹{userCartItems.length === 0 ? 0: gst}</span>
       </p>
 
-      {/* Final Total */}
-      <div className="flex justify-between items-center mt-4 border-t pt-4">
-        <label className="font-bold text-lg text-gray-800 dark:text-white">
-          Final Total:
-        </label>
-        <span className="text-xl font-semibold text-gray-800 dark:text-white">
-          ₹{finalTotal}
-        </span>
-      </div>
+    {/* Final Total */}
+<div className="flex justify-between items-center mt-4 border-t pt-4">
+  <label className="font-bold text-lg text-gray-800 dark:text-white">
+    Final Total:
+  </label>
+  <span className="text-xl font-semibold text-gray-800 dark:text-white">
+    ₹{userCartItems.length === 0 ? 0: finalTotal}
+  </span>
+</div>
+
 
 
       {/* Proceed Button */}
@@ -795,7 +797,7 @@ useEffect(() => {
   </label>
   <input
     type="number"
-    value={shipping}
+    value={userCartItems.length === 0 ? 0: shippingCharge}
     readOnly
     className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
   />
@@ -808,7 +810,7 @@ useEffect(() => {
   </label>
   <input
     type="number"
-    value={gst}
+    value=  {userCartItems.length === 0 ? 0: gst}
     readOnly
     className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
   />
@@ -821,7 +823,7 @@ useEffect(() => {
   </label>
   <input
     type="number"
-    value={-discount}
+    value=  {userCartItems.length === 0 ? 0:-discount}
     readOnly
     className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-red-500 dark:text-gray-200"
   />
@@ -833,7 +835,7 @@ useEffect(() => {
       Final Total:
     </label>
     <span className="text-xl font-semibold text-gray-800 dark:text-white">
-      ₹{finalTotal}
+    ₹{userCartItems.length === 0 ? 0: finalTotal}
     </span>
   </div>
               </div>
@@ -841,7 +843,7 @@ useEffect(() => {
 
             {/* Confirmation Button */}
             <div className="mt-6">
-            <button
+            <button 
   onClick={async () => {
     try {
       // Display SweetAlert confirmation
@@ -852,16 +854,45 @@ useEffect(() => {
         confirmButtonText: 'Continue to Payment',
       });
 
+      // Save order details to Firestore
+      const orderDetails = {
+        cartItems: userCartItems,
+        shippingAddress: shippingAddress,
+        billingAddress: sameAsShipping ? shippingAddress : billingAddress,
+        totalItems: userCartItems.length,
+        baseAmount: totalAmount,
+        shipping: userCartItems.length === 0 ? 0 : shippingCharge,
+        discount: userCartItems.length === 0 ? 0 : discount,
+        gstAmount: Math.round(gst?.gst ?? 0),
+        finalTotal:Math.round(finalTotal?.finalTotal ?? 0),
+        orderDate: new Date().toISOString(), // Timestamp for the order
+      };
+
+      // Get the user's document reference in Firestore
+      const userDocRef = doc(db, "users", user.email);
+      const cartRef = collection(userDocRef, "Cart order");
+
+      // Save the order details in Firestore
+      await setDoc(doc(cartRef, `order-${new Date().getTime()}`), orderDetails);
+
       // Share order summary via WhatsApp
       await handleShareOrderSummary();
     } catch (error) {
       console.error("Error during confirmation:", error.message);
+      // Display SweetAlert error message
+      await Swal.fire({
+        title: 'Error!',
+        text: 'Something went wrong while confirming your order.',
+        icon: 'error',
+        confirmButtonText: 'Try Again',
+      });
     }
   }}
   className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
 >
   Confirm and Pay
 </button>
+
             </div>
                   </div>
                 </div>
