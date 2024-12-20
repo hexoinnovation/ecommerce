@@ -332,7 +332,9 @@ const fetchRecommendedProducts = async () => {
 useEffect(() => {
   fetchRecommendedProducts();
 }, []);
-
+const handleProductClick = (productId) => {
+  navigate(`/product/${productId}`);
+};
 if (loading) {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -363,11 +365,11 @@ if (error) {
     {/* Thumbnail Gallery */}
     <div className="flex flex-row lg:flex-col gap-4 items-start">
       {angles.map((angle, index) => (
-        <div key={index} className="flex flex-col items-center">
+        <div key={index} className="flex flex-col items-center mt-7">
           <img
             src={angle.image}
             alt={angle.label}
-            className="h-20 w-20 object-cover rounded-md cursor-pointer transition-transform transform hover:scale-110"
+            className="h-20 w-20 object-cover rounded-md cursor-pointer transition-transform transform hover:scale-110 ml-10"
             onClick={() => setMainImage(angle.image)}
           />
           <p className="text-sm text-gray-500">{angle.label}</p>
@@ -385,7 +387,7 @@ if (error) {
       <img
         src={mainImage}
         alt={product?.name || "Product"}
-        className="w-full max-w-md h-96 object-cover rounded-xl shadow-lg"
+        className="w-full max-w-md h-100 object-cover rounded-xl shadow-lg ml-10"
       />
       {isZoomVisible && (
         <div
@@ -398,11 +400,23 @@ if (error) {
         />
       )}
     </div>
-
+  
+  
     {/* Product Details */}
-    <div className="flex-1 space-y-6">
-      <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">{product.name}</h2>
-      <p className="text-lg text-gray-700 dark:text-gray-300">{product.description}</p>
+    <div className="flex-1 space-y-7">
+    <div className="flex items-center justify-between">
+    <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">{product.name}</h2>
+    <button
+      onClick={handleWishlistToggle}
+      className={`text-2xl mr-60 ${isWishlist ? 'text-red-500' : 'text-gray-500'}`}
+    >
+      <FaHeart />
+    </button>
+  </div>
+  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100  mt-3 ">
+          {product.category}
+        </h3>
+      <p className="text-lg text-gray-700 dark:text-gray-300 ">{product.description}</p>
       <div className="text-2xl font-semibold text-gray-800 dark:text-white">₹{product.price}</div>
       <div className="flex items-center space-x-2">
   <span className="font-medium text-gray-700 dark:text-gray-400">Color:</span>
@@ -459,11 +473,17 @@ if (error) {
       </div>
     </div>
   </div>
-
-  {/* Recommended Products Section */}
   <div className="recommended-products mt-12">
-  <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">People also want these</h1>
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xxxl:grid-cols-5 gap-6 justify-start">
+  <div className="flex items-center justify-center mb-8">
+    <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center space-x-3">
+      <span>People also want these</span>
+      <span className="animate-bounce text-primary">
+        <FaStar className="w-6 h-6" />
+      </span>
+    </h1>
+  </div>
+  </div>
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     {recommendedProducts.map((product) => (
       <div
         key={product.id}
@@ -472,27 +492,40 @@ if (error) {
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-[350px] object-cover rounded-md"
+          className="w-full h-[250px] object-cover rounded-md"  onClick={() => handleProductClick(product.id)}
         />
-        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 text-center mt-4">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100  mt-3 ">
           {product.name}
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 text-center">{product.description}</p>
-        <p className="text-lg font-bold text-gray-900 dark:text-white text-center mt-2">₹{product.price}</p>
-
-        <div className="flex justify-between items-center space-x-2 mt-auto">
+       
+        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+          {product.description}
+        </p>
+        <div className="flex  space-x-2  mt-2">
+          <span className="font-medium text-gray-700 dark:text-gray-400">
+            Color:
+          </span>
+          <div
+            className="w-5 h-5 rounded-full border"
+            style={{ backgroundColor: product.color.toLowerCase() }}
+          ></div>
+        </div>
+        <p className="text-lg font-bold text-gray-900 dark:text-white  mt-2">
+          ₹{product.price}
+        </p>
+        <div className="flex justify-around  space-x-4 mt-4 mr-1">
           <button
-            onClick={() => console.log(`Added ${product.name} to cart`)} // Corrected template literal
-            className="flex items-center justify-center bg-primary text-xs text-white px-4 py-2 rounded-md shadow-md hover:bg-primary-dark transition"
+            onClick={() => console.log(`Added ${product.name} to cart`)}
+            className="flex   bg-primary text-xs text-white px-3 py-2 rounded-md shadow-md hover:bg-primary-dark transition"
           >
-            <FaShoppingCart className="mr-2" />
+            <FaShoppingCart className="mr-1" />
             Add to Cart
           </button>
           <button
-            onClick={() => console.log(`Buying ${product.name}`)} // Corrected template literal
-            className="flex items-center justify-center bg-green-600 text-xs text-white px-4 py-2 rounded-md shadow-md hover:bg-green-700 transition"
+            onClick={() => console.log(`Buying ${product.name}`)}
+            className="flex  bg-green-600 text-xs text-white px-3 py-2 rounded-md shadow-md hover:bg-green-700 transition"
           >
-            <FaShoppingBag className="mr-2" />
+            <FaShoppingBag className="mr-1" />
             Buy Now
           </button>
         </div>
@@ -502,7 +535,6 @@ if (error) {
 </div>
 
   </div>
-</div>
 
             {/* Success or Error Message */}
  {successMessage && (

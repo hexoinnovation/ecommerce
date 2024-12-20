@@ -579,20 +579,20 @@ useEffect(() => {
             )}
       </div>
       <div className="p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg h-60">
-    <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Order Summary</h2>
-    <p className="text-gray-700 dark:text-gray-300">Total Items: {userCartItems.length}</p>
-    <p className="text-sm font-semibold text-gray-800 dark:text-white mb-4">Total Amount: ₹{totalAmount.toFixed(2)}</p>
-    <button
-  onClick={handleNext}
-  className="inline-flex items-center justify-center py-3 px-6 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg transition-transform duration-200 ease-in-out hover:from-blue-600 hover:to-indigo-600 hover:shadow-lg active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed"
-  aria-label="Proceed to Checkout"
-  disabled={userCartItems.length === 0}
->
-  <span>Proceed to Checkout</span>
-  <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5 ml-2" />
-</button>
+  <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Order Summary</h2>
+  <p className="text-gray-700 dark:text-gray-300">Total Items: {userCartItems.length}</p>
+  <p className="text-sm font-semibold text-gray-800 dark:text-white mb-4">Total Amount: ₹{totalAmount.toFixed(2)}</p>
+  <button
+    onClick={handleNext}
+    className="h-14 py-3 px-2 bg-black text-white border-2 border-primary rounded-lg transition-transform duration-200 ease-in-out hover:bg-primary hover:text-black hover:border-black hover:shadow-lg active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed"
+    aria-label="Proceed to Checkout"
+    disabled={userCartItems.length === 0}
+  >
+    <span>Proceed to Checkout</span>
+    <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5 ml-3" />
+  </button>
+</div>
 
-  </div>
     </div>
   )}
 </div>
@@ -710,140 +710,129 @@ useEffect(() => {
 
 
 
-      {/* Proceed Button */}
-      <button
-        onClick={() => {
-          // Save and proceed
-          saveShippingBillingData();
-          handleNext();
-        }}
-        className="mt-4 w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center space-x-2"
-        disabled={cartItems.length === 0}
-      >
-        <span>Proceed to Checkout</span>
-        <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
-      </button>
+    {/* Proceed Button */}
+<button
+  onClick={() => {
+    // Save and proceed
+    saveShippingBillingData();
+    handleNext();
+  }}
+  className="mt-6 w-80 ml-20  py-2 bg-black text-white rounded-lg border-2 border-primary hover:bg-primary hover:text-black hover:border-black flex items-center justify-center space-x-2"
+  disabled={cartItems.length === 0}
+>
+  <span>Proceed to Checkout</span>
+  <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
+</button>
+
       </div>
               </div>
             </div>
           )}
+{step === 2 && (
+  <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+    {/* Payment Form Section */}
+    <div className="flex flex-col justify-start bg-white rounded-lg shadow-lg p-6">
+      <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-6 flex items-center justify-center mr-60">
+        Payment
+        <div className="relative inline-block ml-4">
+          <FaCreditCard className="text-[#ff0080] animate-neon text-3xl" />
+        </div>
+      </h1>
 
-          {step === 2 && (
-             <div>
-            <div className="p-6 bg-gray-100 rounded-lg max-w-6xl ml-40 mr-40 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Payment Form Code */}
-                <div>
-                    <h1 className="text-2xl font-bold ml-20 t-4p-4 text-center rounded-lg flex items-center space-x-4">
-                        <span>Payment</span>
-                        <div className="relative">
-                            <FaCreditCard className="text-[#ff0080] animate-neon" />
-                        </div>
-                    </h1>
+      {/* Payment Methods */}
+      <div className="mt-6">
+        <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6">
+          Choose a Payment Method
+        </h3>
 
-          {/* Payment Methods */}
-          <div className="mt-6 ml-0">
-            <h3 className="text-xl font-semibold ml-20 mb-4">
-              Choose a Payment Method
-            </h3>
+        {/* Cash on Delivery Option */}
+        <div className="mb-6">
+          <input
+            type="radio"
+            id="cash-on-delivery"
+            name="paymentMethod"
+            value="cash on delivery"
+            checked={paymentMethod === "cash on delivery"}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            className="mr-2"
+          />
+          <label htmlFor="cash-on-delivery" className="text-gray-800 dark:text-white text-xl">
+            Cash on Delivery
+          </label>
+        </div>
 
-            {/* Cash on Delivery Option */}
-            <div className="mb-4 ml-20">
-              <input
-                type="radio"
-                id="cash-on-delivery"
-                name="paymentMethod"
-                value="cash on delivery"
-                checked={paymentMethod === "cash on delivery"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-              <label htmlFor="cash-on-delivery" className="ml-2">
-                Cash on Delivery
-              </label>
-            </div>
+        {/* Credit Card Option */}
+        <div className="mb-6">
+          <input
+            type="radio"
+            id="creditCard"
+            name="paymentMethod"
+            value="creditCard"
+            checked={paymentMethod === "creditCard"}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            className="mr-2"
+          />
+          <label htmlFor="creditCard" className="text-gray-800 dark:text-white text-xl">
+            Credit Card
+          </label>
+        </div>
+      </div>
+    </div>
 
-            {/* Credit Card Option */}
-            <div className="mb-4 ml-20">
-              <input
-                type="radio"
-                id="creditCard"
-                name="paymentMethod"
-                value="creditCard"
-                checked={paymentMethod === "creditCard"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-              <label htmlFor="creditCard" className="ml-2">
-                Credit Card
-              </label>
-            </div>
+    {/* Order Summary Section */}
+    {paymentMethod === "cash on delivery" && (
+      <div className="flex flex-col justify-start bg-white rounded-lg shadow-lg p-6">
+        <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6">
+          Order Summary
+        </h3>
 
-            {/* Order Summary Section (shown when Cash on Delivery is selected) */}
-            {paymentMethod === "cash on delivery" && (
-              <div className="mt-6 ml-20">
-                <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
-                  Order Summary
-                </h3>
-                <p className="mb-4 text-gray-700 dark:text-gray-300">
-    Total Items:{" "}
-    <span className="font-semibold">{userCartItems.length}</span>
-  </p>
-  <p className="mb-4 text-gray-700 dark:text-gray-300">
-    Total Amount:{" "}
-    <span className="font-semibold">₹{totalAmount}</span>
-  </p>
+        <div className="mb-6 text-gray-700 dark:text-gray-300">
+          <p>Total Items: <span className="font-semibold">{userCartItems.length}</span></p>
+          <p>Total Amount: <span className="font-semibold">₹{totalAmount}</span></p>
+        </div>
 
-               {/* Shipping */}
-<div className="flex justify-between items-center mb-4">
-  <label className="font-semibold text-gray-800 dark:text-gray-300">
-    Shipping:
-  </label>
-  <input
-    type="number"
-    value={userCartItems.length === 0 ? 0: shippingCharge}
-    readOnly
-    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-  />
-</div>
+        {/* Shipping */}
+        <div className="flex justify-between items-center mb-6">
+          <label className="font-semibold text-gray-800 dark:text-gray-300">Shipping:</label>
+          <input
+            type="number"
+            value={userCartItems.length === 0 ? 0 : shippingCharge}
+            readOnly
+            className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+          />
+        </div>
 
-{/* Tax */}
-<div className="flex justify-between items-center mb-4">
-  <label className="font-semibold text-gray-800 dark:text-gray-300">
-    Tax:
-  </label>
-  <input
-    type="number"
-    value=  {userCartItems.length === 0 ? 0: gst}
-    readOnly
-    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
-  />
-</div>
+        {/* Tax */}
+        <div className="flex justify-between items-center mb-3">
+          <label className="font-semibold text-gray-800 dark:text-gray-300">Tax:</label>
+          <input
+            type="number"
+            value={userCartItems.length === 0 ? 0 : gst}
+            readOnly
+            className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-gray-800 dark:text-gray-200"
+          />
+        </div>
 
-{/* Discount */}
-<div className="flex justify-between items-center mb-4">
-  <label className="font-semibold text-red-500 dark:text-gray-300">
-    Discount:
-  </label>
-  <input
-    type="number"
-    value=  {userCartItems.length === 0 ? 0:-discount}
-    readOnly
-    className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-red-500 dark:text-gray-200"
-  />
-</div>
+        {/* Discount */}
+        <div className="flex justify-between items-center mb-3">
+          <label className="font-semibold text-red-500 dark:text-gray-300">Discount:</label>
+          <input
+            type="number"
+            value={userCartItems.length === 0 ? 0 : -discount}
+            readOnly
+            className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-2 w-24 rounded-lg text-red-500 dark:text-gray-200"
+          />
+        </div>
 
-               {/* Total */}
-  <div className="flex justify-between items-center mt-4 border-t pt-4">
-    <label className="font-bold text-lg text-gray-800 dark:text-white">
-      Final Total:
-    </label>
-    <span className="text-xl font-semibold text-gray-800 dark:text-white">
-    ₹{userCartItems.length === 0 ? 0: finalTotal}
-    </span>
-  </div>
-              </div>
-            )}
+        {/* Final Total */}
+        <div className="flex justify-between items-center mt-1 border-t pt-6">
+          <label className="font-bold text-lg text-gray-800 dark:text-white">Final Total:</label>
+          <span className="text-xl font-semibold text-gray-800 dark:text-white">
+            ₹{userCartItems.length === 0 ? 0 : finalTotal}
+          </span>
+        </div>
 
-            {/* Confirmation Button */}
-            <div className="mt-6">
+        <div className="mt-6">
             <button 
   onClick={async () => {
     try {
@@ -890,16 +879,19 @@ useEffect(() => {
       });
     }
   }}
-  className="bg-green-600 text-white px-6 py-2 rounded-md w-full sm:w-auto ml-20"
+  className="bg-gradient-to-r from-black to-green-800 mt-2 ml-40 hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
 >
   Confirm and Pay
 </button>
 
             </div>
-                  </div>
-                </div>
               </div>
-            </div>
+            )}
+
+
+            
+                  </div>
+              
           )}
 
           {/* Navigation Buttons */}
@@ -911,17 +903,21 @@ useEffect(() => {
             >
               Back
             </button>
-            <button
-              onClick={handleNext}
-              className="bg-primary/100 text-white px-4 py-2 rounded-md"
-              disabled={step === steps.length - 1}
-            >
-              {step === steps.length - 1 ? "Complete" : "Next"}
-            </button>
+            {step !== steps.length - 1 && (
+  <button
+    onClick={handleNext}
+    className="bg-primary border-2 border-black text-black px-4 py-2 rounded-md"
+    disabled={step === steps.length - 1}
+  >
+    Next
+  </button>
+)}
+
           </div>
         </div>
       </div>
     </div>
+    
     
   );
 }
