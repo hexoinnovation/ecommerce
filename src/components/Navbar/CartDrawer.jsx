@@ -165,13 +165,28 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
             <span>Total Amount</span>
             <span>₹{calculateTotal()}</span>
           </div>
-          <div className="mt-4 flex justify-between ml-48 ">
-            <Link
-              to="/cart"
-              className="bg-black border-4 border-primary text-white px-4 py-2 rounded-lg w-100 hover:bg-primary"
-            >
-              View Cart
-            </Link>
+          <div className="mt-4">
+  {/* Desktop Button */}
+  <div className="hidden md:flex justify-between ml-48">
+    <Link
+      to="/cart"
+      className="bg-black border-4 border-primary text-white px-4 py-2 rounded-lg hover:bg-primary"
+    >
+      View Cart
+    </Link>
+  </div>
+
+  {/* Mobile Button */}
+  <div className="flex justify-end md:hidden">
+    <Link
+      to="/cart"
+      className="bg-black border-4 border-primary text-white px-4 py-2 rounded-lg hover:bg-primary "
+    >
+      View Cart
+    </Link>
+  </div>
+  
+
             {/* <Link
               to="/checkout"
               className="bg-green-500 text-white px-4 py-2 rounded-lg"
