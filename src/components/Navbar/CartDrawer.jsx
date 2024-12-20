@@ -168,7 +168,7 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
           <div className="mt-4 flex justify-between ml-48 ">
             <Link
               to="/cart"
-              className="bg-primary text-white px-4 py-2 rounded-lg w-100 hover:bg-indigo-500"
+              className="bg-black border-4 border-primary text-white px-4 py-2 rounded-lg w-100 hover:bg-primary"
             >
               View Cart
             </Link>
