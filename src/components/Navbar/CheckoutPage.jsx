@@ -669,7 +669,7 @@ const handleFieldChange = (setter) => (e) => {
     
         {paymentMethod === "cash on delivery" && (
            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <div className="mt-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-inner">
+          <div className="mb-8 bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-inner">
             <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
               Order Summary
             </h3>
