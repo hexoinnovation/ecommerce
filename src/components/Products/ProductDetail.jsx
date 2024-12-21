@@ -79,6 +79,9 @@ const ProductDetail = () => {
                 const userCartRef = collection(db, "users", user.email, "AddToCart");
                 await setDoc(doc(userCartRef, productId), { ...product, quantity });
                 setSuccessMessage("Your product has been added to the cart successfully!");
+                setTimeout(() => {
+                  setSuccessMessage('');
+                }, 2000); // 2000ms = 2 seconds
                 incrementCartCount();
                 navigate("/cart");
             } catch (error) {
@@ -129,6 +132,9 @@ const ProductDetail = () => {
       });
   
       setSuccessMessage('Account created successfully! Please log in.');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 2000); // 2000ms = 2 seconds
       setIsSignup(false); // Switch to login form
   
     } catch (error) {
@@ -177,6 +183,9 @@ const ProductDetail = () => {
       setIsAuthenticated(true);
       
       setSuccessMessage('Login successful!');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 2000); // 2000ms = 2 seconds
       setShowModal(false); // Close modal after login
   
       // Store authentication state and username in localStorage
@@ -335,6 +344,7 @@ useEffect(() => {
 const handleProductClick = (productId) => {
   navigate(`/product/${productId}`);
 };
+
 if (loading) {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -471,6 +481,16 @@ if (error) {
           <FaMoneyBillAlt /> Buy Now
         </button>
       </div>
+        {/* Success or Error Message */}
+ {successMessage && (
+  <div className="flex items-center bg-white-500 text-yellow-800 p-3 rounded-lg shadow-lg mb-4 animate-slideIn">
+  <FaShoppingCart className="mr-3 text-5xl animate-bounce" />
+  <div className="flex flex-col">
+    <p className="text-center text-xxl font-bold">{successMessage}</p>
+  </div>
+</div>
+)}
+
     </div>
   </div>
   <div className="recommended-products mt-12">
@@ -536,16 +556,7 @@ if (error) {
 
   </div>
 
-            {/* Success or Error Message */}
- {successMessage && (
-  <div className="flex items-center bg-white-500 text-yellow-800 p-3 rounded-lg shadow-lg mb-4 animate-slideIn">
-  <FaShoppingCart className="mr-3 text-7xl animate-bounce" />
-  <div className="flex flex-col">
-    <p className="text-center text-lg font-bold">{successMessage}</p>
-  </div>
-</div>
-)}
-
+          
 {loginPrompt && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
     <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-8 rounded-md shadow-lg">

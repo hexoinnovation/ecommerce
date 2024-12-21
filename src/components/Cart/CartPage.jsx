@@ -4,7 +4,7 @@ import { useCart } from "../../context/CartContext";
 import { useAuth } from "../Authcontext";
 import { useNavigate } from "react-router-dom";
 import Notiflix from 'notiflix';
-
+import ReactQRCode from 'react-qr-code';
 import {
   db,
   doc,
@@ -90,6 +90,7 @@ const CartPage = () => {
       console.log("Data successfully updated in Firestore");
     } catch (error) {
       console.error("Error saving data to Firestore:", error.message);
+      throw error;
     }
   };
 
@@ -708,21 +709,29 @@ useEffect(() => {
   </span>
 </div>
 
-
-
-    {/* Proceed Button */}
 <button
-  onClick={() => {
-    // Save and proceed
-    saveShippingBillingData();
-    handleNext();
+   onClick={async () => {
+    try {
+      console.log("Proceed button clicked!");
+
+      // Save shipping and billing data
+      await saveShippingBillingData();
+      console.log("Shipping and billing data saved successfully!");
+
+      // Move to the next step
+      handleNext();
+      console.log("Moved to the next step!");
+    } catch (error) {
+      console.error("Error occurred:", error);
+    }
   }}
-  className="mt-6 w-80 ml-20  py-2 bg-black text-white rounded-lg border-2 border-primary hover:bg-primary hover:text-black hover:border-black flex items-center justify-center space-x-2"
-  disabled={cartItems.length === 0}
->
-  <span>Proceed to Checkout</span>
-  <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
-</button>
+  className="mt-6 w-80 ml-20 py-2 bg-black text-white rounded-lg border-2 border-primary hover:bg-primary hover:text-black hover:border-black flex items-center justify-center space-x-2"
+ 
+  >
+    <span>Proceed to Checkout</span>
+    <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5 ml-3" />
+  </button>
+
 
       </div>
               </div>
@@ -746,7 +755,7 @@ useEffect(() => {
         </h3>
 
         {/* Cash on Delivery Option */}
-        <div className="mb-6">
+        <div className="mb-6 ml-10">
           <input
             type="radio"
             id="cash-on-delivery"
@@ -761,21 +770,20 @@ useEffect(() => {
           </label>
         </div>
 
-        {/* Credit Card Option */}
-        <div className="mb-6">
-          <input
-            type="radio"
-            id="creditCard"
-            name="paymentMethod"
-            value="creditCard"
-            checked={paymentMethod === "creditCard"}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-            className="mr-2"
-          />
-          <label htmlFor="creditCard" className="text-gray-800 dark:text-white text-xl">
-            Credit Card
-          </label>
-        </div>
+        <div className="flex items-center justify-center space-x-4 mb-4 mr-80">
+  <input
+    type="radio"
+    id="creditCard"
+    name="paymentMethod"
+    value="upi"
+    checked={paymentMethod === "upi"}
+    onChange={(e) => setPaymentMethod(e.target.value)}
+    className="h-5 w-5 border-gray-400 hover:border-[#ff0080] focus:ring-[#ff0080] transition "
+  />
+  <label htmlFor="creditCard" className="text-gray-700 dark:text-gray-300 text-lg">
+    UPI
+  </label>
+</div>
       </div>
     </div>
 
@@ -833,67 +841,101 @@ useEffect(() => {
         </div>
 
         <div className="mt-6">
-            <button 
-  onClick={async () => {
-    try {
-      // Display SweetAlert confirmation
-      await Swal.fire({
-        title: 'Order Confirmed!',
-        text: 'Your order has been successfully placed.',
-        icon: 'success',
-        confirmButtonText: 'Continue to Payment',
-      });
+  <button
+    onClick={async () => {
+      try {
+        // Display SweetAlert modal for order confirmation and WhatsApp sharing
+        const response = await Swal.fire({
+          title: 'Order Confirmed!',
+          text: 'Your order has been successfully placed. ',
+          text:'Do you want to share your order on WhatsApp?',
+          icon: 'success',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, Share',
+          cancelButtonText: 'No, Thank You',
+        });
 
-      // Save order details to Firestore
-      const orderDetails = {
-        cartItems: userCartItems,
-        shippingAddress: shippingAddress,
-        billingAddress: sameAsShipping ? shippingAddress : billingAddress,
-        totalItems: userCartItems.length,
-        baseAmount: totalAmount,
-        shipping: userCartItems.length === 0 ? 0 : shippingCharge,
-        discount: userCartItems.length === 0 ? 0 : discount,
-        gstAmount: Math.round(gst?.gst ?? 0),
-        finalTotal: Math.round(finalTotal?.finalTotal ?? 0),
-        orderDate: new Date().toISOString(), // Timestamp for the order
-        paymentMethod: paymentMethod, // Add payment method here
-      };
-
-      // Get the user's document reference in Firestore
-      const userDocRef = doc(db, "users", user.email);
-      const cartRef = collection(userDocRef, "Cart order");
-
-      // Save the order details in Firestore
-      await setDoc(doc(cartRef, `order-${new Date().getTime()}`), orderDetails);
-
-      // Share order summary via WhatsApp
-      await handleShareOrderSummary();
-    } catch (error) {
-      console.error("Error during confirmation:", error.message);
-      // Display SweetAlert error message
-      await Swal.fire({
-        title: 'Error!',
-        text: 'Something went wrong while confirming your order.',
-        icon: 'error',
-        confirmButtonText: 'Try Again',
-      });
-    }
-  }}
-  className="bg-gradient-to-r from-black to-green-800 mt-2 ml-40 hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
->
-  Confirm and Pay
-</button>
-
-            </div>
+        if (response.isConfirmed) {
+          // Trigger WhatsApp sharing
+          await handleShareOrderSummary();
+          await Swal.fire({
+            title: 'Order Shared!',
+            text: 'Your order details have been shared on WhatsApp.',
+            icon: 'success',
+            confirmButtonText: 'Okay',
+          });
+        } else {
+          // Display Thank You message if No is clicked
+          await Swal.fire({
+            title: 'Thank You!',
+            text: 'Thank you for shopping with us',
+            text: 'We hope to see you again soon!.',
+            icon: 'info',
+            confirmButtonText: 'Close',
+          });
+        }
+      } catch (error) {
+        console.error('Error during confirmation:', error.message);
+        // Display SweetAlert error message
+        await Swal.fire({
+          title: 'Error!',
+          text: 'Something went wrong while confirming your order.',
+          icon: 'error',
+          confirmButtonText: 'Try Again',
+        });
+      }
+    }}
+    className="bg-gradient-to-r from-black to-green-800 mt-2 ml-40 hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
+  >
+    Confirm and Pay
+  </button>
+</div>
               </div>
             )}
+            {paymentMethod === "upi" && (
+  <div className="mt-6">
+    <div className="space-y-4 text-gray-700 dark:text-gray-300">
+  <p className="text-lg">Sub Total: <span className="font-semibold">₹{totalAmount}</span></p>
 
+  <div className="flex justify-between items-center text-lg">
+    <span className="font-medium">Shipping Charge:</span>
+    <span className="text-gray-700 dark:text-gray-300">₹{userCartItems.length === 0 ? 0 : shippingCharge}</span>
+  </div>
 
-            
+  <div className="flex justify-between items-center text-lg">
+    <span className="font-medium">GST (5%):</span>
+    <span className="text-gray-700 dark:text-gray-300">₹{userCartItems.length === 0 ? 0 : gst}</span>
+  </div>
+
+  <div className="flex justify-between items-center text-lg text-red-600 font-semibold">
+    <span className="font-medium">Discount:</span>
+    <span>-  {userCartItems.length === 0 ? 0 : -discount}</span>
+  </div>
+</div>
+
+{/* Total */}
+<div className="flex justify-between items-center mt-6 border-t pt-4">
+  <span className="font-bold text-lg text-gray-800 dark:text-white">
+    Total:
+  </span>
+  <span className="text-2xl font-semibold text-green-600 dark:text-green-400">
+    ₹{finalTotal}
+  </span>
+</div>
+<div className="mt-6">
+    <h3 className="text-xl font-semibold">Scan this UPI QR Code to Pay</h3>
+    <ReactQRCode 
+      value={`upi://pay?pa=madhumithamadhumitha003@oksbi&pn=MATHUMITHA%20G&mc=&tid=12345&tr=123456&tn=PaymentforOrder&am=${finalTotal}&cu=INR`} // UPI URL with parameters
+      size={256}
+      className="mt-4 mx-auto"
+    />
+    <p className="text-lg text-center mt-4">Use your UPI app to scan the QR code and make the payment.</p>
+  </div>
+  </div>
+)}
                   </div>
-              
+                  
           )}
-
           {/* Navigation Buttons */}
           <div className="mt-8 flex justify-between">
             <button
@@ -903,16 +945,14 @@ useEffect(() => {
             >
               Back
             </button>
-            {step !== steps.length - 1 && (
+            {(step === 0 || step === 0) && (
   <button
     onClick={handleNext}
     className="bg-primary border-2 border-black text-black px-4 py-2 rounded-md"
-    disabled={step === steps.length - 1}
   >
     Next
   </button>
 )}
-
           </div>
         </div>
       </div>

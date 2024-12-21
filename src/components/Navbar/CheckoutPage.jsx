@@ -432,75 +432,113 @@ const handleFieldChange = (setter) => (e) => {
 
   return (
     <div>
-      <Navbar />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 mt-0 py-8 ml-48">
-        <div className="container mx-auto p-4 max-w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl ml-4 sm:ml-4 md:ml-4 lg:ml-">
-          {/* Stepper */}
-          <ol className="flex flex-wrap items-center w-200 sm:w-200  sm:ml-80  space-x-1 sm:space-x-5 text-sm font-medium text-center sm:h-10 h-20 text-gray-500  dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 rtl:space-x-reverse ">
-            {steps.map((stepData, index) => (
-              <li
-                key={index}
-                className={`flex items-center ${
-                  index <= step
-                    ? "text-blue-600 dark:text-blue-500"
-                    : "text-gray-400 dark:text-gray-600"
-                }`}
+  <Navbar />
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 mt-0 py-8 lg:ml-48">
+  <div className="container mx-auto p-4 max-w-full sm:max-w-xxl md:max-w-xl lg:max-w-4xl xl:max-w-5xl sm:ml-0 md:ml-0 lg:ml-0">
+
+      {/* Stepper */}
+      <ol className="flex flex-wrap items-center lg:ml-80 w-full sm:w-full space-x-1 sm:space-x-5 text-sm font-medium text-center sm:h-20 h-28 text-gray-500 dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 rtl:space-x-reverse">
+        {steps.map((stepData, index) => (
+          <li
+            key={index}
+            className={`flex items-center ${
+              index <= step
+                ? "text-blue-600 dark:text-blue-500"
+                : "text-gray-400 dark:text-gray-600"
+            }`}
+          >
+            <span
+              className={`flex items-center ml-0 sm:ml-20 justify-center w-6 h-6 text-xs border ${
+                index <= step
+                  ? "border-blue-600 dark:border-blue-500"
+                  : "border-gray-400 dark:border-gray-600"
+              } rounded-full`}
+            >
+              {index + 1}
+            </span>
+            <span
+              className={`ml-2 ${index <= step ? "font-semibold" : "font-normal"}`}
+            >
+              {stepData.label}
+            </span>
+            {index < steps.length - 1 && (
+              <svg
+                className="w-6 h-3 ms-2 rtl:rotate-180"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 12 10"
               >
-                <span
-                  className={`flex items-center ml-0 sm:ml-20 justify-center w-6 h-6 text-xs border ${
-                    index <= step
-                      ? "border-blue-600 dark:border-blue-500"
-                      : "border-gray-400 dark:border-gray-600"
-                  } rounded-full`}
-                >
-                  {index + 1}
-                </span>
-                <span
-                  className={`ml-2 ${
-                    index <= step ? "font-semibold" : "font-normal"
-                  }`}
-                >
-                  {stepData.label}
-                </span>
-                {index < steps.length - 1 && (
-                  <svg
-                    className="w-6 h-3 ms-2 rtl:rotate-180"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 12 10"
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m7 9 4-4-4-4M1 9l4-4-4-4"
+                />
+              </svg>
+            )}
+          </li>
+        ))}
+      </ol>
+
+      {/* Step Content */}
+      <div className="mt-8">
+        {step === 0 && (
+          <div className="p-6 bg-gray-100 dark:bg-gray-900 rounded-lg max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Shipping and Billing Section */}
+              <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+                <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
+                  Shipping and Billing Details
+                </h3>
+
+                {/* Shipping Address */}
+                <div className="mb-6">
+                  <h4 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-300">
+                    Shipping Address
+                  </h4>
+                  <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.keys(shippingAddress).map((field, index) => (
+                      <input
+                        key={index}
+                        type="text"
+                        name={field}
+                        placeholder={field
+                          .replace(/([A-Z])/g, " $1")
+                          .replace(/^./, (str) => str.toUpperCase())}
+                        value={shippingAddress[field]}
+                        onChange={(e) => handleInputChange(e, "shipping")}
+                        className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-gray-800 dark:text-gray-200"
+                      />
+                    ))}
+                  </form>
+                </div>
+                {/* Same as Shipping Checkbox */}
+                <div className="mb-6 flex items-center">
+                  <input
+                    type="checkbox"
+                    id="sameAsShipping"
+                    checked={sameAsShipping}
+                    onChange={handleCheckboxChange}
+                    className="mr-2 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                  />
+                  <label
+                    htmlFor="sameAsShipping"
+                    className="text-lg text-gray-800 dark:text-gray-300"
                   >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m7 9 4-4-4-4M1 9l4-4-4-4"
-                    />
-                  </svg>
-                )}
-              </li>
-            ))}
-          </ol>
+                    Same as shipping address
+                  </label>
+                </div>
 
-          {/* Step Content */}
-          <div className="mt-8">
-            {step === 0 && (
-              <div className="p-6 bg-gray-100 dark:bg-gray-900 rounded-lg max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Shipping and Billing Section */}
-                <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
-                  <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
-                    Shipping and Billing Details
-                  </h3>
-
-                  {/* Shipping Address */}
-                  <div className="mb-6">
+                {/* Billing Address */}
+                {!sameAsShipping && (
+                  <div>
                     <h4 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-300">
-                      Shipping Address
+                      Billing Address
                     </h4>
                     <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {Object.keys(shippingAddress).map((field, index) => (
+                      {Object.keys(billingAddress).map((field, index) => (
                         <input
                           key={index}
                           type="text"
@@ -508,164 +546,132 @@ const handleFieldChange = (setter) => (e) => {
                           placeholder={field
                             .replace(/([A-Z])/g, " $1")
                             .replace(/^./, (str) => str.toUpperCase())}
-                          value={shippingAddress[field]}
-                          onChange={(e) => handleInputChange(e, "shipping")}
+                          value={billingAddress[field]}
+                          onChange={(e) => handleInputChange(e, "billing")}
                           className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-gray-800 dark:text-gray-200"
                         />
                       ))}
                     </form>
                   </div>
-                  {/* Same as Shipping Checkbox */}
-                  <div className="mb-6 flex items-center">
-                    <input
-                      type="checkbox"
-                      id="sameAsShipping"
-                      checked={sameAsShipping}
-                      onChange={handleCheckboxChange}
-                      className="mr-2 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    />
-                    <label
-                      htmlFor="sameAsShipping"
-                      className="text-lg text-gray-800 dark:text-gray-300"
-                    >
-                      Same as shipping address
-                    </label>
-                  </div>
-
-                  {/* Billing Address */}
-                  {!sameAsShipping && (
-                    <div>
-                      <h4 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-300">
-                        Billing Address
-                      </h4>
-                      <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {Object.keys(billingAddress).map((field, index) => (
-                          <input
-                            key={index}
-                            type="text"
-                            name={field}
-                            placeholder={field
-                              .replace(/([A-Z])/g, " $1")
-                              .replace(/^./, (str) => str.toUpperCase())}
-                            value={billingAddress[field]}
-                            onChange={(e) => handleInputChange(e, "billing")}
-                            className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-gray-800 dark:text-gray-200"
-                          />
-                        ))}
-                      </form>
-                    </div>
-                  )}
-                </div>              
+                )}
+              </div>
               {/* Order Summary Section */}
               <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 h-3/4">
-              <div className="border-b pb-4">
-  <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b-2 pb-2">
-    Product Details
-  </h2>
-  <div className="text-gray-700 space-y-2">
-    <p className="flex justify-between">
-      <span className="font-medium">Product Name:</span>
-      <span>{product.name}</span>
-    </p>
-    <p className="flex justify-between">
-      <span className="font-medium">Price (per unit):</span>
-      <span>₹{product.price}</span>
-    </p>
-    <p className="flex justify-between">
-      <span className="font-medium">Quantity:</span>
-      <span>{checkoutDetails.quantity}</span>
-    </p>
-    <p className="flex justify-between">
-      <span className="font-medium">Subtotal:</span>
-      <span>₹{totals.subtotal}</span>
-    </p>
-    <p className="flex justify-between">
-      <span className="font-medium">GST (5%):</span>
-      <span>₹{totals.gstAmount.toFixed()}</span>
-    </p>
-    <p className="flex justify-between">
-      <span className="font-medium text-red-600">Discount:</span>
-      <span className="text-red-600">- ₹{totals.discount}</span>
-    </p>
-    <p className="flex justify-between">
-      <span className="font-medium">Shipping Charge:</span>
-      <span>₹{checkoutDetails.shippingCharge}</span>
-    </p>
-  </div>
-  <hr className="my-4 border-gray-300" />
-  <h3 className="text-xl font-bold text-gray-900 flex justify-between">
-    <span>Total Amount:</span>
-    <span className="text-green-600">₹{totals.total.toFixed(2)}</span>
-  </h3>
-</div>
+                <div className="border-b pb-4">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b-2 pb-2">
+                    Product Details
+                  </h2>
+                  <div className="text-gray-700 space-y-2">
+                    <p className="flex justify-between">
+                      <span className="font-medium">Product Name:</span>
+                      <span>{product.name}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span className="font-medium">Price (per unit):</span>
+                      <span>₹{product.price}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span className="font-medium">Quantity:</span>
+                      <span>{checkoutDetails.quantity}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span className="font-medium">Subtotal:</span>
+                      <span>₹{totals.subtotal}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span className="font-medium">GST (5%):</span>
+                      <span>₹{totals.gstAmount.toFixed()}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span className="font-medium text-red-600">Discount:</span>
+                      <span className="text-red-600">- ₹{totals.discount}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span className="font-medium">Shipping Charge:</span>
+                      <span>₹{checkoutDetails.shippingCharge}</span>
+                    </p>
+                  </div>
+                  <hr className="my-4 border-gray-300" />
+                  <h3 className="text-xl font-bold text-gray-900 flex justify-between">
+                    <span>Total Amount:</span>
+                    <span className="text-green-600">₹{totals.total.toFixed(2)}</span>
+                  </h3>
+                </div>
 
-  {/* Proceed Button */}
-  <button
+                {/* Proceed Button */}
+                <button
   onClick={() => {
     console.log("Proceed to Checkout button clicked");
     saveShippingBillingData();
+    handleNext();
   }}
   className="mt-4 w-full py-2 bg-black border-2 border-primary text-white rounded-lg hover:bg-primary hover:text-black hover:border-2 border-black flex items-center justify-center space-x-2"
-  disabled={cartItems.length === 0}
+ 
 >
   <span>Proceed to Checkout</span>
   <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
 </button>
-</div>
               </div>
             </div>
-          )}
+          </div>
+        )}
+        {step === 1 && (
+          <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg max-w-4xl mx-auto my-10 shadow-lg">
+            {/* Payment Header */}
+            <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8 flex items-center justify-center space-x-3">
+              <span>Payment</span>
+              <FaCreditCard className="text-[#ff0080] animate-bounce" />
+            </h1>
 
-{step === 1 && (
-  <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg max-w-4xl mx-auto my-10 shadow-lg">
-    {/* Payment Header */}
-    <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8 flex items-center justify-center space-x-3">
-      <span>Payment</span>
-      <FaCreditCard className="text-[#ff0080] animate-bounce" />
-    </h1>
+            {/* Payment Methods Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Column: Payment Methods */}
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
+                  Choose a Payment Method
+                </h3>
 
-    {/* Payment Methods Grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Left Column: Payment Methods */}
-      <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
-          Choose a Payment Method
-        </h3>
-
-        {/* Cash on Delivery */}
-        <div className="flex items-center justify-center space-x-4 mb-4">
-          <input
-            type="radio"
-            id="cash-on-delivery"
+                {/* Cash on Delivery */}
+                <div className="flex items-center justify-between mb-6 mr-44">
+                  <input
+                    type="radio"
+                    id="cash-on-delivery"
             name="paymentMethod"
             value="cash on delivery"
             checked={paymentMethod === "cash on delivery"}
             onChange={(e) => setPaymentMethod(e.target.value)}
-            className="h-5 w-5 border-gray-400 hover:border-[#ff0080] focus:ring-[#ff0080] transition"
-          />
-          <label htmlFor="cash-on-delivery" className="text-gray-700 dark:text-gray-300 text-lg">
-            Cash on Delivery
-          </label>
-        </div>
+              
+                    className="text-gray-800 dark:text-gray-200"
+                  />
+                  <label
+                    htmlFor="cod"
+                    className="font-medium text-lg text-gray-800 dark:text-gray-200 "
+                  >
+                    Cash on Delivery
+                  </label>
+                </div>
 
-        {/* Credit Card */}
-        <div className="flex items-center justify-center space-x-4 mb-4 mr-12">
-          <input
-            type="radio"
-            id="creditCard"
-            name="paymentMethod"
-            value="creditCard"
-            checked={paymentMethod === "creditCard"}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-            className="h-5 w-5 border-gray-400 hover:border-[#ff0080] focus:ring-[#ff0080] transition "
-          />
-          <label htmlFor="creditCard" className="text-gray-700 dark:text-gray-300 text-lg ">
-            Credit Card
-          </label>
-        </div>
-      </div>
+                {/* UPI Payment */}
+                <div className="flex items-center justify-between mr-52">
+                  <input
+                    type="radio"
+                    id="creditCard"
+                    name="paymentMethod"
+                    value="creditCard"
+                    checked={paymentMethod === "creditCard"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="text-gray-800 dark:text-gray-200"
+                  />
+                  <label
+                    htmlFor="upi"
+                    className="font-medium text-lg text-gray-800 dark:text-gray-200"
+                  >
+                    UPI Payment
+                  </label>
+                </div>
+              </div>
 
-      {/* Right Column: Order Summary */}
+             {/* Right Column: Order Summary */}
     
         {paymentMethod === "cash on delivery" && (
            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
@@ -728,19 +734,31 @@ const handleFieldChange = (setter) => (e) => {
 
       await setDoc(doc(cartRef), orderData); // Save the order details
 
-      // Proceed to the next step
-      handleNext();
-
-      // Show success message using SweetAlert
-      await Swal.fire({
+      // Show success popup with options
+      const result = await Swal.fire({
         title: "Order Confirmed!",
-        text: "Your order has been successfully placed.",
+        text: "Your order has been successfully placed. Do you want to share it on WhatsApp?",
         icon: "success",
-        confirmButtonText: "Continue to Payment",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Share on WhatsApp",
+        cancelButtonText: "No, Thank You",
       });
 
-      // Share the order summary (if needed)
-      await handleShareOrderSummary();
+      if (result.isConfirmed) {
+        // If user chooses to share on WhatsApp
+        await handleShareOrderSummary(); // Your function to share order details on WhatsApp
+      } else {
+        // If user clicks "No, Thank You"
+        await Swal.fire({
+          title: "Thank You!",
+          text: "Thank you for shopping with us.",
+          icon: "info",
+          confirmButtonText: "Close",
+        });
+      }
+
+      // Proceed to the next step
+      handleNext();
     } catch (error) {
       console.error("Error saving order details:", error.message);
     }
@@ -749,6 +767,7 @@ const handleFieldChange = (setter) => (e) => {
 >
   Confirm and Pay
 </button>
+
           </div>
           </div>
         )}
@@ -761,12 +780,12 @@ const handleFieldChange = (setter) => (e) => {
           <div className="mt-8 flex justify-between">
             <button
               onClick={handleBack}
-              className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
+              className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md sm:ml-10 sm:block ml-10"
               disabled={step === 0}
             >
               Back
             </button>
-            {step !== steps.length - 1 && (
+            {step > 1 && (
   <button
     onClick={handleNext}
     className="bg-primary border-2 border-black text-black px-4 py-2 rounded-md"
@@ -776,12 +795,18 @@ const handleFieldChange = (setter) => (e) => {
   </button>
 )}
 
+
+
+
             </div>
           </div>
         </div>
       </div>
       <Footer />
-    </div>
+</div>
+
+   
+
   );
 };
 
