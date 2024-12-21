@@ -306,6 +306,20 @@ const Navbar = () => {
     }
   };
 
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+// Function to handle dropdown option clicks
+const handleCategorySelect = (category) => {
+  setSelectedCategory(category); // Store the selected category
+  console.log("Selected category:", category);
+};
+
+useEffect(() => {
+  if (selectedCategory) {
+    fetchCategoryProducts();
+  }
+}, [selectedCategory]);
+
   return (
     <div>
       <div>
@@ -630,18 +644,20 @@ const Navbar = () => {
                     className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-auto rounded-md z-10 transition-all duration-300 hover:scale-105"
                     onMouseLeave={() => handleDropdownToggle(null)}
                   >
-                    <Link
-                      to="/electronics/phones"
-                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-                    >
-                      Phones
-                    </Link>
-                    <Link
-                      to="/electronics/laptops"
-                      className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
-                    >
-                      Laptops
-                    </Link>
+                   <Link
+  to="/electronics/phones"
+  onClick={() => handleCategorySelect("Phones")}
+  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+>
+  Phones
+</Link>
+<Link
+  to="/electronics/laptops"
+  onClick={() => handleCategorySelect("Laptops")}
+  className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
+>
+  Laptops
+</Link>
                     <Link
                       to="/electronics/accessories"
                       className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
