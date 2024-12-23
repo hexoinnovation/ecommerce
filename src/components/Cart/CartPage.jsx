@@ -450,9 +450,9 @@ useEffect(() => {
   };
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="container mx-auto p-4 max-w-6xl">
+      <div className="container mx-auto p-4 max-w-8xl">
         {/* Stepper */}
-        <ol className="relative flex justify-between items-center space-x-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+        <ol className="relative flex justify-between items-center space-x-4 text-sm font-medium text-gray-500 dark:text-gray-400 ">
           {steps.map((stepData, index) => (
             <li
               key={index}
@@ -489,259 +489,218 @@ useEffect(() => {
         {/* Step Content */}
         <div className="mt-7">
         <div className="mt-7">
-  {step === 0 && (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-      <div className="lg:col-span-3">
-        {userCartItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {userCartItems.map((item) => (
-              <div
-                key={item.id}
-                className="p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg"
+        {step === 0 && (
+  <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-8">
+    {/* Cart Items Section */}
+    <div className="lg:col-span-3">
+      {userCartItems.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {userCartItems.map((item) => (
+            <div
+              key={item.id}
+              className="p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg"
+            >
+              <img
+                src={item.image}
+                alt={item.title}
+                className="w-full h-40 sm:h-60 object-cover rounded"
+                onClick={() => {
+                  console.log("Product ID:", item.id);
+                  handleProductClick(item.id);
+                }}
+              />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mt-2">
+                {item.title}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">₹{item.price}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Qty: {item.quantity}</p>
+              <button
+                onClick={() => openModal(item)}
+                className="mt-4 py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center"
+                aria-label="Remove from Cart"
               >
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="h-60 object-cover rounded" onClick={() => {
-                    console.log("Product ID:", item.id);
-                    handleProductClick(item.id);
-                  }}
-                />
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                  {item.title}
-                </h3>
-                <h3 className="text-lg font-semibold">{item.name}</h3>
-                <h3 className="text-lg font-semibold">{item.category}</h3>
-                <p className="text-gray-600 dark:text-gray-400">₹{item.price}</p>
-                <p className="text-gray-600 dark:text-gray-400">Qty: {item.quantity}</p>
-                <button
-                      onClick={() => openModal(item)}
-                      className="mt-4 py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center"
-                      aria-label="Remove from Cart"
-                    >
-                      <FontAwesomeIcon icon={faTrash} className="h-5 w-5 mr-2" />
-                      Remove
-                    </button>
-
-                    {/* Modal */}
-                    {showModal && currentItem.id === item.id && (
-                      <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="relative bg-white p-6 rounded-lg shadow-lg w-96">
-                          {/* Close Button */}
-                          <button
-                            onClick={closeModal}
-                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                            aria-label="Close Modal"
-                          >
-                            <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
-                          </button>
-
-                          <h2 className="text-xl font-semibold mb-4">Are you sure?</h2>
-                          <p className="mb-4">
-                            Do you want to remove this item or add it to your wishlist?
-                          </p>
-
-                          <div className="flex justify-between">
-                            <button
-                              onClick={() => handleRemoveFromCart(item.id)}
-                              className="py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
-                              aria-label="Remove from Cart"
-                            >
-                              <FontAwesomeIcon icon={faTrash} className="h-5 w-5" />
-                            </button>
-
-                            <button
-                              onClick={() => handleWishlistToggle(item)}
-                              className={`py-2 px-4 text-white rounded flex items-center ${isWishlist ? "bg-red-500 hover:bg-red-600" : "bg-gray-600 hover:bg-gray-700"}`}
-                            >
-                              <FontAwesomeIcon icon={faHeart} className={`mr-2 ${isWishlist ? "text-red-500" : "text-white"}`} />
-                              {isWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
-                            </button>
-                          </div>
-
-                          <div className="mt-4 flex justify-end"></div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex justify-center items-center flex-col text-center space-y-4">
-                <img
-                  src="cart.webp" // Replace with your own empty state image or icon
-                  alt="Empty Cart"
-                  className="w-32 h-32 animate-bounce"
-                />
-                <p className="text-gray-700 dark:text-gray-300 text-xl animate-pulse">
-                  Your Cart is Empty.
-                </p>
-              </div>
-            )}
-      </div>
-      <div className="p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg h-60">
-  <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Order Summary</h2>
-  <p className="text-gray-700 dark:text-gray-300">Total Items: {userCartItems.length}</p>
-  <p className="text-sm font-semibold text-gray-800 dark:text-white mb-4">Total Amount: ₹{totalAmount.toFixed(2)}</p>
-  <button
-    onClick={handleNext}
-    className="h-14 py-3 px-2 bg-black text-white border-2 border-primary rounded-lg transition-transform duration-200 ease-in-out hover:bg-primary hover:text-black hover:border-black hover:shadow-lg active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed"
-    aria-label="Proceed to Checkout"
-    disabled={userCartItems.length === 0}
-  >
-    <span>Proceed to Checkout</span>
-    <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5 ml-3" />
-  </button>
-</div>
-
+                <FontAwesomeIcon icon={faTrash} className="h-5 w-5 mr-2" />
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex justify-center items-center flex-col text-center space-y-4">
+          <img
+            src="cart.webp"
+            alt="Empty Cart"
+            className="w-20 sm:w-32 h-20 sm:h-32 animate-bounce"
+          />
+          <p className="text-sm sm:text-lg text-gray-700 dark:text-gray-300 animate-pulse">
+            Your Cart is Empty.
+          </p>
+        </div>
+      )}
     </div>
-  )}
+
+    {/* Order Summary Section */}
+    <div className="p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg h-auto lg:h-60">
+      <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white mb-4">
+        Order Summary
+      </h2>
+      <p className="text-sm text-gray-700 dark:text-gray-300">
+        Total Items: {userCartItems.length}
+      </p>
+      <p className="text-sm font-semibold text-gray-800 dark:text-white mb-4">
+        Total Amount: ₹{totalAmount.toFixed(2)}
+      </p>
+      <button
+        onClick={handleNext}
+        className="w-full sm:w-auto py-3 px-4 bg-black text-white border-2 border-primary rounded-lg transition-transform duration-200 ease-in-out hover:bg-primary hover:text-black hover:border-black hover:shadow-lg active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        aria-label="Proceed to Checkout"
+        disabled={userCartItems.length === 0}
+      >
+        <span>Proceed to Checkout</span>
+        <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5 ml-3" />
+      </button>
+    </div>
+  </div>
+)}
+
 </div>
         
-          {step === 1 && (
-            <div className="p-6 bg-gray-100 dark:bg-gray-900 rounded-lg max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Shipping and Billing Section */}
-                <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
-                  <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
-                    Shipping and Billing Details
-                  </h3>
+        {step === 1 && (
+  <div className="p-6 bg-gray-100 dark:bg-gray-900 rounded-lg max-w-6xl mx-auto">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Shipping and Billing Section */}
+      <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+        <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
+          Shipping and Billing Details
+        </h3>
 
-                  {/* Shipping Address */}
-                  <div className="mb-6">
-                    <h4 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-300">
-                      Shipping Address
-                    </h4>
-                    <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {Object.keys(shippingAddress).map((field, index) => (
-                        <input
-                          key={index}
-                          type="text"
-                          name={field}
-                          placeholder={field
-                            .replace(/([A-Z])/g, " $1")
-                            .replace(/^./, (str) => str.toUpperCase())}
-                          value={shippingAddress[field]}
-                          onChange={(e) => handleInputChange(e, "shipping")}
-                          className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-gray-800 dark:text-gray-200"
-                        />
-                      ))}
-                    </form>
-                  </div>
+        {/* Shipping Address */}
+        <div className="mb-6">
+          <h4 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-300">
+            Shipping Address
+          </h4>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.keys(shippingAddress).map((field, index) => (
+              <input
+                key={index}
+                type="text"
+                name={field}
+                placeholder={field
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (str) => str.toUpperCase())}
+                value={shippingAddress[field]}
+                onChange={(e) => handleInputChange(e, "shipping")}
+                className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-gray-800 dark:text-gray-200 w-full"
+              />
+            ))}
+          </form>
+        </div>
 
-                  {/* Same as Shipping Checkbox */}
-                  <div className="mb-6 flex items-center">
-                    <input
-                      type="checkbox"
-                      id="sameAsShipping"
-                      checked={sameAsShipping}
-                      onChange={handleCheckboxChange}
-                      className="mr-2 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    />
-                    <label
-                      htmlFor="sameAsShipping"
-                      className="text-lg text-gray-800 dark:text-gray-300"
-                    >
-                      Same as shipping address
-                    </label>
-                  </div>
+        {/* Same as Shipping Checkbox */}
+        <div className="mb-6 flex items-center">
+          <input
+            type="checkbox"
+            id="sameAsShipping"
+            checked={sameAsShipping}
+            onChange={handleCheckboxChange}
+            className="mr-2 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+          />
+          <label
+            htmlFor="sameAsShipping"
+            className="text-lg text-gray-800 dark:text-gray-300"
+          >
+            Same as shipping address
+          </label>
+        </div>
 
-                  {/* Billing Address */}
-                  {!sameAsShipping && (
-                    <div>
-                      <h4 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-300">
-                        Billing Address
-                      </h4>
-                      <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {Object.keys(billingAddress).map((field, index) => (
-                          <input
-                            key={index}
-                            type="text"
-                            name={field}
-                            placeholder={field
-                              .replace(/([A-Z])/g, " $1")
-                              .replace(/^./, (str) => str.toUpperCase())}
-                            value={billingAddress[field]}
-                            onChange={(e) => handleInputChange(e, "billing")}
-                            className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-gray-800 dark:text-gray-200"
-                          />
-                        ))}
-                      </form>
-                    </div>
-                  )}
-                </div>
-
-              {/* Order Summary Section */}
-                <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 h-3/4">
-      <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
-        Order Summary
-      </h3>
-      <p className="mb-4 text-gray-700 dark:text-gray-300">
-        Total Items:{" "}
-        <span className="font-semibold">{userCartItems.length}</span>
-      </p>
-      <p className="mb-4 text-gray-700 dark:text-gray-300">
-        Base Amount: <span className="font-semibold">₹{totalAmount}</span>
-      </p>
-
-      {/* Shipping */}
-      <p className="mb-4 text-gray-700 dark:text-gray-300">
-        Shipping: <span className="font-semibold">₹{userCartItems.length === 0 ? 0: shippingCharge}</span>
-      </p>
-
-      {/* Discount */}
-      <p className="mb-4 text-red-500">
-        Discount: <span className="font-semibold">₹  {userCartItems.length === 0 ? 0: -discount}</span>
-      </p>
-
-      {/* GST */}
-      <p className="mb-4 text-gray-700 dark:text-gray-300">
-        GST (5%): <span className="font-semibold">  ₹{userCartItems.length === 0 ? 0: gst}</span>
-      </p>
-
-    {/* Final Total */}
-<div className="flex justify-between items-center mt-4 border-t pt-4">
-  <label className="font-bold text-lg text-gray-800 dark:text-white">
-    Final Total:
-  </label>
-  <span className="text-xl font-semibold text-gray-800 dark:text-white">
-    ₹{userCartItems.length === 0 ? 0: finalTotal}
-  </span>
-</div>
-
-<button
-   onClick={async () => {
-    try {
-      console.log("Proceed button clicked!");
-
-      // Save shipping and billing data
-      await saveShippingBillingData();
-      console.log("Shipping and billing data saved successfully!");
-
-      // Move to the next step
-      handleNext();
-      console.log("Moved to the next step!");
-    } catch (error) {
-      console.error("Error occurred:", error);
-    }
-  }}
-  className="mt-6 w-80 ml-20 py-2 bg-black text-white rounded-lg border-2 border-primary hover:bg-primary hover:text-black hover:border-black flex items-center justify-center space-x-2"
- 
-  >
-    <span>Proceed to Checkout</span>
-    <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5 ml-3" />
-  </button>
-
-
+        {/* Billing Address */}
+        {!sameAsShipping && (
+          <div>
+            <h4 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-300">
+              Billing Address
+            </h4>
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.keys(billingAddress).map((field, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  name={field}
+                  placeholder={field
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^./, (str) => str.toUpperCase())}
+                  value={billingAddress[field]}
+                  onChange={(e) => handleInputChange(e, "billing")}
+                  className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-gray-800 dark:text-gray-200 w-full"
+                />
+              ))}
+            </form>
+          </div>
+        )}
       </div>
-              </div>
-            </div>
-          )}
+
+      {/* Order Summary Section */}
+      <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 h-full">
+        <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
+          Order Summary
+        </h3>
+        <p className="mb-4 text-gray-700 dark:text-gray-300">
+          Total Items:{" "}
+          <span className="font-semibold">{userCartItems.length}</span>
+        </p>
+        <p className="mb-4 text-gray-700 dark:text-gray-300">
+          Base Amount: <span className="font-semibold">₹{totalAmount}</span>
+        </p>
+        <p className="mb-4 text-gray-700 dark:text-gray-300">
+          Shipping: <span className="font-semibold">₹{userCartItems.length === 0 ? 0 : shippingCharge}</span>
+        </p>
+        <p className="mb-4 text-red-500">
+          Discount: <span className="font-semibold">₹{userCartItems.length === 0 ? 0 : -discount}</span>
+        </p>
+        <p className="mb-4 text-gray-700 dark:text-gray-300">
+          GST (5%): <span className="font-semibold">₹{userCartItems.length === 0 ? 0 : gst}</span>
+        </p>
+
+        {/* Final Total */}
+        <div className="flex justify-between items-center mt-4 border-t pt-4">
+          <label className="font-bold text-lg text-gray-800 dark:text-white">
+            Final Total:
+          </label>
+          <span className="text-xl font-semibold text-gray-800 dark:text-white">
+            ₹{userCartItems.length === 0 ? 0 : finalTotal}
+          </span>
+        </div>
+
+        <button
+          onClick={async () => {
+            try {
+              console.log("Proceed button clicked!");
+
+              // Save shipping and billing data
+              await saveShippingBillingData();
+              console.log("Shipping and billing data saved successfully!");
+
+              // Move to the next step
+              handleNext();
+              console.log("Moved to the next step!");
+            } catch (error) {
+              console.error("Error occurred:", error);
+            }
+          }}
+          className="mt-6 w-full py-2 bg-black text-white rounded-lg border-2 border-primary hover:bg-primary hover:text-black hover:border-black flex items-center justify-center space-x-2"
+        >
+          <span>Proceed to Checkout</span>
+          <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5 ml-3" />
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 {step === 2 && (
   <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
     {/* Payment Form Section */}
     <div className="flex flex-col justify-start bg-white rounded-lg shadow-lg p-6">
-      <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-6 flex items-center justify-center mr-60">
+      <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-6 flex items-center justify-center">
         Payment
         <div className="relative inline-block ml-4">
           <FaCreditCard className="text-[#ff0080] animate-neon text-3xl" />
@@ -755,7 +714,7 @@ useEffect(() => {
         </h3>
 
         {/* Cash on Delivery Option */}
-        <div className="mb-6 ml-10">
+        <div className="mb-6 ml-1 sm:ml-10">
           <input
             type="radio"
             id="cash-on-delivery"
@@ -770,20 +729,21 @@ useEffect(() => {
           </label>
         </div>
 
-        <div className="flex items-center justify-center space-x-4 mb-4 mr-80">
-  <input
-    type="radio"
-    id="creditCard"
-    name="paymentMethod"
-    value="upi"
-    checked={paymentMethod === "upi"}
-    onChange={(e) => setPaymentMethod(e.target.value)}
-    className="h-5 w-5 border-gray-400 hover:border-[#ff0080] focus:ring-[#ff0080] transition "
-  />
-  <label htmlFor="creditCard" className="text-gray-700 dark:text-gray-300 text-lg">
-    UPI
-  </label>
-</div>
+        {/* UPI Option */}
+        <div className="flex items-center justify-start sm:justify-center space-x-4 mb-4 sm:mr-80">
+          <input
+            type="radio"
+            id="creditCard"
+            name="paymentMethod"
+            value="upi"
+            checked={paymentMethod === "upi"}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            className="h-5 w-5 border-gray-400 hover:border-[#ff0080] focus:ring-[#ff0080] transition "
+          />
+          <label htmlFor="creditCard" className="text-gray-700 dark:text-gray-300 text-lg">
+            UPI
+          </label>
+        </div>
       </div>
     </div>
 

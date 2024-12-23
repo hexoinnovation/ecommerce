@@ -226,7 +226,7 @@ const handleModalToggle = () => {
     <div className="flex flex-col lg:flex-row">
       <Sidebar onSubcategorySelect={handleSubcategorySelect} />
 
-      <div className="flex-2 w-[1600px] p-2 lg:p-1 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-md">
+      <div className="flex-2 w-full lg:w-[1700px] p-2 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-6">All Products</h2>
         {selectedSubcategory && (
           <h4 className="text-lg font-medium mb-6">
@@ -236,19 +236,19 @@ const handleModalToggle = () => {
         )}
 
         {currentProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {currentProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300"
               >
                 <div className="relative mb-4 group">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-56 object-cover rounded-md cursor-pointer group-hover:scale-105 transform transition-all duration-300"
-                    onClick={() => handleProductClick(product.id)}
-                  />
+                <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-64 object-cover rounded-md cursor-pointer group-hover:scale-105 transform transition-all duration-300"
+                onClick={() => handleProductClick(product.id)}
+              />
                   <FaHeart className="absolute top-4 right-4 text-gray-400 group-hover:text-red-500 cursor-pointer transition-colors" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">

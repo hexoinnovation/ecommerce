@@ -507,12 +507,13 @@ useEffect(() => {
             )}
             {activeTab === "personal" && (
               <div>
-                <div className="flex items-center mb-8 ml-60">
-               <FaUser className="text-yellow-500 text-3xl animate-pulse" />
-      <h2 className="text-2xl font-semibold text-gray-800 animate-text ml-4">
-   Personal Information
-      </h2>
-    </div>
+              <div className="flex items-center mb-8 px-4 md:px-10 lg:px-16 ml-10">
+  <FaUser className="text-yellow-500 text-3xl animate-pulse" />
+  <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 animate-text ml-8">
+    Personal Information
+  </h2>
+</div>
+
 <form className="space-y-8 max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-xl">
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div className="relative">
@@ -593,13 +594,12 @@ useEffect(() => {
               </div>
             )}
             {activeTab === "address" && (
-              <div>
-               <div className="flex items-center mb-8 ml-60">
-               <FaMapMarked className="text-yellow-500 text-3xl animate-pulse" />
-      <h2 className="text-2xl font-semibold text-gray-800 animate-text ml-4">
-      Manage Address
-      </h2>
+           <div className="bg-white p-6 rounded-xl shadow-lg max-w-lg mx-auto">
+              <div className="flex items-center mb-6">
+      <FaMapMarked className="text-yellow-500 text-3xl mr-4 hover:text-yellow-600 transition-colors" />
+      <h2 className="text-2xl font-semibold text-gray-800">Manage Address</h2>
     </div>
+
 <form className="space-y-6 max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
 <div className="relative">
           <i className="fa fa-home absolute left-4 top-4 text-gray-500"></i>
@@ -692,12 +692,10 @@ useEffect(() => {
               </div>
             )}
             {activeTab === "password" && (
-              <div>
-                <div className="flex items-center mb-8 ml-60">
-      <FaLock className="text-yellow-500 text-3xl animate-pulse" />
-      <h2 className="text-2xl font-semibold text-gray-800 animate-text ml-4">
-        Password Settings
-      </h2>
+              <div className="bg-white p-6 rounded-xl shadow-lg max-w-lg mx-auto">
+                 <div className="flex items-center mb-6">
+      <FaLock className="text-yellow-500 text-3xl mr-4 hover:text-yellow-600 transition-colors" />
+      <h2 className="text-2xl font-semibold text-gray-800">Password Setting</h2>
     </div>
                 <form className="space-y-6 max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg" onSubmit={handleChangePassword}>
  
