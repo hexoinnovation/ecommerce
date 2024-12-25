@@ -17,7 +17,7 @@ import {
   getDoc,
   deleteDoc,
   collection,
-  getDocs,
+  getDocs,query,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -25,14 +25,18 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { app } from "../firebase"; // Your firebase configuration
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate,useLocation } from "react-router-dom";
 import { HomeIcon, PhoneIcon } from "@heroicons/react/outline";
 import { useAuth } from "../Authcontext";
 import CartPage from "../Cart/CartPage";
 import CartDrawer from "../Navbar/CartDrawer";
-
+import { useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+
+
+
+
 const Navbar = () => {
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null); // For mobile dropdown toggle
   const [dropdownOpen, setDropdownOpen] = useState(false); // For login dropdown
@@ -45,7 +49,10 @@ const Navbar = () => {
   const [error, setError] = useState(""); // Add state for error message
   const [successMessage, setSuccessMessage] = useState(""); // Success message
   const dropdownRef = useRef(null);
-
+  const [products, setProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  //const { category } = useParams();
+// const [category, setcategory] = useState("");
   // Toggle category dropdown visibility for mobile view
   const toggleCategoryDropdown = (index) => {
     if (openCategoryIndex === index) {
@@ -92,6 +99,11 @@ const Navbar = () => {
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState("");
+  const location = useLocation();
+  const useQuery = () => new URLSearchParams(useLocation().search);
+  const query = useQuery();
+  const category = query.get("category"); // Extract 'category' from URL
+ 
   useEffect(() => {
     const authStatus = localStorage.getItem("isAuthenticated");
     const storedUsername = localStorage.getItem("username");
@@ -306,19 +318,35 @@ const Navbar = () => {
     }
   };
 
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  // const [selectedCategory, setSelectedCategory] = useState(null);
 
-// Function to handle dropdown option clicks
+// // Function to handle dropdown option clicks
+// const handleCategorySelect = (category) => {
+//   setSelectedCategory(category); // Store the selected category
+//   console.log("Selected category:", category);
+// };
+
+// useEffect(() => {
+//   if (selectedCategory) {
+//     fetchCategoryProducts();
+//   }
+// }, [selectedCategory]);
+// useEffect(() => {
+//   const params = new URLSearchParams(location.search);
+//   const categoryFromURL = params.get("category");
+//   if (categoryFromURL) {
+//     setCategory(categoryFromURL);
+//   }
+// }, [location]);
+
+
+// Handle category selection
 const handleCategorySelect = (category) => {
-  setSelectedCategory(category); // Store the selected category
-  console.log("Selected category:", category);
+  setSelectedCategory(category); // Update the selected category
+  navigate(`/products?category=${category}`); // Navigate to the updated route
 };
 
-useEffect(() => {
-  if (selectedCategory) {
-    fetchCategoryProducts();
-  }
-}, [selectedCategory]);
+
 
   return (
     <div>
@@ -644,15 +672,16 @@ useEffect(() => {
                     className="absolute left-0 top-full bg-white shadow-lg mt-1 py-2 px-6 w-auto rounded-md z-10 transition-all duration-300 hover:scale-105"
                     onMouseLeave={() => handleDropdownToggle(null)}
                   >
-                   <Link
-  to="/electronics/phones"
-  onClick={() => handleCategorySelect("Phones")}
+                <Link
+  to={`/products?category=Phone`}
+  onClick={() => handleCategorySelect("Phone")}
   className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
 >
   Phones
 </Link>
+
 <Link
-  to="/electronics/laptops"
+  to={`/products?category=Laptops`}
   onClick={() => handleCategorySelect("Laptops")}
   className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
 >
@@ -666,6 +695,7 @@ useEffect(() => {
                     </Link>
                   </div>
                 )}
+                 
               </div>
 
               {/* Fashion Dropdown */}
@@ -886,9 +916,14 @@ useEffect(() => {
                     </Link>
                   </div>
                 )}
+              
               </div>
+              
             </div>
+            
           </div>
+            {/* Displaying Products for the Selected Category */}
+    
         </div>
 
         {showModal &&

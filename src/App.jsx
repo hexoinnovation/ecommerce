@@ -26,6 +26,7 @@ import ProductDetail from "./components/Products/ProductDetail";
 import { Products } from "./components/Products/Products";
 import { ShopPage } from "./components/Products/ShopPage";
 import { ProductsProvider } from "./context/ProductsContext";
+import LowerNavbar from "./components/Navbar/LowerNavbar"; 
 
 const App = () => {
   const [orderPopup, setOrderPopup] = useState(false);
@@ -114,6 +115,7 @@ const App = () => {
                 }
               />
               <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/products" element={<LowerNavbar />} />
             </Routes>
 
             {/* Popup for Order */}
