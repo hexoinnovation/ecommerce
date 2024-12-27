@@ -228,40 +228,39 @@ const handleSubcategorySelect = (subcategory) => {
   setSelectedSubcategory(subcategory);
 };
 
-useEffect(() => {
-  const fetchProducts = async () => {
-    if (selectedSubcategory) {
-      try {
-        const q = query(
-          collection(db, "products"),
-          where("category", "==", selectedSubcategory)
-        );
-        const querySnapshot = await getDocs(q);
-        const fetchedProducts = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setProducts(fetchedProducts);
-      } catch (error) {
-        console.error("Error fetching products: ", error);
-      }
-    }
-  };
-
-  fetchProducts();
-}, [selectedSubcategory]);
 
 const handleCategoryClick = (category) => {
   setSelectedSubcategory(category);
 };
-
+useEffect(() => {
+    const fetchProducts = async () => {
+      if (selectedSubcategory) {
+        try {
+          const q = query(
+            collection(db, "products"),
+            where("category", "==", selectedSubcategory)
+          );
+          const querySnapshot = await getDocs(q);
+          const fetchedProducts = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setProducts(fetchedProducts);
+        } catch (error) {
+          console.error("Error fetching products: ", error);
+        }
+      }
+    };
+  
+    fetchProducts();
+  }, [selectedSubcategory]);
 
   return (
     <div className="flex flex-col lg:flex-row">
       <Sidebar onSubcategorySelect={handleSubcategorySelect} />
 
       <div className="flex-2 w-full lg:w-[1700px] p-2 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-md">
-      <div className="flex space-x-4 mb-6">
+      {/* <div className="flex space-x-4 mb-6">
         {["Phone", "Laptops", "Tablet", "Accessories"].map((category) => (
           <button
             key={category}
@@ -275,38 +274,15 @@ const handleCategoryClick = (category) => {
             {category}
           </button>
         ))}
-      </div> <h2 className="text-2xl font-bold mb-6">All Products</h2>
-        {selectedSubcategory && (
-        <h4 className="text-lg font-medium mb-6">
-          Filtered by: <span className="text-primary">{selectedSubcategory}</span>
-        </h4>
-      )}
+      </div> 
+      <h2 className="text-2xl font-bold mb-6">All Products</h2> */}
+          {selectedSubcategory && (
+    <h4 className="text-lg font-medium mb-6">
+      Filtered by: <span className="text-primary">{selectedSubcategory}</span>
+    </h4>
+  )}
 
-      {/* Display products */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="border p-4 rounded-lg shadow hover:shadow-lg transition-all"
-          >
-            <img
-              src={product.image || "default-image.jpg"} // Replace with a default image
-              alt={product.name}
-              className="w-full h-48 object-cover mb-4 rounded"
-            />
-            <h3 className="text-lg font-semibold">{product.name}</h3>
-            <p className="text-sm text-gray-600">{product.description}</p>
-            <p className="text-lg font-bold text-primary mt-2">
-              ${product.price || "N/A"}
-            </p>
-          </div>
-        ))}
-      </div>
 
-      {products.length === 0 && (
-        <p className="text-gray-500">No products found for this category.</p>
-      )}
-   
         {currentProducts.length > 0 ? (
          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {currentProducts.map((product) => (

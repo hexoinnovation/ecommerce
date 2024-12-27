@@ -7,13 +7,13 @@ import {
   FaHome,
   FaSearch,
   FaThLarge,
-  FaTimes,
-  FaShoppingCart,FaShoppingBag,FaRegFrownOpen,
+  FaTimes,FaChevronDown,FaChevronUp,
+  FaShoppingCart,FaShoppingBag,FaRegFrownOpen,FaHeart,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { getDocs, collection,query,where } from "firebase/firestore";
 import { db } from "./firebase"; // Ensure you've set up Firebase correctly
-
+import Swal from "sweetalert2"
 export const Sidebar = () => {
   const [activeCategory, setActiveCategory] = useState(null);
   const [isCategoryVisible, setIsCategoryVisible] = useState(true);
@@ -47,7 +47,15 @@ export const Sidebar = () => {
     setActiveCategory(category);
     setIsCategoryVisible(false);
   };
+  const filteredCategories = Object.keys(categories).filter((category) =>
+    category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
+  const filteredSubcategories = (category) => {
+    return categories[category].filter((subcategory) =>
+      subcategory.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
   const goBackToCategory = () => {
     setIsCategoryVisible(true);
     setActiveCategory(null);
@@ -79,9 +87,6 @@ export const Sidebar = () => {
   };
  
 
-  const handleSubcategoryClick = (subcategory) => {
-    navigate(`/view?category=${subcategory}`);
-  };
   const handlePriceChange = (range) => {
     setPriceRange(range);
     applyFilters(range, selectedBrands);
@@ -132,7 +137,112 @@ export const Sidebar = () => {
     setIsCategoryVisible(false);
   };
  
+  const [productDetails, setProductDetails] = useState(null);
+
+  const handleCategoryClick = (category) => {
+    setActiveCategory(activeCategory === category ? "" : category);
+  };
+
+  const handleSubcategoryClick = (subcategory) => {
+    setSelectedSubcategory(subcategory);
+  };
   
+  const showProductsPopup = (fetchedProducts) => {
+    if (fetchedProducts.length > 0) {
+      Swal.fire({
+        title: `Products in ${selectedSubcategory}`,
+        html: `
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="product-grid">
+            ${fetchedProducts
+              .map(
+                (product) => `
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 product-item" data-product-id="${product.id}">
+                  <img
+                    src="${product.image}"
+                    alt="${product.name}"
+                    class="w-full h-40 object-cover rounded-md cursor-pointer"
+                  />
+                  <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mt-2">
+                    ${product.name}
+                  </h3>
+                  <div class="flex items-center justify-between mt-4">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">
+                      ₹${product.price}
+                    </p>
+                  </div>
+                </div>`
+              )
+              .join("")}
+          </div>
+        `,
+        showCloseButton: true,
+        showConfirmButton: false,
+        customClass: {
+          popup: "bg-white dark:bg-gray-800 rounded-lg p-6",
+          title: "text-gray-800 dark:text-gray-100",
+          closeButton: "absolute top-2 right-2 text-gray-400 hover:text-red-500",
+        },
+        didOpen: () => {
+          // Add event listener after popup is shown
+          document.querySelectorAll(".product-item").forEach((item) => {
+            item.addEventListener("click", () => {
+              const productId = item.getAttribute("data-product-id");
+              handleProductClick(productId); // Navigate to product details page
+            });
+          });
+        },
+      });
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "No Products Available",
+        text: `No products found for the selected subcategory: ${selectedSubcategory}`,
+        confirmButtonText: "Okay",
+        customClass: {
+          popup: "bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6",
+          title: "text-gray-800 dark:text-gray-100",
+          confirmButton: "bg-primary text-white rounded-md px-4 py-2 mt-4",
+        },
+      });
+    }
+  };
+  
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (selectedSubcategory) {
+        try {
+          const q = query(
+            collection(db, "products"),
+            where("category", "==", selectedSubcategory)
+          );
+          const querySnapshot = await getDocs(q);
+          const fetchedProducts = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setProducts(fetchedProducts);
+          showProductsPopup(fetchedProducts);
+        } catch (error) {
+          console.error("Error fetching products: ", error);
+        }
+      }
+    };
+
+    fetchProducts();
+  }, [selectedSubcategory]);
+  const highlightText = (text) => {
+    if (!searchQuery) return text;
+
+    const regex = new RegExp(`(${searchQuery})`, "gi");
+    return text.split(regex).map((part, index) =>
+      part.toLowerCase() === searchQuery.toLowerCase() ? (
+        <span key={index} className="bg-yellow-400">{part}</span>
+      ) : (
+        part
+      )
+    );
+  };
   return (
     <>
       {/* Toggle Button for Mobile */}
@@ -149,20 +259,19 @@ export const Sidebar = () => {
   } lg:translate-x-0 dark:bg-gray-900 bg-white dark:text-white text-black lg:static p-6 flex flex-col shadow-lg`}
 >
   {/* Home Icon */}
-  <div className="mb-6">
-  <button
-  onClick={goToHomePage}
-  className="dark:bg-gray-900 bg-white dark:text-white text-black flex items-center justify-center space-x-3  dark:hover:bg-gray-800 p-6 rounded-xl transition-all duration-200 ease-in-out"
-  style={{ fontSize: '1.5rem', fontWeight: 'bold' }}
->
-  <FaHome className="text-3xl" />
-  <span>Home</span>
-</button>
-
+  <div className="mb-6 flex items-center space-x-4">
+    <button
+      onClick={goToHomePage}
+      className="dark:bg-gray-900 bg-white dark:text-white text-black flex items-center justify-center space-x-3 dark:hover:bg-gray-800 p-4 rounded-xl transition-all duration-200 ease-in-out"
+      style={{ fontSize: '1.25rem', fontWeight: 'bold' }}
+    >
+      <FaHome className="text-2xl" />
+      <span>Home</span>
+    </button>
   </div>
 
   {/* Search Bar */}
-  <div className="mb-16 relative">
+  <div className="mb-8 relative">
     <input
       type="text"
       value={searchQuery}
@@ -173,76 +282,69 @@ export const Sidebar = () => {
     <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300" />
   </div>
 
-  {/* Category Slide */}
-  {isCategoryVisible && (
-    <div className="flex flex-col space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold tracking-wider flex items-center space-x-2">
-          <FaThLarge className="text-xl" />
-          <span>Categories</span>
-        </h1>
-      </div>
-      <ul className="space-y-4">
-        {Object.keys(categories)
-          .filter((category) =>
-            category.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-          .map((category) => (
+  {/* Categories */}
+  <div className="flex-1 overflow-y-auto mb-8">
+    <h1 className="text-2xl font-semibold mb-6">Categories</h1>
+    <ul className="space-y-4">
+      {Object.keys(categories).map((category) => {
+        // If the category itself matches the search query, show it
+        const subcategoryMatches = filteredSubcategories(category).length > 0;
+        const categoryMatches =
+          category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          subcategoryMatches;
+
+        // Show category only if it or its subcategories match
+        return (
+          categoryMatches && (
             <li key={category}>
               <div
-                onClick={() => toggleCategory(category)}
-                className="flex justify-between items-center cursor-pointer hover:bg-primary/40 dark:hover:bg-gray-800 px-4 py-3 rounded-lg transition-all duration-200 ease-in-out"
+                onClick={() => handleCategoryClick(category)}
+                className="flex justify-between items-center cursor-pointer bg-gray-200 px-4 py-3 rounded-lg hover:bg-gray-300 transition-all"
               >
-                <strong className="text-lg">{category}</strong>
+                <span className="text-lg font-medium">{highlightText(category)}</span>
                 <span>
-                  <FaChevronRight className="text-lg" />
+                  {activeCategory === category ? <FaChevronUp /> : <FaChevronDown />}
                 </span>
               </div>
+              {activeCategory === category && (
+                <ul className="mt-2 space-y-2 pl-4">
+                  {filteredSubcategories(category).map((subcategory) => (
+                    <li
+                      key={subcategory}
+                      onClick={() => handleSubcategoryClick(subcategory)}
+                      className={`cursor-pointer px-4 py-2 rounded-lg hover:bg-primary hover:text-white transition-all ${
+                        selectedSubcategory === subcategory
+                          ? "bg-primary text-white"
+                          : "bg-gray-100"
+                      }`}
+                    >
+                      {highlightText(subcategory)}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
-          ))}
-      </ul>
-    </div>
-  )}
-  {!isCategoryVisible && activeCategory && (
-    <div className="flex flex-col space-y-6">
-      <div className="flex flex-col mb-3">
-        <button
-          onClick={goBackToCategory}
-          className="dark:bg-gray-900 bg-white dark:text-white text-black flex items-center space-x-2 hover:bg-primary/40 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
-        >
-          <FaChevronLeft className="text-lg" />
-          <span>Back to Categories</span>
-        </button>
-        <h2 className="text-2xl mt-3 font-semibold tracking-wider">
-          {activeCategory}
-        </h2>
-      </div>
-      <ul className="space-y-2">
-        {categories[activeCategory].map((subcategory) => (
-          <li
-            key={subcategory}
-            onClick={() => onSubcategorySelect(subcategory)}
-            className="cursor-pointer hover:bg-primary/40 dark:hover:bg-gray-700 px-4 py-3 rounded-lg transition-all duration-200 ease-in-out"
-          >
-            {subcategory}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )}
-  <div className="mt-6">
+          )
+        );
+      })}
+    </ul>
+  </div>
+
+  {/* Filters Section */}
+  <div className="mt-8">
     <h2 className="text-xl font-semibold mb-3 flex items-center space-x-2">
       <FaFilter />
       <span>Filters</span>
     </h2>
     <button
       onClick={toggleFilterPopup}
-      className="w-full mt-4 bg-primary text-white py-2 rounded-lg"
+      className="w-full bg-primary text-white py-2 rounded-lg transition-all hover:bg-primary-dark"
     >
       Open Filters
     </button>
   </div>
 </div>
+
 
 
       {isFilterPopupOpen && (
