@@ -510,10 +510,10 @@ useEffect(() => {
                 }}
               />
               <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mt-2">
-                {item.title}
+                {item.name}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">₹{item.price}</p>
               <p className="text-sm text-gray-600 dark:text-gray-400">Qty: {item.quantity}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 font-bold ">₹{item.price}</p>
               <button
                 onClick={() => openModal(item)}
                 className="mt-4 py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center"
