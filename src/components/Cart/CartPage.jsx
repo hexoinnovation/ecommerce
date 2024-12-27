@@ -510,10 +510,10 @@ useEffect(() => {
                 }}
               />
               <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mt-2">
-                {item.title}
+                {item.name}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">₹{item.price}</p>
               <p className="text-sm text-gray-600 dark:text-gray-400">Qty: {item.quantity}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 font-bold ">₹{item.price}</p>
               <button
                 onClick={() => openModal(item)}
                 className="mt-4 py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center"
@@ -706,7 +706,6 @@ useEffect(() => {
           <FaCreditCard className="text-[#ff0080] animate-neon text-3xl" />
         </div>
       </h1>
-
       {/* Payment Methods */}
       <div className="mt-6">
         <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6">
@@ -845,9 +844,9 @@ useEffect(() => {
         });
       }
     }}
-    className="bg-gradient-to-r from-black to-green-800 mt-2 ml-40 hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
-  >
-    Confirm and Pay
+    className="bg-gradient-to-r from-black to-green-800 mt-2 ml-10 sm:ml-0 sm:mx-auto  hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105 block sm:inline"
+>
+  Confirm and Pay
   </button>
 </div>
               </div>

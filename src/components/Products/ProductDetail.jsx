@@ -12,6 +12,8 @@ import { UserCircleIcon } from '@heroicons/react/outline';  // or @heroicons/rea
 import {  FaShoppingBag ,FaTimes,FaUser,FaLock, FaSignInAlt,FaCheckCircle,FaTimesCircle} from "react-icons/fa";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandPointLeft } from '@fortawesome/free-solid-svg-icons';
+import Navbar from "../Navbar/Navbar";
+import Footer from "../Footer/Footer";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -367,6 +369,8 @@ if (error) {
 }
 
   return (
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <Navbar />
     <div className="min-h-screen flex items-center justify-center sm:mt-0 mt-10 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto  p-1 max-w-7xl">
       <div className="container mx-auto p-6">
@@ -410,7 +414,6 @@ if (error) {
         />
       )}
     </div>
-  
   
     {/* Product Details */}
     <div className="flex-1 space-y-7">
@@ -685,6 +688,8 @@ if (error) {
     </div>
   </div>
 )}    
+          </div>
+          <Footer />
           </div>
   );
 };

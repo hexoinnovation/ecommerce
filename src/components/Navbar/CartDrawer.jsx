@@ -180,7 +180,7 @@ const CartDrawer = ({ isOpen, closeDrawer }) => {
   <div className="flex justify-end md:hidden">
     <Link
       to="/cart"
-      className="bg-black border-4 border-primary text-white px-4 py-2 rounded-lg hover:bg-primary "
+      className="bg-black border-4 border-primary  mr-20 text-white px-4 py-2 rounded-lg hover:bg-primary "
     >
       View Cart
     </Link>
