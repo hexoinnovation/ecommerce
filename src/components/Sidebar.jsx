@@ -11,24 +11,26 @@ import {
   FaShoppingCart,FaShoppingBag,FaRegFrownOpen,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { getDocs, collection } from "firebase/firestore";
+import { getDocs, collection,query,where } from "firebase/firestore";
 import { db } from "./firebase"; // Ensure you've set up Firebase correctly
 
-export const Sidebar = ({ onSubcategorySelect }) => {
+export const Sidebar = () => {
   const [activeCategory, setActiveCategory] = useState(null);
   const [isCategoryVisible, setIsCategoryVisible] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRating, setSelectedRating] = useState(0);
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [priceRange, setPriceRange] = useState([0, 50000]);
   const [products, setProducts] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isFilterPopupOpen, setIsFilterPopupOpen] = useState(false); // State for popup visibility
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+
   const navigate = useNavigate();
 
   const categories = {
-    Electronics: ["Phones", "Laptops", "Cameras"],
+    Electronics: ["Phone", "Laptops", "Cameras"],
     Fashion: ["Mens", "Womens", "Kids"],
     Home: ["Furniture", "Home Décor", "Kitchen & Dining"],
     Appliances: [
@@ -70,12 +72,16 @@ export const Sidebar = ({ onSubcategorySelect }) => {
         id: doc.id,
         ...doc.data(),
       }));
-      setProducts(productList); // Store fetched products in state
+      setProducts(productList);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
   };
+ 
 
+  const handleSubcategoryClick = (subcategory) => {
+    navigate(`/view?category=${subcategory}`);
+  };
   const handlePriceChange = (range) => {
     setPriceRange(range);
     applyFilters(range, selectedBrands);
@@ -101,9 +107,9 @@ export const Sidebar = ({ onSubcategorySelect }) => {
   };
 
   const resetFilters = () => {
-    setPriceRange([0, 5000]);
+    setPriceRange([0, 50000]);
     setSelectedBrands([]);
-    applyFilters([0, 5000], []);
+    applyFilters([0, 50000], []);
   };
 
   useEffect(() => {
@@ -121,7 +127,12 @@ export const Sidebar = ({ onSubcategorySelect }) => {
   const toggleFilterPopup = () => {
     setIsFilterPopupOpen(!isFilterPopupOpen);
   };
-
+  const onSubcategorySelect = (subcategory) => {
+    setSelectedSubcategory(subcategory);
+    setIsCategoryVisible(false);
+  };
+ 
+  
   return (
     <>
       {/* Toggle Button for Mobile */}
@@ -139,13 +150,15 @@ export const Sidebar = ({ onSubcategorySelect }) => {
 >
   {/* Home Icon */}
   <div className="mb-6">
-    <button
-      onClick={goToHomePage}
-      className="dark:bg-gray-900 bg-white dark:text-white text-black flex items-center space-x-2 hover:bg-primary/40 dark:hover:bg-gray-800 p-3 rounded-lg transition-all duration-200 ease-in-out"
-    >
-      <FaHome className="text-xl" />
-      <span>Home</span>
-    </button>
+  <button
+  onClick={goToHomePage}
+  className="dark:bg-gray-900 bg-white dark:text-white text-black flex items-center justify-center space-x-3  dark:hover:bg-gray-800 p-6 rounded-xl transition-all duration-200 ease-in-out"
+  style={{ fontSize: '1.5rem', fontWeight: 'bold' }}
+>
+  <FaHome className="text-3xl" />
+  <span>Home</span>
+</button>
+
   </div>
 
   {/* Search Bar */}
@@ -255,7 +268,7 @@ export const Sidebar = ({ onSubcategorySelect }) => {
           <input
             type="range"
             min="0"
-            max="5000"
+            max="50000"
             step="100"
             value={priceRange[0]}
             onChange={(e) =>
@@ -266,7 +279,7 @@ export const Sidebar = ({ onSubcategorySelect }) => {
           <input
             type="range"
             min="0"
-            max="5000"
+            max="50000"
             step="100"
             value={priceRange[1]}
             onChange={(e) =>

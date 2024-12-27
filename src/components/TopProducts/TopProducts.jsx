@@ -11,26 +11,33 @@ const TopProducts = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Function to fetch products from Firestore
-  const fetchBestProducts = async () => {
-    try {
-      const productsCollection = collection(db, "products"); // Replace with your Firestore collection name
-      const q = query(productsCollection, where("Category", "==", "best_product"));
-      const querySnapshot = await getDocs(q);
+const fetchBestProducts = async () => {
+  try {
+    const productsCollection = collection(db, "products"); // Replace with your Firestore collection name
+    const q = query(productsCollection, where("offers", "==", "best_product"));
+    const querySnapshot = await getDocs(q);
 
-      const products = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    // Map and randomize the fetched products
+    const products = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-      setBestProducts(products);
-    } catch (error) {
-      console.error("Error fetching best products: ", error);
-    }
-  };
+    // Randomize the products and pick the first 4
+    const randomProducts = products
+      .sort(() => Math.random() - 0.5) // Randomize order
+      .slice(0, 4); // Pick the first 4 products
 
-  useEffect(() => {
-    fetchBestProducts();
-  }, []);
+    setBestProducts(randomProducts);
+  } catch (error) {
+    console.error("Error fetching best products: ", error);
+  }
+};
+
+useEffect(() => {
+  fetchBestProducts();
+}, []);
+
 
   const openPopup = (product) => {
     setSelectedProduct(product);

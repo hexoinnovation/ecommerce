@@ -9,15 +9,18 @@ const Testimonials = () => {
   const fetchBestProducts = async () => {
     try {
       const productsCollection = collection(db, "products"); // Replace with your Firestore collection name
-      const q = query(productsCollection, where("Category", "==", "offer_product"));
+      const q = query(productsCollection, where("offers", "==", "offer_product"));
       const querySnapshot = await getDocs(q);
 
       const products = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-
-      setBestProducts(products);
+  // Randomize the products and pick the first 4
+  const randomProducts = products
+  .sort(() => Math.random() - 0.5) // Randomize order
+  .slice(0, 4); // Pick the first 4 products
+      setBestProducts(randomProducts);
     } catch (error) {
       console.error("Error fetching best products: ", error);
     }
