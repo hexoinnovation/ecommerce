@@ -256,7 +256,7 @@ const { cartCount } = useAuth(); // Access cartCount from context
           <div className="flex items-center space-x-4">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-            <span className="flex items-center text-2xl font-bold text-black dark:text-white">
+              <span className="flex items-center text-2xl font-bold text-black dark:text-white">
   <img
     src="logo.png" 
     alt="Hexo Logo"
@@ -313,7 +313,8 @@ const { cartCount } = useAuth(); // Access cartCount from context
                       <UserCircleIcon className="w-5 h-5 mr-2" />
                       My Account
                     </button>
-                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => navigate("/myorders")} >
                       <ShoppingBagIcon className="w-5 h-5 mr-2" />
                       My Orders
                     </button>

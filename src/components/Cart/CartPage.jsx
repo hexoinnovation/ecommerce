@@ -845,9 +845,9 @@ useEffect(() => {
         });
       }
     }}
-    className="bg-gradient-to-r from-black to-green-800 mt-2 ml-40 hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
-  >
-    Confirm and Pay
+    className="bg-gradient-to-r from-black to-green-800 mt-2 ml-10 sm:ml-0 sm:mx-auto  hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105 block sm:inline"
+>
+  Confirm and Pay
   </button>
 </div>
               </div>

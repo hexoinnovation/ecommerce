@@ -411,7 +411,6 @@ if (error) {
       )}
     </div>
   
-  
     {/* Product Details */}
     <div className="flex-1 space-y-7">
     <div className="flex items-center justify-between">

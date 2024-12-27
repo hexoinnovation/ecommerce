@@ -362,7 +362,7 @@ const handleCategorySelect = (category) => {
             <div className="flex items-center space-x-3">
               {/* Mobile toggle button */}
               <button
-                className="lg:hidden text-black dark:text-white"
+                className="lg:hidden text-white dark:text-white"
                 onClick={toggleSidebar}
               >
                 <svg
@@ -586,7 +586,6 @@ const handleCategorySelect = (category) => {
             </div>
           </div>
         </nav>
-
         {/* Sidebar Menu (Mobile View - Toggle Menu) */}
         <div
           className={`lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50 transform ${
@@ -602,7 +601,6 @@ const handleCategorySelect = (category) => {
     alt="Hexo Logo"
     className="h-8 w-8 mr-2" // Adjust height, width, and spacing
   />
- 
 </span>
               <button
                 onClick={toggleSidebar}

@@ -820,7 +820,7 @@ useEffect(() => {
                         </h1>
                 
                         {/* Orders List */}
-                        <div className="space-y-6">
+                        <div className="space-y-6  w-80 sm:w-auto mr-4 ">
                  {orders.length === 0 ? (
                     <div className="flex items-center justify-center h-64">
                       <p className="text-xl text-gray-500 dark:text-gray-400">

@@ -54,24 +54,24 @@ const LowerNavbar = () => {
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-48 object-cover"
+                className="w-full h-64 object-cover mt-3"
                 onClick={() => {
                     console.log("Product ID:", product.id);
                     handleProductClick(product.id);
                   }}
               />
               <div className="p-6">
-                <h2 className="text-2xl font-semibold text-gray-700 mb-2">{product.name}</h2>
-                <p className="text-sm text-gray-500 mb-4">Category: {product.category}</p>
-                <p className="text-lg font-medium text-gray-800 mb-2">₹{product.price}</p>
-                <p className="text-sm text-gray-500 mb-2">
+                <h2 className="text-2xl font-semibold text-gray-700 mb-0">{product.name}</h2>
+                <p className="text-sm text-gray-500 mb-2">Category: {product.category}</p>
+                <p className="text-lg font-medium text-gray-800 mb-1">₹{product.price}</p>
+                <p className="text-sm text-gray-500 mb-1">
                   Color:
                   <span
                     className="inline-block w-4 h-4 rounded-full ml-2"
                     style={{ backgroundColor: product.color }}
                   ></span>
                 </p>
-                <p className="text-gray-600 mb-4">{product.description}</p>
+                <p className="text-gray-600 mb-2">{product.description}</p>
                 <p className="text-sm text-red-600 font-bold">Discount: ₹{product.discount}</p>
               </div>
             </div>
