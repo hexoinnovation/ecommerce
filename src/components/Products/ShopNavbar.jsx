@@ -260,7 +260,7 @@ const { cartCount } = useAuth(); // Access cartCount from context
   <img
     src="logo.png" 
     alt="Hexo Logo"
-    className="h-14 w-18 mr-2 mt-1" // Increased height and width
+    className="h-14 w-18 mt-1 ml-8 sm:ml-0" // Increased height and width
   />
 </span>
             </div>

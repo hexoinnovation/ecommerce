@@ -80,9 +80,9 @@ const App = () => {
               <Route
                 path="/product/:id"
                 element={
-                  <SimpleLayout>
+                 
                     <ProductDetail />
-                  </SimpleLayout>
+                  
                 }
               />
 

@@ -686,7 +686,9 @@ const handleCategorySelect = (category) => {
   Laptops
 </Link>
                     <Link
-                      to="/electronics/accessories"
+                    to={`/products?category=Accessories`}
+
+                      onClick={() => handleCategorySelect("Accessories")}
                       className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
                     >
                       Accessories

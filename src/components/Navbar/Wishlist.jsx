@@ -79,7 +79,7 @@ const Wishlist = () => {
           </h2>
           <p className="text-gray-600 dark:text-gray-400">{item.description}</p>
           <p className="text-gray-800 dark:text-gray-200 font-bold">
-            ${item.price}
+          ₹{item.price}
           </p>
           <button
             onClick={() => handleRemoveFromWishlist(item.id)}

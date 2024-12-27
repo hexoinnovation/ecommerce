@@ -514,7 +514,7 @@ useEffect(() => {
   </h2>
 </div>
 
-<form className="space-y-8 max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-xl">
+<form className="space-y-8 max-w-2xl mx-auto bg-gray-100  p-8 rounded-xl shadow-xl">
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div className="relative">
       <i className="fa fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
@@ -594,7 +594,7 @@ useEffect(() => {
               </div>
             )}
             {activeTab === "address" && (
-           <div className="bg-white p-6 rounded-xl shadow-lg max-w-lg mx-auto">
+           <div className="bg-gray-100 p-6 rounded-xl shadow-lg max-w-lg mx-auto">
               <div className="flex items-center mb-6">
       <FaMapMarked className="text-yellow-500 text-3xl mr-4 hover:text-yellow-600 transition-colors" />
       <h2 className="text-2xl font-semibold text-gray-800">Manage Address</h2>
@@ -692,7 +692,7 @@ useEffect(() => {
               </div>
             )}
             {activeTab === "password" && (
-              <div className="bg-white p-6 rounded-xl shadow-lg max-w-lg mx-auto">
+              <div className="bg-gray-100  p-6 rounded-xl shadow-lg max-w-lg mx-auto">
                  <div className="flex items-center mb-6">
       <FaLock className="text-yellow-500 text-3xl mr-4 hover:text-yellow-600 transition-colors" />
       <h2 className="text-2xl font-semibold text-gray-800">Password Setting</h2>
@@ -755,7 +755,7 @@ useEffect(() => {
               </div>
             )}
         {activeTab === "payment" && (
-  <div className="bg-white p-6 rounded-xl shadow-lg max-w-lg mx-auto">
+  <div className="bg-gray-100  p-6 rounded-xl shadow-lg max-w-lg mx-auto">
     <div className="flex items-center mb-6">
       <FaCreditCard className="text-yellow-500 text-3xl mr-4 hover:text-yellow-600 transition-colors" />
       <h2 className="text-2xl font-semibold text-gray-800">Payment Methods</h2>
