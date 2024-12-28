@@ -3,6 +3,7 @@ import Slider from "react-slick";
 import Image3 from "../../assets/hero/sale.png";
 import Image2 from "../../assets/hero/shopping.png";
 import Image1 from "../../assets/hero/women.png";
+import { useNavigate } from 'react-router-dom';
 
 const ImageList = [
   {
@@ -41,6 +42,11 @@ const Hero = ({ handleOrderPopup }) => {
     pauseOnHover: false,
     pauseOnFocus: true,
   };
+  const navigate = useNavigate();
+
+  const handleRedirect = () => {
+    navigate('/view-all');
+  };
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-gray-800 dark:bg-gray-950 min-h-[600px] flex items-center">
@@ -66,12 +72,12 @@ const Hero = ({ handleOrderPopup }) => {
                     {data.description}
                   </p>
                   <div data-aos="fade-right" data-aos-delay="400">
-                    <button
-                      onClick={handleOrderPopup}
-                      className="inline-block bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-lg transform transition-transform hover:scale-105"
-                    >
-                      Shop Now
-                    </button>
+                  <button
+      onClick={handleRedirect}
+      className="inline-block bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-lg transform transition-transform hover:scale-105"
+    >
+      Shop Now
+    </button>
                   </div>
                 </div>
 

@@ -5,8 +5,15 @@ import { IoFastFood } from "react-icons/io5";
 import { FaTags } from "react-icons/fa";
 import BannerImg1 from "../../assets/women/women4.jpg"; // Replace with your image path
 import BannerImg2 from "../../assets/women/women2.jpg"; // Replace with your image path
+import { useNavigate } from 'react-router-dom';
 
 const Banner = () => {
+  const navigate = useNavigate();
+
+  const handleRedirect = () => {
+    navigate('/view-all');
+  };
+
   return (
     <div className="relative bg-gradient-to-br from-white via-gray-100 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12">
       <div className="container mx-auto px-6">
@@ -21,9 +28,12 @@ const Banner = () => {
               Discover exclusive collections for the winter season with amazing
               discounts. Shop now to make the most of this limited-time offer!
             </p>
-            <button className="px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition duration-300">
-              Shop Now
-            </button>
+            <button
+      onClick={handleRedirect}
+      className="inline-block bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-lg transform transition-transform hover:scale-105"
+    >
+      Shop Now
+    </button>
           </div>
 
           {/* Image Section 1 */}
