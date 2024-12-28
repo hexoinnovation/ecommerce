@@ -706,7 +706,6 @@ useEffect(() => {
           <FaCreditCard className="text-[#ff0080] animate-neon text-3xl" />
         </div>
       </h1>
-
       {/* Payment Methods */}
       <div className="mt-6">
         <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6">
