@@ -677,7 +677,7 @@ useEffect(() => {
               // Move to the next step
               handleNext();
               console.log("Moved to the next step!");
-            } catch (error) {
+            } catch (error) { 
               console.error("Error occurred:", error);
             }
           }}
