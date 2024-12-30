@@ -152,7 +152,7 @@ export const Sidebar = () => {
       Swal.fire({
         title: `Products in ${selectedSubcategory}`,
         html: `
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="product-grid">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" id="product-grid">
             ${fetchedProducts
               .map(
                 (product) => `
@@ -160,12 +160,12 @@ export const Sidebar = () => {
                   <img
                     src="${product.image}"
                     alt="${product.name}"
-                    class="w-full h-40 object-cover rounded-md cursor-pointer"
+                    class="w-full h-48 object-cover rounded-md cursor-pointer"
                   />
                   <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mt-2">
                     ${product.name}
                   </h3>
-                  <div class="flex items-center justify-between mt-4">
+                  <div class="flex items-center justify-between mt-4 ml-12">
                     <p class="text-lg font-bold text-gray-900 dark:text-white">
                       ₹${product.price}
                     </p>
@@ -178,20 +178,34 @@ export const Sidebar = () => {
         showCloseButton: true,
         showConfirmButton: false,
         customClass: {
-          popup: "bg-white dark:bg-gray-800 rounded-lg p-6",
+          popup: "!w-[80%] !max-w-[950px] bg-white dark:bg-gray-800 rounded-lg p-10 ml-52",
           title: "text-gray-800 dark:text-gray-100",
           closeButton: "absolute top-2 right-2 text-gray-400 hover:text-red-500",
         },
         didOpen: () => {
+          // Force the popup width with inline styles
+          const popup = document.querySelector(".swal2-popup");
+          if (popup) {
+            popup.style.height = "700px";
+            popup.style.width = "80%";
+            popup.style.maxWidth = "950px";
+          }
+      
           // Add event listener after popup is shown
           document.querySelectorAll(".product-item").forEach((item) => {
             item.addEventListener("click", () => {
               const productId = item.getAttribute("data-product-id");
-              handleProductClick(productId); // Navigate to product details page
+              
+              // Close the popup
+              Swal.close();
+      
+              // Navigate to the product details page
+              handleProductClick(productId);
             });
           });
         },
       });
+      
     } else {
       Swal.fire({
         icon: "info",

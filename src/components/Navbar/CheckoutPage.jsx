@@ -267,8 +267,6 @@ const CartPage = () => {
     }
 };
 
-
-
   const [orderSummary, setOrderSummary] = useState({});
  
   // const fetchCartItems = async () => {
@@ -709,7 +707,22 @@ const handleFieldChange = (setter) => (e) => {
             </div>
             <button
   onClick={async () => {
+    // Check if the order is already in progress
+    if (window.orderInProgress) {
+      // If the order is already being processed, show a message and return to prevent duplication
+      await Swal.fire({
+        title: "Processing Order",
+        text: "Your order is already being processed. Please wait.",
+        icon: "info",
+        confirmButtonText: "Okay",
+      });
+      return; // Prevent further clicks until the current order is processed
+    }
+
     try {
+      // Set the flag to indicate that the order is being processed
+      window.orderInProgress = true;
+
       // Save shipping, billing, and checkout details in Firestore
       await saveShippingBillingData(); // Call the function to save the shipping and billing data
 
@@ -732,6 +745,7 @@ const handleFieldChange = (setter) => (e) => {
         createdAt: new Date().toISOString(), // Optional timestamp
       };
 
+      // Save the order details to Firestore
       await setDoc(doc(cartRef), orderData); // Save the order details
 
       // Show success popup with options
@@ -759,8 +773,12 @@ const handleFieldChange = (setter) => (e) => {
 
       // Proceed to the next step
       handleNext();
+
     } catch (error) {
       console.error("Error saving order details:", error.message);
+    } finally {
+      // Reset the flag to allow future orders after the process is complete
+      window.orderInProgress = false;
     }
   }}
   className="bg-gradient-to-r from-black to-green-800 mt-8 ml-16 hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
