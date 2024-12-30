@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaHeart, FaShoppingCart, FaStar, FaShoppingBag } from "react-icons/fa";
+import { UserCircleIcon } from '@heroicons/react/solid'; // Adjust the path as needed
+
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
