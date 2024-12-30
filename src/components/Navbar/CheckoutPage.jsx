@@ -729,7 +729,8 @@ const handleFieldChange = (setter) => (e) => {
       // Save the order details in Firestore
       const userDocRef = doc(db, "users", user.email);
       const cartRef = collection(userDocRef, "buynow order");
-
+      const currentDate = new Date();
+      const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}/${String(currentDate.getMonth() + 1).padStart(2, '0')}/${currentDate.getFullYear()}`;
       const orderData = {
         productId: product.id,
         productName: product.name,
@@ -743,6 +744,8 @@ const handleFieldChange = (setter) => (e) => {
         shippingAddress,
         billingAddress: sameAsShipping ? shippingAddress : billingAddress,
         createdAt: new Date().toISOString(), // Optional timestamp
+        orderDate: formattedDate, 
+        paymentMethod: paymentMethod,
       };
 
       // Save the order details to Firestore
