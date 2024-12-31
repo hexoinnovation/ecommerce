@@ -13,7 +13,6 @@ import {
   deleteDoc,
   getDocs,
   getDoc,
-
 } from "../firebase";
 import {
   getFirestore,
@@ -796,117 +795,122 @@ useEffect(() => {
 
         <div className="mt-6">
         <button
-  onClick={async () => {
-    try {
-      // Set flag to track if the order is being processed
-      if (window.orderInProgress) {
-        await Swal.fire({
-          title: 'Order Already Placed!',
-          text: 'Your order is already being processed. Please wait before placing a new one.',
-          icon: 'warning',
-          confirmButtonText: 'Okay',
-        });
-        return; // Prevent duplicate order submission
-      }
-
-      // Mark the order as being processed
-      window.orderInProgress = true;
-
-      const userDocRef = doc(db, "users", user.email);
-      const cartRef = collection(userDocRef, "Cart order");
-
-      // Get the current date and format it as DD/MM/YYYY
-      const currentDate = new Date();
-      const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}/${String(currentDate.getMonth() + 1).padStart(2, '0')}/${currentDate.getFullYear()}`;
-
-      // Check if an order already exists with the same timestamp
-      const querySnapshot = await getDocs(cartRef);
-      const existingOrder = querySnapshot.docs.find(doc => {
-        const orderTimestamp = doc.data().timestamp;
-        return orderTimestamp && orderTimestamp.toDate().getTime() === currentDate.getTime();
+onClick={async () => {  
+  try {
+    // Set flag to track if the order is being processed
+    if (window.orderInProgress) {
+      await Swal.fire({
+        title: 'Order Already Placed!',
+        text: 'Your order is already being processed. Please wait before placing a new one.',
+        icon: 'warning',
+        confirmButtonText: 'Okay',
       });
+      return; // Prevent duplicate order submission
+    }
 
-      if (existingOrder) {
-        // If an order with the same timestamp exists, show a message and prevent duplicate order creation
-        await Swal.fire({
-          title: 'Duplicate Order!',
-          text: 'You have already placed an order recently. Please wait before placing a new one.',
-          icon: 'warning',
-          confirmButtonText: 'Okay',
-        });
-        // Mark the order as no longer in progress
-        window.orderInProgress = false;
-        return;
-      }
+    // Mark the order as being processed
+    window.orderInProgress = true;
 
-      // Create the order details with the formatted date
-      const orderDetails = {
-        cartItems: userCartItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          image: item.image
-        })),
-        shippingAddress: shippingAddress, // Shipping address fields
-        billingAddress: sameAsShipping ? shippingAddress : billingAddress, // Depending on checkbox value
-        totalItems: userCartItems.length,
-        totalAmount: totalAmount.toFixed(2),
-        shippingCharge: userCartItems.length === 0 ? 0 : shippingCharge,
-        discount: userCartItems.length === 0 ? 0 : -discount,
-        gst: userCartItems.length === 0 ? 0 : gst,
-        finalTotal: userCartItems.length === 0 ? 0 : finalTotal,
-        timestamp: new Date(), // Store the actual timestamp of the order
-        orderDate: formattedDate, // Store the formatted date (DD/MM/YYYY)
-        paymentMethod: paymentMethod,
-      };
+    // Get the current user's document reference and cart collection reference
+    const userDocRef = doc(db, "users", user.email);  // user.email is the unique ID for the user
+    const cartRef = collection(userDocRef, "Cart order");  // 'Cart order' is the sub-collection
 
-      // Save the order details to Firestore
-      await setDoc(doc(cartRef), orderDetails);
+    // Get the current date and format it as DD/MM/YYYY
+    const currentDate = new Date();
+    const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}/${String(currentDate.getMonth() + 1).padStart(2, '0')}/${currentDate.getFullYear()}`;
 
+    // Check if an order already exists with the same timestamp
+    const querySnapshot = await getDocs(cartRef);
+    const existingOrder = querySnapshot.docs.find(doc => {
+      const orderTimestamp = doc.data().timestamp;
+      return orderTimestamp && orderTimestamp.toDate().getTime() === currentDate.getTime();
+    });
+
+    if (existingOrder) {
+      // If an order with the same timestamp exists, show a message and prevent duplicate order creation
+      await Swal.fire({
+        title: 'Duplicate Order!',
+        text: 'You have already placed an order recently. Please wait before placing a new one.',
+        icon: 'warning',
+        confirmButtonText: 'Okay',
+      });
       // Mark the order as no longer in progress
       window.orderInProgress = false;
-
-      const response = await Swal.fire({
-        title: 'Order Confirmed!',
-        text: 'Your order has been successfully placed.',
-        icon: 'success',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, Share',
-        cancelButtonText: 'No, Thank You',
-      });
-
-      if (response.isConfirmed) {
-        // Trigger WhatsApp sharing
-        await handleShareOrderSummary();
-        await Swal.fire({
-          title: 'Order Shared!',
-          text: 'Your order details have been shared on WhatsApp.',
-          icon: 'success',
-          confirmButtonText: 'Okay',
-        });
-      } else {
-        // Display Thank You message if No is clicked
-        await Swal.fire({
-          title: 'Thank You!',
-          text: 'Thank you for shopping with us. We hope to see you again soon!',
-          icon: 'info',
-          confirmButtonText: 'Close',
-        });
-      }
-    } catch (error) {
-      console.error('Error during confirmation:', error.message);
-      // Display SweetAlert error message
-      await Swal.fire({
-        title: 'Error!',
-        text: 'Something went wrong while confirming your order.',
-        icon: 'error',
-        confirmButtonText: 'Try Again',
-      });
-      // Mark the order as no longer in progress in case of error
-      window.orderInProgress = false;
+      return;
     }
-  }}
+
+    // Create the order details with the formatted date
+    const orderDetails = {
+      cartItems: userCartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        image: item.image
+      })),
+      shippingAddress: shippingAddress, // Shipping address fields
+      billingAddress: sameAsShipping ? shippingAddress : billingAddress, // Depending on checkbox value
+      totalItems: userCartItems.length,
+      totalAmount: totalAmount.toFixed(2),
+      shippingCharge: userCartItems.length === 0 ? 0 : shippingCharge,
+      discount: userCartItems.length === 0 ? 0 : -discount,
+      gst: userCartItems.length === 0 ? 0 : gst,
+      finalTotal: userCartItems.length === 0 ? 0 : finalTotal,
+      timestamp: new Date(), // Store the actual timestamp of the order
+      orderDate: formattedDate, // Store the formatted date (DD/MM/YYYY)
+      paymentMethod: paymentMethod,
+    };
+
+    // Generate custom document ID
+    const customDocId = `Order-${Math.random().toString(36).substring(2, 15)}`; // Generating a random unique ID
+
+    // Save the order details to Firestore with the custom document ID
+    await setDoc(doc(cartRef, customDocId), orderDetails);
+
+    // Mark the order as no longer in progress
+    window.orderInProgress = false;
+
+    const response = await Swal.fire({
+      title: 'Order Confirmed!',
+      text: 'Your order has been successfully placed.',
+      icon: 'success',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Share',
+      cancelButtonText: 'No, Thank You',
+    });
+
+    if (response.isConfirmed) {
+      // Trigger WhatsApp sharing
+      await handleShareOrderSummary();
+      await Swal.fire({
+        title: 'Order Shared!',
+        text: 'Your order details have been shared on WhatsApp.',
+        icon: 'success',
+        confirmButtonText: 'Okay',
+      });
+    } else {
+      // Display Thank You message if No is clicked
+      await Swal.fire({
+        title: 'Thank You!',
+        text: 'Thank you for shopping with us. We hope to see you again soon!',
+        icon: 'info',
+        confirmButtonText: 'Close',
+      });
+    }
+  } catch (error) {
+    console.error('Error during confirmation:', error.message);
+    // Display SweetAlert error message
+    await Swal.fire({
+      title: 'Error!',
+      text: 'Something went wrong while confirming your order.',
+      icon: 'error',
+      confirmButtonText: 'Try Again',
+    });
+    // Mark the order as no longer in progress in case of error
+    window.orderInProgress = false;
+  }
+}}
+
   className="bg-gradient-to-r from-black to-green-800 mt-2 ml-10 sm:ml-0 sm:mx-auto hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105 block sm:inline"
 >
   Confirm and Pay
