@@ -39,7 +39,7 @@ const MyOrders = () => {
 
     fetchOrders();
   }, [userEmail]);
-
+  
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
       <Navbar />
