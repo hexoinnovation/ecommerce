@@ -564,6 +564,11 @@ const handleFieldChange = (setter) => (e) => {
                       <span className="font-medium">Product Name:</span>
                       <span>{product.name}</span>
                     </p>
+                    <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-40 sm:h-60 object-cover rounded"
+              />
                     <p className="flex justify-between">
                       <span className="font-medium">Price (per unit):</span>
                       <span>₹{product.price}</span>
@@ -706,84 +711,91 @@ const handleFieldChange = (setter) => (e) => {
               </span>
             </div>
             <button
-  onClick={async () => {
-    // Check if the order is already in progress
-    if (window.orderInProgress) {
-      // If the order is already being processed, show a message and return to prevent duplication
+ onClick={async () => {
+  // Check if the order is already in progress
+  if (window.orderInProgress) {
+    // If the order is already being processed, show a message and return to prevent duplication
+    await Swal.fire({
+      title: "Processing Order",
+      text: "Your order is already being processed. Please wait.",
+      icon: "info",
+      confirmButtonText: "Okay",
+    });
+    return; // Prevent further clicks until the current order is processed
+  }
+
+  try {
+    // Set the flag to indicate that the order is being processed
+    window.orderInProgress = true;
+
+    // Save shipping, billing, and checkout details in Firestore
+    await saveShippingBillingData(); // Call the function to save the shipping and billing data
+
+    // Generate a unique Order ID (e.g., Order-71d74al2zs)
+    const orderId = `buynowOrder-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Save the order details in Firestore
+    const userDocRef = doc(db, "users", user.email);
+    const cartRef = collection(userDocRef, "buynow order");
+
+    const currentDate = new Date();
+    const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}/${String(currentDate.getMonth() + 1).padStart(2, '0')}/${currentDate.getFullYear()}`;
+
+    const orderData = {
+      orderid: orderId, // Store the unique Order ID
+      productid: product.id,
+      image: product.image,
+      productname: product.name,
+      Price: product.price,
+      Quantity: checkoutDetails.quantity,
+      subtotal: totals.subtotal,
+      gst: totals.gstAmount,
+      discount: totals.discount,
+      shippingCharge: checkoutDetails.shippingCharge,
+      totalamount: totals.total,
+      shippingAddress,
+      billingAddress: sameAsShipping ? shippingAddress : billingAddress,
+      createdAt: new Date().toISOString(), // Optional timestamp
+      orderdate: formattedDate, 
+      paymentmethod: paymentMethod,
+    };
+
+    // Save the order details to Firestore under the specific Order ID
+    await setDoc(doc(cartRef, orderId), orderData); // Save the order details with the unique ID
+
+    // Show success popup with options
+    const result = await Swal.fire({
+      title: "Order Confirmed!",
+      text: "Your order has been successfully placed. Do you want to share it on WhatsApp?",
+      icon: "success",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Share on WhatsApp",
+      cancelButtonText: "No, Thank You",
+    });
+
+    if (result.isConfirmed) {
+      // If user chooses to share on WhatsApp
+      await handleShareOrderSummary(); // Your function to share order details on WhatsApp
+    } else {
+      // If user clicks "No, Thank You"
       await Swal.fire({
-        title: "Processing Order",
-        text: "Your order is already being processed. Please wait.",
+        title: "Thank You!",
+        text: "Thank you for shopping with us.",
         icon: "info",
-        confirmButtonText: "Okay",
+        confirmButtonText: "Close",
       });
-      return; // Prevent further clicks until the current order is processed
     }
 
-    try {
-      // Set the flag to indicate that the order is being processed
-      window.orderInProgress = true;
+    // Proceed to the next step
+    handleNext();
 
-      // Save shipping, billing, and checkout details in Firestore
-      await saveShippingBillingData(); // Call the function to save the shipping and billing data
-
-      // Save the order details in Firestore
-      const userDocRef = doc(db, "users", user.email);
-      const cartRef = collection(userDocRef, "buynow order");
-      const currentDate = new Date();
-      const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}/${String(currentDate.getMonth() + 1).padStart(2, '0')}/${currentDate.getFullYear()}`;
-      const orderData = {
-        productId: product.id,
-        productName: product.name,
-        price: product.price,
-        quantity: checkoutDetails.quantity,
-        subtotal: totals.subtotal,
-        gst: totals.gstAmount,
-        discount: totals.discount,
-        shippingCharge: checkoutDetails.shippingCharge,
-        totalAmount: totals.total,
-        shippingAddress,
-        billingAddress: sameAsShipping ? shippingAddress : billingAddress,
-        createdAt: new Date().toISOString(), // Optional timestamp
-        orderDate: formattedDate, 
-        paymentMethod: paymentMethod,
-      };
-
-      // Save the order details to Firestore
-      await setDoc(doc(cartRef), orderData); // Save the order details
-
-      // Show success popup with options
-      const result = await Swal.fire({
-        title: "Order Confirmed!",
-        text: "Your order has been successfully placed. Do you want to share it on WhatsApp?",
-        icon: "success",
-        showCancelButton: true,
-        confirmButtonText: "Yes, Share on WhatsApp",
-        cancelButtonText: "No, Thank You",
-      });
-
-      if (result.isConfirmed) {
-        // If user chooses to share on WhatsApp
-        await handleShareOrderSummary(); // Your function to share order details on WhatsApp
-      } else {
-        // If user clicks "No, Thank You"
-        await Swal.fire({
-          title: "Thank You!",
-          text: "Thank you for shopping with us.",
-          icon: "info",
-          confirmButtonText: "Close",
-        });
-      }
-
-      // Proceed to the next step
-      handleNext();
-
-    } catch (error) {
-      console.error("Error saving order details:", error.message);
-    } finally {
-      // Reset the flag to allow future orders after the process is complete
-      window.orderInProgress = false;
-    }
-  }}
+  } catch (error) {
+    console.error("Error saving order details:", error.message);
+  } finally {
+    // Reset the flag to allow future orders after the process is complete
+    window.orderInProgress = false;
+  }
+}}
   className="bg-gradient-to-r from-black to-green-800 mt-8 ml-16 hover:from-green-500 hover:to-green-700 text-white px-8 py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
 >
   Confirm and Pay
