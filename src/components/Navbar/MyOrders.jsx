@@ -127,7 +127,7 @@ useEffect(() => {
                     <p className="text-gray-600 dark:text-gray-300">
                       <strong>Total Amount:</strong>{" "}
                       <span className="font-bold text-green-600 dark:text-green-400">
-                        ₹{order.totalAmount}
+                        ₹{order.finalTotal}
                       </span>
                     </p>
                   </div>
