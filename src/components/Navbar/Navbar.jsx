@@ -715,7 +715,7 @@ const handleCategorySelect = (category) => {
                       onMouseLeave={() => handleDropdownToggle(null)}
                     >
                       <Link
-                        to="/Fashion/Mens"to={`/products?category=Mens`}
+                        to={`/products?category=Mens`}
                         onClick={() => handleCategorySelect("Mens")}
                         className="w-full sm:w-auto hover:bg-primary/40 px-4 py-2 rounded-md font-bold text-base flex items-center space-x-2"
                       >
