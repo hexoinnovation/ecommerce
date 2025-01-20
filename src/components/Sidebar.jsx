@@ -20,7 +20,7 @@ export const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRating, setSelectedRating] = useState(0);
-  const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [priceRange, setPriceRange] = useState([0, 100000]);
   const [products, setProducts] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -112,9 +112,9 @@ export const Sidebar = () => {
   };
 
   const resetFilters = () => {
-    setPriceRange([0, 50000]);
+    setPriceRange([0, 100000]);
     setSelectedBrands([]);
-    applyFilters([0, 50000], []);
+    applyFilters([0, 100000], []);
   };
 
   useEffect(() => {
@@ -140,72 +140,73 @@ export const Sidebar = () => {
   const [productDetails, setProductDetails] = useState(null);
 
   const handleCategoryClick = (category) => {
-    setActiveCategory(activeCategory === category ? "" : category);
+    setActiveCategory((prev) => (prev === category ? null : category));
   };
 
   const handleSubcategoryClick = (subcategory) => {
     setSelectedSubcategory(subcategory);
+    navigate(`/products?category=${encodeURIComponent(subcategory)}`);
   };
-  
-  const showProductsPopup = (fetchedProducts) => {
-    if (fetchedProducts.length > 0) {
-      Swal.fire({
-        title: `Products in ${selectedSubcategory}`,
-        html: `
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="product-grid">
-            ${fetchedProducts
-              .map(
-                (product) => `
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 product-item" data-product-id="${product.id}">
-                  <img
-                    src="${product.image}"
-                    alt="${product.name}"
-                    class="w-full h-40 object-cover rounded-md cursor-pointer"
-                  />
-                  <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mt-2">
-                    ${product.name}
-                  </h3>
-                  <div class="flex items-center justify-between mt-4">
-                    <p class="text-lg font-bold text-gray-900 dark:text-white">
-                      ₹${product.price}
-                    </p>
-                  </div>
-                </div>`
-              )
-              .join("")}
-          </div>
-        `,
-        showCloseButton: true,
-        showConfirmButton: false,
-        customClass: {
-          popup: "bg-white dark:bg-gray-800 rounded-lg p-6",
-          title: "text-gray-800 dark:text-gray-100",
-          closeButton: "absolute top-2 right-2 text-gray-400 hover:text-red-500",
-        },
-        didOpen: () => {
-          // Add event listener after popup is shown
-          document.querySelectorAll(".product-item").forEach((item) => {
-            item.addEventListener("click", () => {
-              const productId = item.getAttribute("data-product-id");
-              handleProductClick(productId); // Navigate to product details page
-            });
-          });
-        },
-      });
-    } else {
-      Swal.fire({
-        icon: "info",
-        title: "No Products Available",
-        text: `No products found for the selected subcategory: ${selectedSubcategory}`,
-        confirmButtonText: "Okay",
-        customClass: {
-          popup: "bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6",
-          title: "text-gray-800 dark:text-gray-100",
-          confirmButton: "bg-primary text-white rounded-md px-4 py-2 mt-4",
-        },
-      });
-    }
-  };
+
+  // const showProductsPopup = (fetchedProducts) => {
+  //   if (fetchedProducts.length > 0) {
+  //     Swal.fire({
+  //       title: `Products in ${selectedSubcategory}`,
+  //       html: `
+  //         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="product-grid">
+  //           ${fetchedProducts
+  //             .map(
+  //               (product) => `
+  //               <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 product-item" data-product-id="${product.id}">
+  //                 <img
+  //                   src="${product.image}"
+  //                   alt="${product.name}"
+  //                   class="w-full h-40 object-cover rounded-md cursor-pointer"
+  //                 />
+  //                 <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mt-2">
+  //                   ${product.name}
+  //                 </h3>
+  //                 <div class="flex items-center justify-between mt-4">
+  //                   <p class="text-lg font-bold text-gray-900 dark:text-white">
+  //                     ₹${product.price}
+  //                   </p>
+  //                 </div>
+  //               </div>`
+  //             )
+  //             .join("")}
+  //         </div>
+  //       `,
+  //       showCloseButton: true,
+  //       showConfirmButton: false,
+  //       customClass: {
+  //         popup: "bg-white dark:bg-gray-800 rounded-lg p-6",
+  //         title: "text-gray-800 dark:text-gray-100",
+  //         closeButton: "absolute top-2 right-2 text-gray-400 hover:text-red-500",
+  //       },
+  //       didOpen: () => {
+  //         // Add event listener after popup is shown
+  //         document.querySelectorAll(".product-item").forEach((item) => {
+  //           item.addEventListener("click", () => {
+  //             const productId = item.getAttribute("data-product-id");
+  //             handleProductClick(productId); // Navigate to product details page
+  //           });
+  //         });
+  //       },
+  //     });
+  //   } else {
+  //     Swal.fire({
+  //       icon: "info",
+  //       title: "No Products Available",
+  //       text: `No products found for the selected subcategory: ${selectedSubcategory}`,
+  //       confirmButtonText: "Okay",
+  //       customClass: {
+  //         popup: "bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6",
+  //         title: "text-gray-800 dark:text-gray-100",
+  //         confirmButton: "bg-primary text-white rounded-md px-4 py-2 mt-4",
+  //       },
+  //     });
+  //   }
+  // };
   
 
   useEffect(() => {
@@ -307,22 +308,22 @@ export const Sidebar = () => {
                 </span>
               </div>
               {activeCategory === category && (
-                <ul className="mt-2 space-y-2 pl-4">
-                  {filteredSubcategories(category).map((subcategory) => (
-                    <li
-                      key={subcategory}
-                      onClick={() => handleSubcategoryClick(subcategory)}
-                      className={`cursor-pointer px-4 py-2 rounded-lg hover:bg-primary hover:text-white transition-all ${
-                        selectedSubcategory === subcategory
-                          ? "bg-primary text-white"
-                          : "bg-gray-100"
-                      }`}
-                    >
-                      {highlightText(subcategory)}
-                    </li>
-                  ))}
-                </ul>
-              )}
+  <ul className="mt-2 space-y-2 pl-4">
+    {filteredSubcategories(category).map((subcategory) => (
+      <li
+        key={subcategory}
+        onClick={() => handleSubcategoryClick(subcategory)}
+        className={`cursor-pointer px-4 py-2 rounded-lg hover:bg-primary hover:text-white transition-all ${
+          selectedSubcategory === subcategory
+            ? "bg-primary text-white"
+            : "bg-gray-100"
+        }`}
+      >
+        {highlightText(subcategory)}
+      </li>
+    ))}
+  </ul>
+)}
             </li>
           )
         );
@@ -370,7 +371,7 @@ export const Sidebar = () => {
           <input
             type="range"
             min="0"
-            max="50000"
+            max="100000"
             step="100"
             value={priceRange[0]}
             onChange={(e) =>
@@ -381,7 +382,7 @@ export const Sidebar = () => {
           <input
             type="range"
             min="0"
-            max="50000"
+            max="100000"
             step="100"
             value={priceRange[1]}
             onChange={(e) =>
