@@ -23,7 +23,7 @@ const MyOrders = () => {
 
         // Reference to the user's "Cart order" and "BuyNow order" collections
         const userDocRef = doc(db, "users", userEmail);
-        const cartCollectionRef = collection(userDocRef, "Cart order");
+        const cartCollectionRef = collection(userDocRef, "cart order");
         const buynowCollectionRef = collection(userDocRef, "buynow order");
 
         // Fetch data from both collections
