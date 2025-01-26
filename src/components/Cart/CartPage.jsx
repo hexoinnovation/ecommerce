@@ -75,13 +75,13 @@ const CartPage = () => {
       const shippingBillingData = {
         shippingAddress,
         billingAddress: sameAsShipping ? shippingAddress : billingAddress,
-        orderSummary: {
-          TotalAmount, // Correctly saving total amount
-          shipping,
-          tax,
-          discount,
-        },
-        cartItems,
+        // orderSummary: {
+        //   TotalAmount, // Correctly saving total amount
+        //   shipping,
+        //   tax,
+        //   discount,
+        // },
+      
         timestamp: new Date(),
       };
   
@@ -803,7 +803,34 @@ useEffect(() => {
   <button
     onClick={async () => {
       try {
-        // Display SweetAlert modal for order confirmation and WhatsApp sharing
+         const userDocRef = doc(db, "users", user.email);
+              const cartRef = collection(userDocRef, "cart order");
+              const uniqueId = `cartOrder-${Math.random().toString(36).substring(2, 10)}`;
+              const orderDetails = {
+                //userId: userId, // You can set the current user ID here
+                cartItems: userCartItems.map(item => ({
+                  id: item.id,
+                  name: item.name,
+                  quantity: item.quantity,
+                  price: item.price,
+                  image: item.image
+                })),
+                shippingAddress: shippingAddress, // Shipping address fields
+                billingAddress: sameAsShipping ? shippingAddress : billingAddress, // Depending on checkbox value
+                totalItems: userCartItems.length,
+                subtotal: totalAmount.toFixed(2),
+                shippingCharge: userCartItems.length === 0 ? 0 : shippingCharge,
+                discount: userCartItems.length === 0 ? 0 : -discount,
+                gst: userCartItems.length === 0 ? 0 : gst,
+                totalAmount: userCartItems.length === 0 ? 0 : finalTotal,
+                timestamp: new Date(),
+                createdAt: new Date().toISOString(), // Optional timestamp
+              };
+              
+        
+              await setDoc(doc(cartRef, uniqueId), orderDetails);
+
+        
         const response = await Swal.fire({
           title: 'Order Confirmed!',
           text: 'Your order has been successfully placed. ',

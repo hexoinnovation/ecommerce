@@ -716,7 +716,7 @@ const handleFieldChange = (setter) => (e) => {
       // Save the order details in Firestore
       const userDocRef = doc(db, "users", user.email);
       const cartRef = collection(userDocRef, "buynow order");
-
+      const uniqueId = `buynow-${Math.random().toString(36).substring(2, 10)}`;
       const orderData = {
         productId: product.id,
         productName: product.name,
@@ -732,7 +732,7 @@ const handleFieldChange = (setter) => (e) => {
         createdAt: new Date().toISOString(), // Optional timestamp
       };
 
-      await setDoc(doc(cartRef), orderData); // Save the order details
+      await setDoc(doc(cartRef,uniqueId), orderData); // Save the order details
 
       // Show success popup with options
       const result = await Swal.fire({
