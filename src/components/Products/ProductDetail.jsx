@@ -234,7 +234,10 @@ const { currentUser } = useAuth(); // Access current user from AuthProvider
 
  const fetchProduct = async (id) => {
   try {
-      const docRef = doc(db, "products", id);
+      const docRef = doc( db,
+        "admins",
+        "nithya1@gmail.com",
+        "products",id);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -317,7 +320,10 @@ useEffect(() => {
 const fetchRecommendedProducts = async () => {
   try {
     // Fetch all products from Firestore
-    const querySnapshot = await getDocs(collection(db, "products"));
+    const querySnapshot = await getDocs(collection( db,
+      "admins",
+      "nithya1@gmail.com",
+      "products"));
 
     let products = [];
     querySnapshot.forEach((doc) => {

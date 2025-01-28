@@ -33,7 +33,9 @@ const [quantity, setQuantity] = useState(1);
   // Fetch products from Firebase
   const fetchProducts = async () => {
     try {
-      const querySnapshot = await getDocs(collection( db, "admins","nithya1@gmail.com",
+      const querySnapshot = await getDocs(collection(  db,
+        "admins",
+        "nithya1@gmail.com",
         "products"));
       const productList = querySnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -238,7 +240,10 @@ useEffect(() => {
       if (selectedSubcategory) {
         try {
           const q = query(
-            collection(db, "products"),
+            collection( db,
+              "admins",
+              "nithya1@gmail.com",
+              "products"),
             where("category", "==", selectedSubcategory)
           );
           const querySnapshot = await getDocs(q);

@@ -75,7 +75,9 @@ export const Sidebar = () => {
 
   const fetchProducts = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "products"));
+      const querySnapshot = await getDocs(collection( db,"admins",
+        "nithya1@gmail.com",
+        "products"));
       const productList = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -148,151 +150,14 @@ export const Sidebar = () => {
     navigate(`/products?category=${encodeURIComponent(subcategory)}`);
   };
 
-
-  // const showProductsPopup = (fetchedProducts) => {
-  //   if (fetchedProducts.length > 0) {
-  //     Swal.fire({
-  //       title: `Products in ${selectedSubcategory}`,
-  //       html: `
-  //         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="product-grid">
-  //           ${fetchedProducts
-  //             .map(
-  //               (product) => `
-  //               <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 product-item" data-product-id="${product.id}">
-  //                 <img
-  //                   src="${product.image}"
-  //                   alt="${product.name}"
-  //                   class="w-full h-40 object-cover rounded-md cursor-pointer"
-  //                 />
-  //                 <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mt-2">
-  //                   ${product.name}
-  //                 </h3>
-  //                 <div class="flex items-center justify-between mt-4">
-  //                   <p class="text-lg font-bold text-gray-900 dark:text-white">
-  //                     ₹${product.price}
-  //                   </p>
-  //                 </div>
-  //               </div>`
-  //             )
-  //             .join("")}
-  //         </div>
-  //       `,
-
-  //       showCloseButton: true,
-  //       showConfirmButton: false,
-  //       customClass: {
-  //         popup: "bg-white dark:bg-gray-800 rounded-lg p-6",
-  //         title: "text-gray-800 dark:text-gray-100",
-  //         closeButton: "absolute top-2 right-2 text-gray-400 hover:text-red-500",
-  //       },
-  //       didOpen: () => {
-  //         // Add event listener after popup is shown
-  //         document.querySelectorAll(".product-item").forEach((item) => {
-  //           item.addEventListener("click", () => {
-  //             const productId = item.getAttribute("data-product-id");
-  //             handleProductClick(productId); // Navigate to product details page
-  //           });
-  //         });
-  //       },
-  //     });
-  //   } else {
-  //     Swal.fire({
-  //       icon: "info",
-  //       title: "No Products Available",
-  //       text: `No products found for the selected subcategory: ${selectedSubcategory}`,
-  //       confirmButtonText: "Okay",
-  //       customClass: {
-  //         popup: "bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6",
-  //         title: "text-gray-800 dark:text-gray-100",
-  //         confirmButton: "bg-primary text-white rounded-md px-4 py-2 mt-4",
-  //       },
-  //     });
-  //   }
-  // };
-
-  
-  // const showProductsPopup = (fetchedProducts) => {
-  //   if (fetchedProducts.length > 0) {
-  //     Swal.fire({
-  //       title: `Products in ${selectedSubcategory}`,
-  //       html: `
-  //         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" id="product-grid">
-  //           ${fetchedProducts
-  //             .map(
-  //               (product) => `
-  //               <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 product-item" data-product-id="${product.id}">
-  //                 <img
-  //                   src="${product.image}"
-  //                   alt="${product.name}"
-  //                   class="w-full h-48 object-cover rounded-md cursor-pointer"
-  //                 />
-  //                 <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mt-2">
-  //                   ${product.name}
-  //                 </h3>
-  //                 <div class="flex items-center justify-between mt-4 ml-12">
-  //                   <p class="text-lg font-bold text-gray-900 dark:text-white">
-  //                     ₹${product.price}
-  //                   </p>
-  //                 </div>
-  //               </div>`
-  //             )
-  //             .join("")}
-  //         </div>
-  //       `,
-  //       showCloseButton: true,
-  //       showConfirmButton: false,
-  //       customClass: {
-  //         popup: "!w-[80%] !max-w-[950px] bg-white dark:bg-gray-800 rounded-lg p-10 ml-52",
-  //         title: "text-gray-800 dark:text-gray-100",
-  //         closeButton: "absolute top-2 right-2 text-gray-400 hover:text-red-500",
-  //       },
-  //       didOpen: () => {
-  //         // Force the popup width with inline styles
-  //         const popup = document.querySelector(".swal2-popup");
-  //         if (popup) {
-  //           popup.style.height = "700px";
-  //           popup.style.width = "80%";
-  //           popup.style.maxWidth = "950px";
-  //         }
-      
-  //         // Add event listener after popup is shown
-  //         document.querySelectorAll(".product-item").forEach((item) => {
-  //           item.addEventListener("click", () => {
-  //             const productId = item.getAttribute("data-product-id");
-              
-  //             // Close the popup
-  //             Swal.close();
-      
-  //             // Navigate to the product details page
-  //             handleProductClick(productId);
-  //           });
-  //         });
-  //       },
-  //     });
-      
-  //   } else {
-  //     Swal.fire({
-  //       icon: "info",
-  //       title: "No Products Available",
-  //       text: `No products found for the selected subcategory: ${selectedSubcategory}`,
-  //       confirmButtonText: "Okay",
-  //       customClass: {
-  //         popup: "bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6",
-  //         title: "text-gray-800 dark:text-gray-100",
-  //         confirmButton: "bg-primary text-white rounded-md px-4 py-2 mt-4",
-  //       },
-  //     });
-  //   }
-  // };
-
-  
-
   useEffect(() => {
     const fetchProducts = async () => {
       if (selectedSubcategory) {
         try {
           const q = query(
-            collection(db, "products"),
+            collection(db,  "admins",
+              "nithya1@gmail.com",
+              "products"),
             where("category", "==", selectedSubcategory)
           );
           const querySnapshot = await getDocs(q);
@@ -301,7 +166,7 @@ export const Sidebar = () => {
             ...doc.data(),
           }));
           setProducts(fetchedProducts);
-          showProductsPopup(fetchedProducts);
+          // showProductsPopup(fetchedProducts);
         } catch (error) {
           console.error("Error fetching products: ", error);
         }
