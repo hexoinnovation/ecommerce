@@ -20,8 +20,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import Notiflix from 'notiflix';
 import { useAuth } from '../Authcontext';
-import Lottie from "lottie-react";
-import animationData from "../../assets/my-animation.json"; 
+
 
 const AccountPage = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -506,10 +505,6 @@ useEffect(() => {
                   personal details, address, payment methods, orders, and
                   wishlist.
                 </p>
-{/* Lottie Animation */}
-<div className="flex justify-center">
-        <Lottie animationData={animationData} className="w-64 h-64" loop autoplay />
-      </div>
 
               </div>
             )}
