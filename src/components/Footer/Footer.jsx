@@ -21,9 +21,9 @@ const BannerImg = {
 
 const FooterLinks = [
   { title: "Home", link: "/#" },
-  { title: "Shop", link: "/#shop" },
-  { title: "Categories", link: "/#categories" },
-  { title: "Offers", link: "/#offers" },
+  { title: "Shop", link: "/view-all" },
+  { title: "Contact", link: "/#Contact" },
+  { title: "Account", link: "/account" },
 ];
 
 const PopularCategories = [
@@ -45,8 +45,7 @@ const Footer = () => {
               <span>Shopsy</span>
             </h1>
             <p className="text-lg text-gray-300 leading-relaxed">
-              Discover the best deals and trends for every occasion. Shop with
-              confidence at Shopsy.
+            We understand the importance of approaching each work integrally and believe in the power of simple.
             </p>
           </div>
 
@@ -87,40 +86,42 @@ const Footer = () => {
             {/* Social Links */}
             <div className="flex gap-4 items-center">
               <a
-                href="#"
+                href="https://www.instagram.com/hexoinnovation/#"
                 className="text-2xl hover:text-blue-500 transition-all"
               >
                 <FaInstagram />
               </a>
               <a
-                href="#"
+                href="https://www.facebook.com/people/Hexo-Innovation/61556658466330/?mibextid=qi2Omg&rdid=YorYgG8aQW05ATYs&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2FReFmZkbJu2NCFPeR%2F%3Fmibextid%3Dqi2Omg"
                 className="text-2xl hover:text-blue-500 transition-all"
               >
                 <FaFacebook />
               </a>
               <a
-                href="#"
+                href="https://www.linkedin.com/company/hexo-innovation/"
                 className="text-2xl hover:text-blue-500 transition-all"
               >
                 <FaLinkedin />
               </a>
-              <a
+              {/* <a
                 href="#"
                 className="text-2xl hover:text-blue-500 transition-all"
               >
                 <FaTwitter />
-              </a>
+              </a> */}
             </div>
 
             {/* Contact Info */}
             <div className="space-y-2 text-gray-300">
               <div className="flex items-center gap-3">
                 <FaLocationArrow className="text-xl text-blue-500" />
-                <p>Noida, Uttar Pradesh</p>
+                <p>122 A Railway Feeder Road ,Sattur-626203
+                Tamilnadu -India</p>
               </div>
               <div className="flex items-center gap-3">
                 <FaMobileAlt className="text-xl text-blue-500" />
-                <p>+91 123456789</p>
+                <p>91-6382572739</p>
+                <p>+91-8807974521</p>
               </div>
             </div>
 
@@ -145,7 +146,7 @@ const Footer = () => {
 
         {/* Footer Bottom */}
         <div className="text-center mt-12 text-sm text-gray-400">
-          <p>&copy; 2024 Shopsy. All Rights Reserved.</p>
+          <p>&copy; © 2025 Hexo Innovation –  All rights reserved.</p>
         </div>
       </div>
     </div>
