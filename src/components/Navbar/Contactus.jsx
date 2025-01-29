@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
 import Navbar from './Navbar';
 import Footer from '../Footer/Footer';
 export default function Contactus() {
@@ -50,18 +50,15 @@ export default function Contactus() {
       <div className="page-title mb-10">
        
       </div>
+     
       <div className="contact-wrapper w-full mb-10">
         <div className="container-x mx-auto">
           <div className="main-wrapper w-full lg:flex lg:space-x-[30px]">
-            <div className="lg:w-1/2 w-full">
-              <h1 className="text-[22px] font-semibold text-qblack leading-[30px] mb-1">
+            <div className="lg:w-1/2 w-full ml-40">
+              <h1 className="text-[22px] font-semibold text-qblack leading-[30px] mb-6 ml-80">
                 Contact Information
               </h1>
-              <p className="text-[15px] text-qgraytwo leading-[30px] mb-5">
-                Fill the form below or write us .We will help you as soon as
-                possible.
-              </p>
-
+             
               <div className="xl:flex xl:space-x-[30px] mb-[30px]">
                 <div className="xl:w-1/2 w-full  h-[196px] flex flex-col item justify-center bg-[#FFEAE5] p-5">
                   <div className="flex justify-center mb-3 ">
@@ -148,7 +145,7 @@ export default function Contactus() {
                   </p>
                 </div>
               </div>
-              <div className="p-5 flex flex-col justify-between w-full bg-[#E7F2EC]">
+              <div className="p-5 flex flex-col justify-between w-full bg-[#E7F2EC]  h-[450px]">
                 <div className="flex space-x-5">
                   <span>
                     <svg
@@ -166,8 +163,8 @@ export default function Contactus() {
                       <circle cx="22" cy="22" r="21.5" stroke="#FFBB38" />
                     </svg>
                   </span>
-                  <div>
-    <h1 className="text-[22px] font-semibold text-qblack leading-[30px] mb-2">
+                  <div className="ml-40"> 
+    <h1 className="text-[22px] font-semibold text-qblack leading-[30px] mb-2 ml-20">
       Address
     </h1>
     <p className="text-[15px] text-qblack leading-[30px]">
@@ -177,90 +174,35 @@ export default function Contactus() {
     </p>
   </div>
                 </div>
-                <div className="w-full h-[206px] mt-5">
+                <div className="w-full h-[206px] mt-5 mb-28">
                 <iframe
       title="AddressMap"
       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3916.278256381556!2d77.92509597540694!3d9.35277298045392!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b0138cf827378a9%3A0x24759aa05bc6dbbc!2s122%20A%20Railway%20Feeder%20Rd%2C%20Sattur%2C%20Tamil%20Nadu%20626203!5e0!3m2!1sen!2sin!4v1700000000000"
-      style={{ border: "0", width: "100%", height: "100%" }}
+      style={{ border: "0", width: "100%", height: "150%" }}
       allowFullScreen=""
       loading="lazy"
     ></iframe>
                 </div>
+                
               </div>
-            </div>
-            <div className="flex-1 bg-white sm:p-10 p-3">
-  <div className="title flex flex-col items-center mb-6">
-    <h1 className="text-[34px] font-bold text-qblack">Get In Touch</h1>
-  </div>
-  <form onSubmit={handleSubmit} className="inputs mt-5 space-y-6">
-    <div className="mb-4">
-      <label htmlFor="firstName" className="block text-lg font-semibold text-gray-800 mb-2">
-        First Name*
-      </label>
-      <input
-        type="text"
-        id="firstName"
-        value={firstName}
-        onChange={(e) => setFirstName(e.target.value)}
-        placeholder="Demo Name"
-        required
-        className="w-full h-[50px] border-2 border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-300"
-      />
-    </div>
-    <div className="mb-4">
-      <label htmlFor="email" className="block text-lg font-semibold text-gray-800 mb-2">
-        Email Address*
-      </label>
-      <input
-        type="email"
-        id="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="info@example.com"
-        required
-        className="w-full h-[50px] border-2 border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-300"
-      />
-    </div>
-    <div className="mb-4">
-      <label htmlFor="subject" className="block text-lg font-semibold text-gray-800 mb-2">
-        Subject*
-      </label>
-      <input
-        type="text"
-        id="subject"
-        value={subject}
-        onChange={(e) => setSubject(e.target.value)}
-        placeholder="Your Subject Here"
-        required
-        className="w-full h-[50px] border-2 border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-300"
-      />
-    </div>
-    <div className="mb-5">
-      <label htmlFor="message" className="block text-lg font-semibold text-gray-800 mb-2">
-        Message*
-      </label>
-      <textarea
-        id="message"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type your message here"
-        required
-        className="w-full h-[120px] border-2 border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-300"
-      ></textarea>
-    </div>
-    <div>
-      <button
-        type="submit"
-        className="w-full h-[50px] bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-indigo-600 transition ease-in-out duration-300"
-      >
-        Send Now
-      </button>
-    </div>
-    {status && <p className="mt-4 text-green-500 text-center">{status}</p>}
-  </form>
+              <div className="fixed right-0 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-6">
+  <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
+    <FaFacebook size={50} color="#3b5998" />
+  </a>
+  <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+    <FaTwitter size={50} color="#00acee" />
+  </a>
+  <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+    <FaInstagram size={50} color="#C13584" />
+  </a>
+  <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
+    <FaLinkedin size={50} color="#0e76a8" />
+  </a>
 </div>
 
 
+            </div>
+        
           </div>
         </div>
       </div>
