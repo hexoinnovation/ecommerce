@@ -187,6 +187,7 @@ export const Sidebar = () => {
       )
     );
   };
+  
   return (
     <>
       {/* Toggle Button for Mobile */}
