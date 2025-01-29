@@ -7,7 +7,7 @@ import {
   UserCircleIcon,
   ShoppingBagIcon,
   CogIcon,
-  LogoutIcon,
+  LogoutIcon
 } from "@heroicons/react/solid"; // Importing icons from Heroicons
 import { FaUser, FaLock, FaSignInAlt, FaTimes } from "react-icons/fa"; // Importing icons
 import {
@@ -33,6 +33,7 @@ import CartDrawer from "../Navbar/CartDrawer";
 import { useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { Call } from "@mui/icons-material";
 
 
 
@@ -422,13 +423,14 @@ const handleCategorySelect = (category) => {
                     <span>Shop</span>
                   </button>
                 </Link>
-
-                {/* <button
+                <Link to={"/contactus"}>
+                <button
   className="w-full sm:w-auto hover:bg-yellow-500 px-4 py-2 rounded-md font-bold text-lg flex items-center space-x-2 transition duration-300 ease-in-out whitespace-nowrap"
 >
   <PhoneIcon className="h-5 w-5 text-white" /> 
   <span>Contact Us</span>
-</button> */}
+</button>
+</Link>
 
               </div>
             </div>
