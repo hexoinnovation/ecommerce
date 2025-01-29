@@ -7,7 +7,8 @@ import {
   UserCircleIcon,
   ShoppingBagIcon,
   CogIcon,
-  LogoutIcon
+  LogoutIcon,
+  HeartIcon 
 } from "@heroicons/react/solid"; // Importing icons from Heroicons
 import { FaUser, FaLock, FaSignInAlt, FaTimes } from "react-icons/fa"; // Importing icons
 import {
@@ -38,7 +39,7 @@ import { Call } from "@mui/icons-material";
 
 
 
-const Navbar = () => {
+const Navbar = ({wishlistCount}) => {
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null); // For mobile dropdown toggle
   const [dropdownOpen, setDropdownOpen] = useState(false); // For login dropdown
   const [isDarkMode, setIsDarkMode] = useState(false); // For dark mode toggle
@@ -349,6 +350,10 @@ const handleCategorySelect = (category) => {
 
 
 
+  const handleWishlistClick = () => {
+    navigate('/wishlist');  // Navigate to /wishlist
+  };
+
   return (
     <div>
       <div>
@@ -559,6 +564,18 @@ const handleCategorySelect = (category) => {
   {cartCount > 0 && (
     <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
       {cartCount}
+    </span>
+  )}
+</button>
+
+<button
+  className="relative text-pink-500 dark:text-pink-300 hover:bg-pink-500 hover:text-white dark:hover:bg-pink-700 dark:hover:text-white transition-all transform hover:scale-105 hover:rotate-3 hover:rounded-full w-14 h-14 flex items-center justify-center"
+  onClick={handleWishlistClick} // Trigger the navigate function on button click
+>
+  <HeartIcon className="w-6 h-6" />
+  {wishlistCount > 0 && (
+    <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+      {wishlistCount}
     </span>
   )}
 </button>

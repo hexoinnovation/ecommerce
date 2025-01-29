@@ -215,7 +215,7 @@ export const Sidebar = () => {
   </div>
 
   {/* Search Bar */}
-  <div className="mb-8 relative">
+  <div className="mb-8 relative ">
     <input
       type="text"
       value={searchQuery}
