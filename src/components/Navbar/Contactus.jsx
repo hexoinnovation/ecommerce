@@ -183,28 +183,36 @@ export default function Contactus() {
       loading="lazy"
     ></iframe>
                 </div>
-                <div className="fixed right-0 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-6 mr-20 mt-40">
-                <img
-    src="image.png" 
+                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 space-y-6 mr-20 mt-40">
+  <img
+    src="image.png"
     alt="Hexo Logo"
-    className="h-160 w-180 mr-2 mt-1 ml-80" // Increased height and width
+    className="h-200 w-240 mr-2 ml-8"  
   />
+</div>
 
-                </div>
                 
               </div>
               <div className="fixed right-0 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-6">
   <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
-    <FaFacebook size={50} color="#3b5998" />
+    <div className="p-3 rounded-full bg-transparent hover:bg-blue-300 transition duration-300">
+      <FaFacebook size={50} color="#3b5998" />
+    </div>
   </a>
   <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-    <FaTwitter size={50} color="#00acee" />
+    <div className="p-3 rounded-full bg-transparent hover:bg-blue-800 transition duration-300">
+      <FaTwitter size={50} color="#00acee" />
+    </div>
   </a>
   <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
-    <FaInstagram size={50} color="#C13584" />
+    <div className="p-3 rounded-full bg-transparent hover:bg-pink-300 transition duration-300">
+      <FaInstagram size={50} color="#C13584" />
+    </div>
   </a>
   <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
-    <FaLinkedin size={50} color="#0e76a8" />
+    <div className="p-3 rounded-full bg-transparent hover:bg-blue-200 transition duration-300">
+      <FaLinkedin size={50} color="#0e76a8" />
+    </div>
   </a>
 </div>
 
