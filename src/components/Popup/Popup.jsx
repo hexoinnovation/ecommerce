@@ -82,6 +82,7 @@ const Popup = ({ product, onClose }) => {
       setQuantity(prevQuantity => prevQuantity - 1);
     }
   };
+  
  // Toggle modal visibility
  const handleModalToggle = () => {
   handleDropdownClick()
