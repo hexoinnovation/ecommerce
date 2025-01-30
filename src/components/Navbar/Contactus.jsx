@@ -183,6 +183,14 @@ export default function Contactus() {
       loading="lazy"
     ></iframe>
                 </div>
+                <div className="fixed right-0 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-6 mr-20 mt-40">
+                <img
+    src="image.png" 
+    alt="Hexo Logo"
+    className="h-160 w-180 mr-2 mt-1 ml-80" // Increased height and width
+  />
+
+                </div>
                 
               </div>
               <div className="fixed right-0 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-6">
