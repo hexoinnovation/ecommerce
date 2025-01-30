@@ -22,7 +22,7 @@ const BannerImg = {
 const FooterLinks = [
   { title: "Home", link: "/#" },
   { title: "Shop", link: "/view-all" },
-  { title: "Contact", link: "/#Contact" },
+  { title: "Contact", link: "/contactus" },
   { title: "Account", link: "/account" },
 ];
 
