@@ -34,6 +34,7 @@ export function AuthProvider({ children }) {
     }
   );
 
+  
   // Cart state
   const [cartItems, setCartItems] = useState(
     JSON.parse(localStorage.getItem("cartItems")) || []

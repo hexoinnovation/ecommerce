@@ -16,7 +16,9 @@ export const ShopPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productsCollection = collection(db, 'products');
+        const productsCollection = collection(db, "admins",
+          "nithya1@gmail.com",
+          "products");
         const productSnapshot = await getDocs(productsCollection);
         const productList = productSnapshot.docs.map((doc) => ({
           id: doc.id,

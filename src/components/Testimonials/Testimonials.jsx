@@ -8,7 +8,9 @@ const Testimonials = () => {
   // Function to fetch products from Firestore
   const fetchBestProducts = async () => {
     try {
-      const productsCollection = collection(db, "products"); // Replace with your Firestore collection name
+      const productsCollection = collection( db,"admins",
+        "nithya1@gmail.com",
+        "products"); // Replace with your Firestore collection name
       const q = query(productsCollection, where("offers", "==", "offer_product"));
       const querySnapshot = await getDocs(q);
 
