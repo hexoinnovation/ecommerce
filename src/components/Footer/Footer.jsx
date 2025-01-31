@@ -26,6 +26,7 @@ const FooterLinks = [
   { title: "Account", link: "/account" },
 ];
 
+
 const PopularCategories = [
   { title: "Men's Wear", link: "/#menswear" },
   { title: "Women's Wear", link: "/#womenswear" },
